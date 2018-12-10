@@ -21,7 +21,7 @@ func (c conditions) Build() (string, error) {
 
 			query += item.query
 			for _, value := range item.values.list {
-				query = strings.Replace(query, ConstPostgresPlaceHolder, c.db.dialect.Encode(value), 1)
+				query = strings.Replace(query, c.db.dialect.Placeholder(), c.db.dialect.Encode(value), 1)
 			}
 
 			if i+1 < lenC {
