@@ -59,10 +59,10 @@ func Insert() {
 		Active:    true,
 	}
 
-	builder, _ := db.Insert().Into("buyer.contact").Record(person).Build()
+	builder, _ := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Insert().Into("buyer.contact").Record(person).Exec()
+	_, err := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -160,7 +160,7 @@ func DeleteTransactionData() {
 ```
 :: INSERT
 
-QUERY: INSERT INTO buyer.contact (first_name, last_name, email, active) VALUES ('joao-luis-ramos-ribeiro', 'ribeiro', 'a@a.pt', TRUE)
+QUERY: INSERT INTO buyer.contact AS new_name (email, active, first_name, last_name) VALUES ('a@a.pt', TRUE, 'joao-luis-ramos-ribeiro', 'ribeiro')
 SAVED PERSON: {FirstName:joao-luis-ramos-ribeiro LastName:ribeiro Email:a@a.pt Active:true}
 
 :: SELECT

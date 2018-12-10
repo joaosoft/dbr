@@ -35,10 +35,10 @@ func Insert() {
 		Active:    true,
 	}
 
-	builder, _ := db.Insert().Into("buyer.contact").Record(person).Build()
+	builder, _ := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Insert().Into("buyer.contact").Record(person).Exec()
+	_, err := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Exec()
 	if err != nil {
 		panic(err)
 	}

@@ -7,7 +7,7 @@ import (
 
 type StmtSelect struct {
 	columns           columns
-	table             string
+	tables            tables
 	joins             joins
 	conditions        conditions
 	isDistinct        bool
@@ -22,8 +22,8 @@ func newStmtSelect(db *Db, columns []string) *StmtSelect {
 	return &StmtSelect{db: db, columns: columns, conditions: conditions{db: db}}
 }
 
-func (stmt *StmtSelect) From(table string) *StmtSelect {
-	stmt.table = table
+func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
+	stmt.tables = tables
 	return stmt
 }
 
@@ -95,7 +95,12 @@ func (stmt *StmtSelect) Build() (string, error) {
 		return "", err
 	}
 
-	query := fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, stmt.table)
+	tables, err := stmt.tables.Build()
+	if err != nil {
+		return "", err
+	}
+
+	query := fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, tables)
 
 	if len(stmt.joins) > 0 {
 		joins, err := stmt.joins.Build()
