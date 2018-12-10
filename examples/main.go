@@ -35,10 +35,10 @@ func Insert() {
 		Active:    true,
 	}
 
-	builder, _ := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Build()
+	builder, _ := db.Insert().Into(dbr.Field("public.contact").As("new_name")).Record(person).Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Exec()
+	_, err := db.Insert().Into(dbr.Field("public.contact").As("new_name")).Record(person).Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -51,10 +51,10 @@ func Select() {
 
 	var person Person
 
-	builder, _ := db.Select("first_name", "last_name", "email").From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Select("first_name", "last_name", "email").From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Select("first_name", "last_name", "email").From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Load(&person)
+	_, err := db.Select("first_name", "last_name", "email").From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Load(&person)
 	if err != nil {
 		panic(err)
 	}
@@ -65,10 +65,10 @@ func Select() {
 func Update() {
 	fmt.Println("\n\n:: UPDATE")
 
-	builder, _ := db.Update("buyer.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Update("public.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Update("buyer.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
+	_, err := db.Update("public.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -79,10 +79,10 @@ func Update() {
 func Delete() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Delete().From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
+	_, err := db.Delete().From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -103,10 +103,10 @@ func Transaction() {
 		Active:    true,
 	}
 
-	builder, _ := tx.Insert().Into("buyer.contact").Record(person).Build()
+	builder, _ := tx.Insert().Into("public.contact").Record(person).Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := tx.Insert().Into("buyer.contact").Record(person).Exec()
+	_, err := tx.Insert().Into("public.contact").Record(person).Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -120,10 +120,10 @@ func Transaction() {
 func DeleteTransactionData() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Build()
+	builder, _ := db.Delete().From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Exec()
+	_, err := db.Delete().From("public.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Exec()
 	if err != nil {
 		panic(err)
 	}
