@@ -13,12 +13,11 @@ A simple database client with support for master/slave databases.
 * SqlLite3
 
 ## Dependecy Management
->### Dep
+>### Dependency
 
 Project dependencies are managed using Dep. Read more about [Dep](https://github.com/golang/dep).
-* Install dependencies: `dep ensure`
-* Update dependencies: `dep ensure -update`
-
+* Get dependency manager: `go get github.com/joaosoft/dependency`
+* Install dependencies: `dependency get`
 
 >### Go
 ```
