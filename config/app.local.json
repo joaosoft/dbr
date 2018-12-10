@@ -1,0 +1,15 @@
+{
+  "dbr": {
+    "read_db": {
+      "driver": "postgres",
+      "datasource": "postgres://app_buyer:f4s0u45e@localhost:7100/foursource?sslmode=disable&search_path=buyer"
+    },
+    "write_db": {
+      "driver": "postgres",
+      "datasource": "postgres://app_buyer:f4s0u45e@localhost:7100/foursource?sslmode=disable&search_path=buyer"
+    },
+    "log": {
+      "level": "info"
+    }
+  }
+}

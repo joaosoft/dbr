@@ -1,15 +1,10 @@
-APP_NAME=logger
-GOLANG_VERSION=latest
-
-utest:
-	@echo ":::running unit tests"
-
-itest:
-	@echo ":::running integration tests"
+env:
+	docker-compose up -d uploader.postgres uploader.redis uploader.rabbitmq
+run:
+	go run ./main.go
 
 build:
-	@echo ":::building image"
-	docker build . --build-arg APP_NAME=$(APP_NAME) --build-arg GOLANG_VERSION=$(GOLANG_VERSION)
+	go build .
 
 fmt:
 	go fmt ./...
