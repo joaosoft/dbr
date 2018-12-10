@@ -13,14 +13,6 @@ func newTransaction(db *Db) *Transaction {
 	return &Transaction{db: db}
 }
 
-func (tx *Transaction) Execute(query string, args ...interface{}) (sql.Result, error) {
-	return nil, nil
-}
-
-func (tx *Transaction) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	return nil, nil
-}
-
 func (tx *Transaction) Commit() error {
 	err := tx.db.Database.(*sql.Tx).Commit()
 	if err != nil {
