@@ -1,5 +1,5 @@
 env:
-	docker-compose up -d uploader.postgres uploader.redis uploader.rabbitmq
+	docker-compose up -d dbr.postgres
 run:
 	go run ./main.go
 

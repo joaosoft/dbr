@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type DialectMySql struct {}
+type DialectMySql struct{}
 
 func (d *DialectMySql) Name() string {
 	return string(ConstDialectMysql)
