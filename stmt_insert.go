@@ -39,6 +39,13 @@ func (stmt *StmtInsert) Line(lineValues ...interface{}) *StmtInsert {
 	return stmt
 }
 
+func (stmt *StmtInsert) Lines(lines ...[]interface{}) *StmtInsert {
+	for _, line := range lines {
+		stmt.Line(line...)
+	}
+	return stmt
+}
+
 func (stmt *StmtInsert) LineRecord(lineRecord interface{}) *StmtInsert {
 	value := reflect.ValueOf(lineRecord)
 
@@ -53,6 +60,14 @@ func (stmt *StmtInsert) LineRecord(lineRecord interface{}) *StmtInsert {
 	}
 
 	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
+
+	return stmt
+}
+
+func (stmt *StmtInsert) LinesRecord(linesRecord []interface{}) *StmtInsert {
+	for _, lineRecord := range linesRecord {
+		stmt.LineRecord(lineRecord)
+	}
 
 	return stmt
 }
