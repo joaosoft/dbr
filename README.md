@@ -7,10 +7,21 @@ A simple database client with support for master/slave databases.
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
-## With support for
+## With support for databases
 * Postgres 
 * MySql
 * SqlLite3
+
+## With support for methods
+* Select, Join, Distinct, Distinct on
+* Insert, Bulk Insert, Returning 
+* Update, Returning 
+* Delete, Returning
+
+## With support for type annotations
+* db - used to read and write
+* db.read - used for select
+* db.write - used for insert and update
 
 ## Dependecy Management
 >### Dependency
@@ -29,39 +40,84 @@ This examples are available in the project at [dbr/examples](https://github.com/
 
 ```go
 type Person struct {
+	IdPerson  int    `json:"id_person" db.read:"id_person"`
 	FirstName string `json:"first_name" db:"first_name"`
 	LastName  string `json:"last_name" db:"last_name"`
-	Email     string `json:"email" db:"email"`
-	Active    bool   `json:"active" db:"active"`
+	Age       int    `json:"age" db:"age"`
 }
 
 var db, _ = dbr.NewDbr()
 
 func main() {
-	defer Delete()
-	defer DeleteTransactionData()
-
 	Insert()
 	Select()
+
+	InsertLines()
+
 	Update()
 	Select()
+
+	UpdateReturning()
+	Select()
+	Delete()
+
 	Transaction()
+	DeleteTransactionData()
+
+	DeleteAll()
 }
 
 func Insert() {
 	fmt.Println("\n\n:: INSERT")
 
 	person := Person{
-		FirstName: "joao-luis-ramos-ribeiro",
+		FirstName: "joao",
 		LastName:  "ribeiro",
-		Email:     "a@a.pt",
-		Active:    true,
+		Age:       30,
 	}
 
-	builder, _ := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Build()
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Record(person).
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Insert().Into(dbr.Field("buyer.contact").As("new_name")).Record(person).Exec()
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Record(person).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSON: %+v", person)
+}
+
+func InsertLines() {
+	fmt.Println("\n\n:: INSERT")
+
+	person := Person{
+		FirstName: "joao",
+		LastName:  "ribeiro",
+		Age:       30,
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Line("a", "a", 1).
+		Line("b", "b", 2).
+		Line("c", "c", 3).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Line("a", "a", 1).
+		Line("b", "b", 2).
+		Line("c", "c", 3).
+		Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -74,10 +130,16 @@ func Select() {
 
 	var person Person
 
-	builder, _ := db.Select("first_name", "last_name", "email").From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		Where("first_name = ?", "joao").
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Select("first_name", "last_name", "email").From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Load(&person)
+	_, err := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		Where("first_name = ?", "joao").
+		Load(&person)
 	if err != nil {
 		panic(err)
 	}
@@ -88,10 +150,40 @@ func Select() {
 func Update() {
 	fmt.Println("\n\n:: UPDATE")
 
-	builder, _ := db.Update("buyer.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Update("public.person").
+		Set("last_name", "males").
+		Where("first_name = ?", "joao").
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Update("buyer.contact").Set("last_name", "arnaldo").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
+	_, err := db.Update("public.person").
+		Set("last_name", "males").
+		Where("first_name = ?", "joao").
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nUPDATED PERSON")
+}
+
+func UpdateReturning() {
+	fmt.Println("\n\n:: UPDATE")
+
+	builder, _ := db.Update("public.person").
+		Set("last_name", "males").
+		Where("first_name = ?", "joao").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	var age int
+	err := db.Update("public.person").
+		Set("last_name", "luis").
+		Where("first_name = ?", "joao").
+		Return("age").
+		Load(&age)
+	fmt.Printf("\n\nAGE: %d", age)
+
 	if err != nil {
 		panic(err)
 	}
@@ -102,10 +194,16 @@ func Update() {
 func Delete() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Build()
+	builder, _ := db.Delete().
+		From("public.person").
+		Where("first_name = ?", "joao").
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro").Exec()
+	_, err := db.Delete().
+		From("public.person").
+		Where("first_name = ?", "joao").
+		Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -120,16 +218,21 @@ func Transaction() {
 	defer tx.RollbackUnlessCommit()
 
 	person := Person{
-		FirstName: "joao-luis-ramos-ribeiro-2",
+		FirstName: "joao-2",
 		LastName:  "ribeiro",
-		Email:     "b@b.pt",
-		Active:    true,
+		Age:       30,
 	}
 
-	builder, _ := tx.Insert().Into("buyer.contact").Record(person).Build()
+	builder, _ := tx.Insert().
+		Into("public.person").
+		Record(person).
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := tx.Insert().Into("buyer.contact").Record(person).Exec()
+	_, err := tx.Insert().
+		Into("public.person").
+		Record(person).
+		Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -143,15 +246,39 @@ func Transaction() {
 func DeleteTransactionData() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Build()
+	builder, _ := db.Delete().
+		From("public.person").
+		Where("first_name = ?", "joao-2").
+		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
-	_, err := db.Delete().From("buyer.contact").Where("first_name = ?", "joao-luis-ramos-ribeiro-2").Exec()
+	_, err := db.Delete().
+		From("public.person").
+		Where("first_name = ?", "joao-2").
+		Exec()
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("\nDELETED PERSON")
+}
+
+func DeleteAll() {
+	fmt.Println("\n\n:: DELETE")
+
+	builder, _ := db.Delete().
+		From("public.person").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Delete().
+		From("public.person").
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nDELETED ALL")
 }
 ```
 
@@ -159,38 +286,60 @@ func DeleteTransactionData() {
 ```
 :: INSERT
 
-QUERY: INSERT INTO buyer.contact AS new_name (email, active, first_name, last_name) VALUES ('a@a.pt', TRUE, 'joao-luis-ramos-ribeiro', 'ribeiro')
-SAVED PERSON: {FirstName:joao-luis-ramos-ribeiro LastName:ribeiro Email:a@a.pt Active:true}
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('joao', 'ribeiro', 30)
+SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
 :: SELECT
 
-QUERY: SELECT first_name, last_name, email FROM buyer.contact WHERE first_name = 'joao-luis-ramos-ribeiro'
-LOADED PERSON: {FirstName:a@a.pt LastName:joao-luis-ramos-ribeiro Email:ribeiro Active:false}
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
+LOADED PERSON: {IdPerson:74 FirstName:joao LastName:ribeiro Age:30}
+
+:: INSERT
+
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
+SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
 :: UPDATE
 
-QUERY: UPDATE buyer.contact SET last_name = 'arnaldo' WHERE first_name = 'joao-luis-ramos-ribeiro'
+QUERY: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao'
 UPDATED PERSON
 
 :: SELECT
 
-QUERY: SELECT first_name, last_name, email FROM buyer.contact WHERE first_name = 'joao-luis-ramos-ribeiro'
-LOADED PERSON: {FirstName:arnaldo LastName:a@a.pt Email:joao-luis-ramos-ribeiro Active:false}
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
+LOADED PERSON: {IdPerson:74 FirstName:joao LastName:males Age:30}
+
+:: UPDATE
+
+QUERY: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao'
+
+AGE: 30
+UPDATED PERSON
+
+:: SELECT
+
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
+LOADED PERSON: {IdPerson:74 FirstName:joao LastName:luis Age:30}
+
+:: DELETE
+
+QUERY: DELETE FROM public.person WHERE first_name = 'joao'
+DELETED PERSON
 
 :: TRANSACTION
 
-QUERY: INSERT INTO buyer.contact (first_name, last_name, email, active) VALUES ('joao-luis-ramos-ribeiro-2', 'ribeiro', 'b@b.pt', TRUE)
-SAVED PERSON: {FirstName:joao-luis-ramos-ribeiro-2 LastName:ribeiro Email:b@b.pt Active:true}
+QUERY: INSERT INTO public.person (first_name, last_name, age) VALUES ('joao-2', 'ribeiro', 30)
+SAVED PERSON: {IdPerson:0 FirstName:joao-2 LastName:ribeiro Age:30}
 
 :: DELETE
 
-QUERY: DELETE FROM buyer.contact WHERE first_name = 'joao-luis-ramos-ribeiro-2'
+QUERY: DELETE FROM public.person WHERE first_name = 'joao-2'
 DELETED PERSON
 
 :: DELETE
 
-QUERY: DELETE FROM buyer.contact WHERE first_name = 'joao-luis-ramos-ribeiro'
-DELETED PERSON
+QUERY: DELETE FROM public.person
+DELETED ALL
 ```
 
 ## Known issues

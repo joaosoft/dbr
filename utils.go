@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"database/sql"
 	"encoding/json"
-	"github.com/joaosoft/errors"
 	"io/ioutil"
 	"os"
 	"reflect"
+
+	"github.com/joaosoft/errors"
 )
 
 func GetEnv() string {
@@ -92,18 +93,7 @@ func WriteFile(file string, obj interface{}) error {
 	return nil
 }
 
-func (stmt *StmtSelect) readRows(rows *sql.Rows, value reflect.Value) (int, error) {
-	// read columns
-	cols, err := rows.Columns()
-	if err != nil {
-		return 0, err
-	}
-
-	// add columns to a map
-	columns := make(map[string]bool)
-	for _, col := range cols {
-		columns[col] = true
-	}
+func read(columns []string, rows *sql.Rows, value reflect.Value) (int, error) {
 
 	value = value.Elem()
 	isSlice := value.Kind() == reflect.Slice
@@ -119,7 +109,7 @@ func (stmt *StmtSelect) readRows(rows *sql.Rows, value reflect.Value) (int, erro
 		}
 
 		// load field values
-		fields, err := getFields(columns, elem)
+		fields, err := getFields(loadOptionRead, columns, elem)
 		if err != nil {
 			return 0, err
 		}
@@ -141,24 +131,30 @@ func (stmt *StmtSelect) readRows(rows *sql.Rows, value reflect.Value) (int, erro
 	return count, nil
 }
 
-func getFields(columns map[string]bool, object reflect.Value) ([]interface{}, error) {
+func getFields(loadOption loadOption, columns []string, object reflect.Value) ([]interface{}, error) {
 	var fields []interface{}
 
-	mappedValues := make(map[string]interface{})
-	loadColumnStructValues(columns, object, mappedValues)
+	// add columns to a map
+	mapColumns := make(map[string]bool)
+	for _, name := range columns {
+		mapColumns[name] = true
+	}
 
-	for key, _ := range columns {
-		fields = append(fields, mappedValues[key])
+	mappedValues := make(map[string]interface{})
+	loadColumnStructValues(loadOption, columns, mapColumns, object, mappedValues)
+
+	for _, name := range columns {
+		fields = append(fields, mappedValues[name])
 	}
 
 	return fields, nil
 }
 
-func loadColumnStructValues(columns map[string]bool, object reflect.Value, mappedValues map[string]interface{}) {
+func loadColumnStructValues(loadOption loadOption, columns []string, mapColumns map[string]bool, object reflect.Value, mappedValues map[string]interface{}) {
 	switch object.Kind() {
 	case reflect.Ptr:
 		if !object.IsNil() {
-			loadColumnStructValues(columns, object.Elem(), mappedValues)
+			loadColumnStructValues(loadOption, columns, mapColumns, object.Elem(), mappedValues)
 		}
 	case reflect.Struct:
 		t := object.Type()
@@ -168,24 +164,34 @@ func loadColumnStructValues(columns map[string]bool, object reflect.Value, mappe
 				// unexported
 				continue
 			}
-			tag := field.Tag.Get("db")
-			if tag == "-" || tag == "" {
+			tag := field.Tag.Get(string(loadOption))
+			if tag == "-" {
 				// ignore
 				continue
 			}
 
-			if _, ok := columns[tag]; ok {
+			if tag == "" {
+				tag = field.Tag.Get(string(loadOptionDefault))
+				if tag == "-" || tag == "" {
+					// ignore
+					continue
+				}
+			}
+
+			if _, ok := mapColumns[tag]; ok {
 				mappedValues[tag] = object.Field(i).Addr().Interface()
 			}
 		}
+	default:
+		mappedValues[columns[0]] = object.Addr().Interface()
 	}
 }
 
-func loadStructValues(object reflect.Value, mappedValues map[string]reflect.Value) {
+func loadStructValues(loadOption loadOption, object reflect.Value, mappedValues map[string]reflect.Value) {
 	switch object.Kind() {
 	case reflect.Ptr:
 		if !object.IsNil() {
-			loadStructValues(object.Elem(), mappedValues)
+			loadStructValues(loadOption, object.Elem(), mappedValues)
 		}
 	case reflect.Struct:
 		t := object.Type()
@@ -195,10 +201,19 @@ func loadStructValues(object reflect.Value, mappedValues map[string]reflect.Valu
 				// unexported
 				continue
 			}
-			tag := field.Tag.Get("db")
-			if tag == "-" || tag == "" {
+
+			tag := field.Tag.Get(string(loadOption))
+			if tag == "-" {
 				// ignore
 				continue
+			}
+
+			if tag == "" {
+				tag = field.Tag.Get(string(loadOptionDefault))
+				if tag == "-" || tag == "" {
+					// ignore
+					continue
+				}
 			}
 
 			mappedValues[tag] = object.Field(i)

@@ -29,8 +29,8 @@ func (stmt *StmtUpdate) From(table string) *StmtUpdate {
 	return stmt
 }
 
-func (stmt *StmtUpdate) Where(query string, valueList ...interface{}) *StmtUpdate {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values{list: valueList, db: stmt.db}})
+func (stmt *StmtUpdate) Where(query string, values ...interface{}) *StmtUpdate {
+	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values})
 	return stmt
 }
 
@@ -77,7 +77,7 @@ func (stmt *StmtUpdate) Record(object interface{}) *StmtUpdate {
 	value := reflect.ValueOf(object)
 
 	mappedValues := make(map[string]reflect.Value)
-	loadStructValues(value, mappedValues)
+	loadStructValues(loadOptionWrite, value, mappedValues)
 
 	for column, value := range mappedValues {
 		stmt.sets.list = append(stmt.sets.list, &set{column: column, value: value})
@@ -89,4 +89,27 @@ func (stmt *StmtUpdate) Record(object interface{}) *StmtUpdate {
 func (stmt *StmtUpdate) Return(column ...string) *StmtUpdate {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
+}
+
+func (stmt *StmtUpdate) Load(object interface{}) error {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return ErrorInvalidPointer
+	}
+
+	query, err := stmt.Build()
+	if err != nil {
+		return err
+	}
+
+	rows, err := stmt.db.Query(query)
+	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+
+	_, err = read(stmt.returning, rows, value)
+
+	return err
 }

@@ -27,8 +27,8 @@ func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Where(query string, valueList ...interface{}) *StmtSelect {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values{list: valueList, db: stmt.db}})
+func (stmt *StmtSelect) Where(query string, values ...interface{}) *StmtSelect {
+	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values})
 	return stmt
 }
 
@@ -138,7 +138,6 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		return 0, ErrorInvalidPointer
 	}
 
-	// read rows
 	query, err := stmt.Build()
 	if err != nil {
 		return 0, err
@@ -151,5 +150,10 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
 	defer rows.Close()
 
-	return stmt.readRows(rows, value)
+	columns, err := rows.Columns()
+	if err != nil {
+		return 0, err
+	}
+
+	return read(columns, rows, value)
 }

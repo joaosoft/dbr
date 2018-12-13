@@ -2,7 +2,7 @@ package dbr
 
 type condition struct {
 	query  string
-	values values
+	values []interface{}
 }
 
 type set struct {

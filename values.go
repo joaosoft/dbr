@@ -17,13 +17,39 @@ func (v values) Build() (string, error) {
 	}
 
 	lenV := len(v.list)
+	var err error
+	var withoutParentheses bool
+
 	for i, item := range v.list {
-		query += fmt.Sprintf("%s", v.db.dialect.Encode(item))
+		var value string
+
+		switch stmt := item.(type) {
+		case *StmtSelect:
+			value, err = stmt.Build()
+			if err != nil {
+				return "", err
+			}
+			value = fmt.Sprintf("(%s)", value)
+		case *values:
+			withoutParentheses = true
+			value, err = stmt.Build()
+			if err != nil {
+				return "", err
+			}
+		default:
+			value = fmt.Sprintf("%s", v.db.dialect.Encode(item))
+		}
+
+		query += value
 
 		if i+1 < lenV {
 			query += ", "
 		}
 	}
 
-	return query, nil
+	if withoutParentheses {
+		return query, nil
+	}
+
+	return fmt.Sprintf("(%s)", query), nil
 }

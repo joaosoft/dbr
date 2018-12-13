@@ -3,6 +3,7 @@ package dbr
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 )
 
 type StmtDelete struct {
@@ -22,8 +23,8 @@ func (stmt *StmtDelete) From(table string) *StmtDelete {
 	return stmt
 }
 
-func (stmt *StmtDelete) Where(query string, valuesList ...interface{}) *StmtDelete {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values{list: valuesList, db: stmt.db}})
+func (stmt *StmtDelete) Where(query string, values ...interface{}) *StmtDelete {
+	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values})
 	return stmt
 }
 
@@ -63,4 +64,27 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 func (stmt *StmtDelete) Return(column ...string) *StmtDelete {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
+}
+
+func (stmt *StmtDelete) Load(object interface{}) error {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return ErrorInvalidPointer
+	}
+
+	query, err := stmt.Build()
+	if err != nil {
+		return err
+	}
+
+	rows, err := stmt.db.Query(query)
+	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+
+	_, err = read(stmt.returning, rows, value)
+
+	return err
 }
