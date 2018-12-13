@@ -39,22 +39,20 @@ func (stmt *StmtInsert) Line(lineValues ...interface{}) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) LineRecord(lineRecords ...interface{}) *StmtInsert {
-	for _, lineRecord := range lineRecords {
-		value := reflect.ValueOf(lineRecord)
+func (stmt *StmtInsert) LineRecord(lineRecord interface{}) *StmtInsert {
+	value := reflect.ValueOf(lineRecord)
 
-		mappedValues := make(map[string]reflect.Value)
-		loadStructValues(loadOptionWrite, value, mappedValues)
+	mappedValues := make(map[string]reflect.Value)
+	loadStructValues(loadOptionWrite, value, mappedValues)
 
-		var valueList []interface{}
-		for _, column := range stmt.columns {
-			if columnValue, ok := mappedValues[column]; ok {
-				valueList = append(valueList, columnValue.Interface())
-			}
+	var valueList []interface{}
+	for _, column := range stmt.columns {
+		if columnValue, ok := mappedValues[column]; ok {
+			valueList = append(valueList, columnValue.Interface())
 		}
-
-		stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
 	}
+
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
 
 	return stmt
 }

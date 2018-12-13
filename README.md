@@ -54,6 +54,7 @@ func main() {
 	Select()
 
 	InsertLines()
+	InsertLinesRecord()
 
 	Update()
 	Select()
@@ -97,12 +98,6 @@ func Insert() {
 func InsertLines() {
 	fmt.Println("\n\n:: INSERT")
 
-	person := Person{
-		FirstName: "joao",
-		LastName:  "ribeiro",
-		Age:       30,
-	}
-
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
@@ -123,7 +118,45 @@ func InsertLines() {
 		panic(err)
 	}
 
-	fmt.Printf("\nSAVED PERSON: %+v", person)
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLinesRecord() {
+	fmt.Println("\n\n:: INSERT")
+
+	persons := []Person{
+		Person{
+			FirstName: "aaa",
+			LastName:  "bbb",
+			Age:       10,
+		},
+		Person{
+			FirstName: "ccc",
+			LastName:  "sss",
+			Age:       20,
+		},
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Line("a", "a", 1).
+		Line("b", "b", 2).
+		Line("c", "c", 3).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LineRecord(persons[0]).
+		LineRecord(persons[1]).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
 }
 
 func Select() {
@@ -287,18 +320,23 @@ func DeleteAll() {
 ```
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('joao', 'ribeiro', 30)
+QUERY: INSERT INTO public.person AS new_name (age, first_name, last_name) VALUES (30, 'joao', 'ribeiro')
 SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:74 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:91 FirstName:joao LastName:ribeiro Age:30}
 
 :: INSERT
 
 QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
-SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
+SAVED PERSONS!
+
+:: INSERT
+
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
+SAVED PERSONS!
 
 :: UPDATE
 
@@ -308,7 +346,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:74 FirstName:joao LastName:males Age:30}
+LOADED PERSON: {IdPerson:91 FirstName:joao LastName:males Age:30}
 
 :: UPDATE
 
@@ -320,7 +358,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:74 FirstName:joao LastName:luis Age:30}
+LOADED PERSON: {IdPerson:91 FirstName:joao LastName:luis Age:30}
 
 :: DELETE
 

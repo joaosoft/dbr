@@ -19,6 +19,7 @@ func main() {
 	Select()
 
 	InsertLines()
+	InsertLinesRecord()
 
 	Update()
 	Select()
@@ -62,12 +63,6 @@ func Insert() {
 func InsertLines() {
 	fmt.Println("\n\n:: INSERT")
 
-	person := Person{
-		FirstName: "joao",
-		LastName:  "ribeiro",
-		Age:       30,
-	}
-
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
@@ -88,7 +83,45 @@ func InsertLines() {
 		panic(err)
 	}
 
-	fmt.Printf("\nSAVED PERSON: %+v", person)
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLinesRecord() {
+	fmt.Println("\n\n:: INSERT")
+
+	persons := []Person{
+		Person{
+			FirstName: "aaa",
+			LastName:  "bbb",
+			Age:       10,
+		},
+		Person{
+			FirstName: "ccc",
+			LastName:  "sss",
+			Age:       20,
+		},
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Line("a", "a", 1).
+		Line("b", "b", 2).
+		Line("c", "c", 3).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LineRecord(persons[0]).
+		LineRecord(persons[1]).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
 }
 
 func Select() {
