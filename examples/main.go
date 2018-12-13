@@ -18,8 +18,10 @@ func main() {
 	Insert()
 	Select()
 
+	InsertLine()
 	InsertLines()
 	InsertLinesRecord()
+	InsertLinesRecords()
 
 	Update()
 	Select()
@@ -31,7 +33,7 @@ func main() {
 	Transaction()
 	DeleteTransactionData()
 
-	DeleteAll()
+	//DeleteAll()
 }
 
 func Insert() {
@@ -60,7 +62,7 @@ func Insert() {
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 }
 
-func InsertLines() {
+func InsertLine() {
 	fmt.Println("\n\n:: INSERT")
 
 	builder, _ := db.Insert().
@@ -78,6 +80,28 @@ func InsertLines() {
 		Line("a", "a", 1).
 		Line("b", "b", 2).
 		Line("c", "c", 3).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLines() {
+	fmt.Println("\n\n:: INSERT")
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
 		Exec()
 	if err != nil {
 		panic(err)
@@ -105,9 +129,8 @@ func InsertLinesRecord() {
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		LineRecord(persons[0]).
+		LineRecord(persons[1]).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
@@ -116,6 +139,41 @@ func InsertLinesRecord() {
 		Columns("first_name", "last_name", "age").
 		LineRecord(persons[0]).
 		LineRecord(persons[1]).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLinesRecords() {
+	fmt.Println("\n\n:: INSERT")
+
+	persons := []interface{}{
+		Person{
+			FirstName: "xxx",
+			LastName:  "yyy",
+			Age:       10,
+		},
+		Person{
+			FirstName: "kkk",
+			LastName:  "zzz",
+			Age:       20,
+		},
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LinesRecords(persons...).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LinesRecords(persons...).
 		Exec()
 	if err != nil {
 		panic(err)

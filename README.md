@@ -53,8 +53,10 @@ func main() {
 	Insert()
 	Select()
 
+	InsertLine()
 	InsertLines()
 	InsertLinesRecord()
+	InsertLinesRecords()
 
 	Update()
 	Select()
@@ -66,7 +68,7 @@ func main() {
 	Transaction()
 	DeleteTransactionData()
 
-	DeleteAll()
+	//DeleteAll()
 }
 
 func Insert() {
@@ -95,7 +97,7 @@ func Insert() {
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 }
 
-func InsertLines() {
+func InsertLine() {
 	fmt.Println("\n\n:: INSERT")
 
 	builder, _ := db.Insert().
@@ -113,6 +115,28 @@ func InsertLines() {
 		Line("a", "a", 1).
 		Line("b", "b", 2).
 		Line("c", "c", 3).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLines() {
+	fmt.Println("\n\n:: INSERT")
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
 		Exec()
 	if err != nil {
 		panic(err)
@@ -140,9 +164,8 @@ func InsertLinesRecord() {
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		LineRecord(persons[0]).
+		LineRecord(persons[1]).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
@@ -151,6 +174,41 @@ func InsertLinesRecord() {
 		Columns("first_name", "last_name", "age").
 		LineRecord(persons[0]).
 		LineRecord(persons[1]).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSONS!")
+}
+
+func InsertLinesRecords() {
+	fmt.Println("\n\n:: INSERT")
+
+	persons := []interface{}{
+		Person{
+			FirstName: "xxx",
+			LastName:  "yyy",
+			Age:       10,
+		},
+		Person{
+			FirstName: "kkk",
+			LastName:  "zzz",
+			Age:       20,
+		},
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LinesRecords(persons...).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		LinesRecords(persons...).
 		Exec()
 	if err != nil {
 		panic(err)
@@ -320,13 +378,13 @@ func DeleteAll() {
 ```
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (age, first_name, last_name) VALUES (30, 'joao', 'ribeiro')
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('joao', 'ribeiro', 30)
 SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:91 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:117 FirstName:joao LastName:ribeiro Age:30}
 
 :: INSERT
 
@@ -335,7 +393,17 @@ SAVED PERSONS!
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('x', 'x', 1), ('y', 'y', 2), ('z', 'z', 3)
+SAVED PERSONS!
+
+:: INSERT
+
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('aaa', 'bbb', 10), ('ccc', 'sss', 20)
+SAVED PERSONS!
+
+:: INSERT
+
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('xxx', 'yyy', 10), ('kkk', 'zzz', 20)
 SAVED PERSONS!
 
 :: UPDATE
@@ -346,7 +414,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:91 FirstName:joao LastName:males Age:30}
+LOADED PERSON: {IdPerson:117 FirstName:joao LastName:males Age:30}
 
 :: UPDATE
 
@@ -358,7 +426,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:91 FirstName:joao LastName:luis Age:30}
+LOADED PERSON: {IdPerson:117 FirstName:joao LastName:luis Age:30}
 
 :: DELETE
 
@@ -374,11 +442,6 @@ SAVED PERSON: {IdPerson:0 FirstName:joao-2 LastName:ribeiro Age:30}
 
 QUERY: DELETE FROM public.person WHERE first_name = 'joao-2'
 DELETED PERSON
-
-:: DELETE
-
-QUERY: DELETE FROM public.person
-DELETED ALL
 ```
 
 ## Known issues

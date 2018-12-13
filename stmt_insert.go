@@ -64,7 +64,7 @@ func (stmt *StmtInsert) LineRecord(lineRecord interface{}) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) LinesRecord(linesRecord []interface{}) *StmtInsert {
+func (stmt *StmtInsert) LinesRecords(linesRecord ...interface{}) *StmtInsert {
 	for _, lineRecord := range linesRecord {
 		stmt.LineRecord(lineRecord)
 	}
