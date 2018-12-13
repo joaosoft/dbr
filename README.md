@@ -4,6 +4,7 @@ Dbr
 [![Build Status](https://travis-ci.org/joaosoft/dbr.svg?branch=master)](https://travis-ci.org/joaosoft/dbr) | [![codecov](https://codecov.io/gh/joaosoft/dbr/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/dbr) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/dbr)](https://goreportcard.com/report/github.com/joaosoft/dbr) | [![GoDoc](https://godoc.org/github.com/joaosoft/dbr?status.svg)](https://godoc.org/github.com/joaosoft/dbr)
 
 A simple database client with support for master/slave databases.
+The main goal of this project is to allow a application to write in a master database and read the data from a slave (replica).
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
