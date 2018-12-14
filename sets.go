@@ -6,7 +6,7 @@ import (
 
 type sets struct {
 	list []*set
-	db   *Db
+	db   *db
 }
 
 func (s sets) Build() (string, error) {

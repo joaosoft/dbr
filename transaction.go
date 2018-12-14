@@ -5,16 +5,16 @@ import (
 )
 
 type Transaction struct {
-	db       *Db
+	db       *db
 	commited bool
 }
 
-func newTransaction(db *Db) *Transaction {
+func newTransaction(db *db) *Transaction {
 	return &Transaction{db: db}
 }
 
 func (tx *Transaction) Commit() error {
-	err := tx.db.Database.(*sql.Tx).Commit()
+	err := tx.db.database.(*sql.Tx).Commit()
 	if err != nil {
 		return err
 	}
@@ -24,12 +24,12 @@ func (tx *Transaction) Commit() error {
 }
 
 func (tx *Transaction) Rollback() error {
-	return tx.db.Database.(*sql.Tx).Rollback()
+	return tx.db.database.(*sql.Tx).Rollback()
 }
 
 func (tx *Transaction) RollbackUnlessCommit() error {
 	if !tx.commited {
-		return tx.db.Database.(*sql.Tx).Rollback()
+		return tx.db.database.(*sql.Tx).Rollback()
 	}
 
 	return nil

@@ -12,10 +12,10 @@ type StmtInsert struct {
 	values    values
 	returning columns
 
-	db *Db
+	db *db
 }
 
-func newStmtInsert(db *Db) *StmtInsert {
+func newStmtInsert(db *db) *StmtInsert {
 	return &StmtInsert{db: db, values: values{db: db}}
 }
 

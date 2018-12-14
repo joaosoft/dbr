@@ -12,7 +12,7 @@ import (
 )
 
 type Dbr struct {
-	conections *Connections
+	conections *connections
 
 	config        *DbrConfig
 	isLogExternal bool
@@ -20,16 +20,16 @@ type Dbr struct {
 	mux           sync.Mutex
 }
 
-type Connections struct {
-	Read     *Db
-	Write    *Db
-	Duration time.Duration
+type connections struct {
+	read     *db
+	write    *db
+	duration time.Duration
 }
 
-type Db struct {
-	Database
-	dialect  Dialect
-	Duration time.Duration
+type db struct {
+	database
+	dialect  dialect
+	duration time.Duration
 }
 
 // NewDbr ...
@@ -65,50 +65,50 @@ func NewDbr(options ...DbrOption) (*Dbr, error) {
 		}
 		dbr.pm.AddDB("db", dbCon)
 
-		db := &Db{Database: dbCon.Get(), dialect: newDialect(dbr.config.Db.Driver)}
-		dbr.conections = &Connections{Read: db, Write: db}
+		db := &db{database: dbCon.Get(), dialect: newDialect(dbr.config.Db.Driver)}
+		dbr.conections = &connections{read: db, write: db}
 	} else {
 		dbReadCon := manager.NewSimpleDB(dbr.config.ReadDb)
 		if err := dbReadCon.Start(nil); err != nil {
 			return nil, err
 		}
 		dbr.pm.AddDB("db-read", dbReadCon)
-		dbRead := &Db{Database: dbReadCon.Get(), dialect: newDialect(dbr.config.ReadDb.Driver)}
+		dbRead := &db{database: dbReadCon.Get(), dialect: newDialect(dbr.config.ReadDb.Driver)}
 
 		dbWriteCon := manager.NewSimpleDB(dbr.config.WriteDb)
 		if err := dbWriteCon.Start(nil); err != nil {
 			return nil, err
 		}
 		dbr.pm.AddDB("db-write", dbWriteCon)
-		dbWrite := &Db{Database: dbReadCon.Get(), dialect: newDialect(dbr.config.WriteDb.Driver)}
+		dbWrite := &db{database: dbReadCon.Get(), dialect: newDialect(dbr.config.WriteDb.Driver)}
 
-		dbr.conections = &Connections{Read: dbRead, Write: dbWrite}
+		dbr.conections = &connections{read: dbRead, write: dbWrite}
 	}
 
 	return dbr, nil
 }
 
 func (dbr *Dbr) Select(column ...string) *StmtSelect {
-	return newStmtSelect(dbr.conections.Read, column)
+	return newStmtSelect(dbr.conections.read, column)
 }
 
 func (dbr *Dbr) Insert() *StmtInsert {
-	return newStmtInsert(dbr.conections.Write)
+	return newStmtInsert(dbr.conections.write)
 }
 
 func (dbr *Dbr) Update(table string) *StmtUpdate {
-	return newStmtUpdate(dbr.conections.Write, table)
+	return newStmtUpdate(dbr.conections.write, table)
 }
 
 func (dbr *Dbr) Delete() *StmtDelete {
-	return newStmtDelete(dbr.conections.Write)
+	return newStmtDelete(dbr.conections.write)
 }
 
 func (dbr *Dbr) Begin() (*Transaction, error) {
-	tx, err := dbr.conections.Write.Database.(*sql.DB).Begin()
+	tx, err := dbr.conections.write.database.(*sql.DB).Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	return newTransaction(&Db{Database: tx, dialect: dbr.conections.Write.dialect}), nil
+	return newTransaction(&db{database: tx, dialect: dbr.conections.write.dialect}), nil
 }

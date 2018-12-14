@@ -13,10 +13,10 @@ type StmtUpdate struct {
 	conditions conditions
 	returning  columns
 
-	db *Db
+	db *db
 }
 
-func newStmtUpdate(db *Db, table string) *StmtUpdate {
+func newStmtUpdate(db *db, table string) *StmtUpdate {
 	return &StmtUpdate{db: db, table: table, sets: sets{db: db}, conditions: conditions{db: db}}
 }
 

@@ -7,7 +7,7 @@ import (
 
 type values struct {
 	list []interface{}
-	db   *Db
+	db   *db
 }
 
 func (v values) Build() (string, error) {

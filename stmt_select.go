@@ -17,10 +17,10 @@ type StmtSelect struct {
 	unions            unions
 	returning         columns
 
-	db *Db
+	db *db
 }
 
-func newStmtSelect(db *Db, columns []string) *StmtSelect {
+func newStmtSelect(db *db, columns []string) *StmtSelect {
 	return &StmtSelect{db: db, columns: columns, conditions: conditions{db: db}}
 }
 
@@ -93,6 +93,7 @@ func (stmt *StmtSelect) Return(column ...string) *StmtSelect {
 
 func (stmt *StmtSelect) Build() (string, error) {
 
+	// distinct
 	var distinct string
 	if stmt.isDistinct {
 		distinct = "DISTINCT "
@@ -103,6 +104,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 		return "", err
 	}
 
+	// distinct on
 	var distinctOn string
 	if stmt.isDistinct {
 		distinctOn = "DISTINCT ON (%s) "
@@ -113,18 +115,22 @@ func (stmt *StmtSelect) Build() (string, error) {
 		return "", err
 	}
 
+	// columns
 	columns, err := stmt.columns.Build()
 	if err != nil {
 		return "", err
 	}
 
+	// tables
 	tables, err := stmt.tables.Build()
 	if err != nil {
 		return "", err
 	}
 
+	// query
 	query := fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, tables)
 
+	// joins
 	if len(stmt.joins) > 0 {
 		joins, err := stmt.joins.Build()
 		if err != nil {
@@ -134,6 +140,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += fmt.Sprintf(" %s", joins)
 	}
 
+	// conditions
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()
 		if err != nil {
@@ -143,6 +150,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += fmt.Sprintf(" WHERE %s", conds)
 	}
 
+	// unions
 	if len(stmt.unions) > 0 {
 		unions, err := stmt.unions.Build()
 		if err != nil {
@@ -152,6 +160,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += unions
 	}
 
+	// orders
 	if len(stmt.orders) > 0 {
 		orders, err := stmt.orders.Build()
 		if err != nil {
@@ -161,6 +170,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += orders
 	}
 
+	// returning
 	if len(stmt.returning) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {

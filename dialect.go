@@ -10,7 +10,7 @@ const (
 	ConstDialectSqlLite3 DialectName = "sqlite3"
 )
 
-type Dialect interface {
+type dialect interface {
 	Name() string
 	Encode(i interface{}) string
 	EncodeString(s string) string
@@ -20,7 +20,7 @@ type Dialect interface {
 	Placeholder() string
 }
 
-func newDialect(name string) Dialect {
+func newDialect(name string) dialect {
 	switch name {
 	case string(ConstDialectPostgres):
 		return &DialectPostgres{}

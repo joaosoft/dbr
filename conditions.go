@@ -6,7 +6,7 @@ import (
 
 type conditions struct {
 	list []*condition
-	db   *Db
+	db   *db
 }
 
 func (c conditions) Build() (string, error) {

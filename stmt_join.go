@@ -9,7 +9,7 @@ type StmtJoin struct {
 	table string
 	on    string
 
-	db *Db
+	db *db
 }
 
 type Join string
@@ -21,7 +21,7 @@ const (
 	ConstFullJoin  Join = "FULL JOIN"
 )
 
-func newStmtJoin(db *Db, join Join, table, on string) *StmtJoin {
+func newStmtJoin(db *db, join Join, table, on string) *StmtJoin {
 	return &StmtJoin{db: db, table: table, on: on}
 }
 

@@ -11,10 +11,10 @@ type StmtDelete struct {
 	conditions conditions
 	returning  columns
 
-	db *Db
+	db *db
 }
 
-func newStmtDelete(db *Db) *StmtDelete {
+func newStmtDelete(db *db) *StmtDelete {
 	return &StmtDelete{db: db, conditions: conditions{db: db}}
 }
 
