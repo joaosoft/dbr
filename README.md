@@ -14,15 +14,16 @@ The main goal of this project is to allow a application to write in a master dat
 * SqlLite3
 
 ## With support for methods
-* Select, Join, Distinct, Distinct on
-* Insert, Bulk Insert, Returning 
-* Update, Returning 
-* Delete, Returning
+* Select, Join, Distinct, Distinct on, Order by, Union, Load
+* Insert, Multi insert, Record, Returning, Load
+* Update, Record, Returning, Load
+* Delete, Returning, Load
 
 ## With support for type annotations
-* db - used to read and write
-* db.read - used for select
-* db.write - used for insert and update
+["-" when is to exlude]
+* db -> used to read and write
+* db.read -> used for select
+* db.write -> used for insert and update
 
 ## Dependecy Management
 >### Dependency
@@ -53,10 +54,9 @@ func main() {
 	Insert()
 	Select()
 
-	InsertLine()
-	InsertLines()
-	InsertLinesRecord()
-	InsertLinesRecords()
+	InsertValues()
+	InsertRecords()
+	SelectAll()
 
 	Update()
 	Select()
@@ -68,7 +68,7 @@ func main() {
 	Transaction()
 	DeleteTransactionData()
 
-	//DeleteAll()
+	DeleteAll()
 }
 
 func Insert() {
@@ -97,24 +97,24 @@ func Insert() {
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 }
 
-func InsertLine() {
+func InsertValues() {
 	fmt.Println("\n\n:: INSERT")
 
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		Values("a", "a", 1).
+		Values("b", "b", 2).
+		Values("c", "c", 3).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
 	_, err := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		Values("a", "a", 1).
+		Values("b", "b", 2).
+		Values("c", "c", 3).
 		Exec()
 	if err != nil {
 		panic(err)
@@ -123,98 +123,38 @@ func InsertLine() {
 	fmt.Printf("\nSAVED PERSONS!")
 }
 
-func InsertLines() {
+func InsertRecords() {
 	fmt.Println("\n\n:: INSERT")
+
+	person1 := Person{
+		FirstName: "joao",
+		LastName:  "ribeiro",
+		Age:       30,
+	}
+
+	person2 := Person{
+		FirstName: "luis",
+		LastName:  "ribeiro",
+		Age:       31,
+	}
 
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Record(person1).
+		Record(person2).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
 	_, err := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Record(person1).
+		Record(person2).
 		Exec()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("\nSAVED PERSONS!")
-}
-
-func InsertLinesRecord() {
-	fmt.Println("\n\n:: INSERT")
-
-	persons := []Person{
-		Person{
-			FirstName: "aaa",
-			LastName:  "bbb",
-			Age:       10,
-		},
-		Person{
-			FirstName: "ccc",
-			LastName:  "sss",
-			Age:       20,
-		},
-	}
-
-	builder, _ := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LineRecord(persons[0]).
-		LineRecord(persons[1]).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
-
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LineRecord(persons[0]).
-		LineRecord(persons[1]).
-		Exec()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("\nSAVED PERSONS!")
-}
-
-func InsertLinesRecords() {
-	fmt.Println("\n\n:: INSERT")
-
-	persons := []interface{}{
-		Person{
-			FirstName: "xxx",
-			LastName:  "yyy",
-			Age:       10,
-		},
-		Person{
-			FirstName: "kkk",
-			LastName:  "zzz",
-			Age:       20,
-		},
-	}
-
-	builder, _ := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LinesRecords(persons...).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
-
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LinesRecords(persons...).
-		Exec()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("\nSAVED PERSONS!")
+	fmt.Printf("\nSAVED PERSON: %+v", person1)
 }
 
 func Select() {
@@ -237,6 +177,30 @@ func Select() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectAll() {
+	fmt.Println("\n\n:: SELECT")
+
+	var persons []Person
+
+	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		OrderAsc("id_person").
+		OrderDesc("first_name").
+		From("public.person").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("id_person").
+		OrderDesc("first_name").
+		Load(&persons)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSONS: %+v", persons)
 }
 
 func Update() {
@@ -384,7 +348,7 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:117 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:182 FirstName:joao LastName:ribeiro Age:30}
 
 :: INSERT
 
@@ -393,18 +357,13 @@ SAVED PERSONS!
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('x', 'x', 1), ('y', 'y', 2), ('z', 'z', 3)
-SAVED PERSONS!
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('joao', 'ribeiro', 30), ('luis', 'ribeiro', 31)
+SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
-:: INSERT
+:: SELECT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('aaa', 'bbb', 10), ('ccc', 'sss', 20)
-SAVED PERSONS!
-
-:: INSERT
-
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('xxx', 'yyy', 10), ('kkk', 'zzz', 20)
-SAVED PERSONS!
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc
+LOADED PERSONS: [{IdPerson:182 FirstName:joao LastName:ribeiro Age:30} {IdPerson:183 FirstName:a LastName:a Age:1} {IdPerson:184 FirstName:b LastName:b Age:2} {IdPerson:185 FirstName:c LastName:c Age:3} {IdPerson:186 FirstName:joao LastName:ribeiro Age:30} {IdPerson:187 FirstName:luis LastName:ribeiro Age:31}]
 
 :: UPDATE
 
@@ -414,7 +373,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:117 FirstName:joao LastName:males Age:30}
+LOADED PERSON: {IdPerson:182 FirstName:joao LastName:males Age:30}
 
 :: UPDATE
 
@@ -426,7 +385,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:117 FirstName:joao LastName:luis Age:30}
+LOADED PERSON: {IdPerson:182 FirstName:joao LastName:luis Age:30}
 
 :: DELETE
 
@@ -442,6 +401,11 @@ SAVED PERSON: {IdPerson:0 FirstName:joao-2 LastName:ribeiro Age:30}
 
 QUERY: DELETE FROM public.person WHERE first_name = 'joao-2'
 DELETED PERSON
+
+:: DELETE
+
+QUERY: DELETE FROM public.person
+DELETED ALL
 ```
 
 ## Known issues

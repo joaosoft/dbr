@@ -1,6 +1,7 @@
 package dbr
 
 import (
+	"database/sql/driver"
 	"fmt"
 )
 
@@ -36,6 +37,12 @@ func (v values) Build() (string, error) {
 			if err != nil {
 				return "", err
 			}
+		case driver.Valuer:
+			valuer, err := stmt.Value()
+			if err != nil {
+				return "", err
+			}
+			value = fmt.Sprintf("%+v", valuer)
 		default:
 			value = fmt.Sprintf("%s", v.db.dialect.Encode(item))
 		}
