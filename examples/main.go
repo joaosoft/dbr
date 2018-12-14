@@ -18,10 +18,9 @@ func main() {
 	Insert()
 	Select()
 
-	InsertLine()
-	InsertLines()
-	InsertLinesRecord()
-	InsertLinesRecords()
+	InsertValues()
+	InsertRecords()
+	SelectAll()
 
 	Update()
 	Select()
@@ -33,7 +32,7 @@ func main() {
 	Transaction()
 	DeleteTransactionData()
 
-	//DeleteAll()
+	DeleteAll()
 }
 
 func Insert() {
@@ -62,24 +61,24 @@ func Insert() {
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 }
 
-func InsertLine() {
+func InsertValues() {
 	fmt.Println("\n\n:: INSERT")
 
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		Values("a", "a", 1).
+		Values("b", "b", 2).
+		Values("c", "c", 3).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
 	_, err := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Line("a", "a", 1).
-		Line("b", "b", 2).
-		Line("c", "c", 3).
+		Values("a", "a", 1).
+		Values("b", "b", 2).
+		Values("c", "c", 3).
 		Exec()
 	if err != nil {
 		panic(err)
@@ -88,98 +87,38 @@ func InsertLine() {
 	fmt.Printf("\nSAVED PERSONS!")
 }
 
-func InsertLines() {
+func InsertRecords() {
 	fmt.Println("\n\n:: INSERT")
+
+	person1 := Person{
+		FirstName: "joao",
+		LastName:  "ribeiro",
+		Age:       30,
+	}
+
+	person2 := Person{
+		FirstName: "luis",
+		LastName:  "ribeiro",
+		Age:       31,
+	}
 
 	builder, _ := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Record(person1).
+		Record(person2).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
 	_, err := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Lines([]interface{}{"x", "x", 1}, []interface{}{"y", "y", 2}, []interface{}{"z", "z", 3}).
+		Record(person1).
+		Record(person2).
 		Exec()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("\nSAVED PERSONS!")
-}
-
-func InsertLinesRecord() {
-	fmt.Println("\n\n:: INSERT")
-
-	persons := []Person{
-		Person{
-			FirstName: "aaa",
-			LastName:  "bbb",
-			Age:       10,
-		},
-		Person{
-			FirstName: "ccc",
-			LastName:  "sss",
-			Age:       20,
-		},
-	}
-
-	builder, _ := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LineRecord(persons[0]).
-		LineRecord(persons[1]).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
-
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LineRecord(persons[0]).
-		LineRecord(persons[1]).
-		Exec()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("\nSAVED PERSONS!")
-}
-
-func InsertLinesRecords() {
-	fmt.Println("\n\n:: INSERT")
-
-	persons := []interface{}{
-		Person{
-			FirstName: "xxx",
-			LastName:  "yyy",
-			Age:       10,
-		},
-		Person{
-			FirstName: "kkk",
-			LastName:  "zzz",
-			Age:       20,
-		},
-	}
-
-	builder, _ := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LinesRecords(persons...).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
-
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		LinesRecords(persons...).
-		Exec()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("\nSAVED PERSONS!")
+	fmt.Printf("\nSAVED PERSON: %+v", person1)
 }
 
 func Select() {
@@ -202,6 +141,30 @@ func Select() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectAll() {
+	fmt.Println("\n\n:: SELECT")
+
+	var persons []Person
+
+	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		OrderAsc("id_person").
+		OrderDesc("first_name").
+		From("public.person").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("id_person").
+		OrderDesc("first_name").
+		Load(&persons)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSONS: %+v", persons)
 }
 
 func Update() {

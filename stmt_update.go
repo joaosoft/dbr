@@ -9,6 +9,7 @@ import (
 type StmtUpdate struct {
 	table      string
 	sets       sets
+	columns    columns
 	conditions conditions
 	returning  columns
 
@@ -73,14 +74,21 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 	return stmt.db.Exec(query)
 }
 
-func (stmt *StmtUpdate) Record(object interface{}) *StmtUpdate {
-	value := reflect.ValueOf(object)
+func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
+	value := reflect.ValueOf(record)
 
 	mappedValues := make(map[string]reflect.Value)
-	loadStructValues(loadOptionWrite, value, mappedValues)
 
-	for column, value := range mappedValues {
-		stmt.sets.list = append(stmt.sets.list, &set{column: column, value: value})
+	if len(stmt.columns) == 0 {
+		var columns []string
+		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
+		stmt.columns = columns
+	} else {
+		loadStructValues(loadOptionWrite, value, nil, mappedValues)
+	}
+
+	for _, column := range stmt.columns {
+		stmt.sets.list = append(stmt.sets.list, &set{column: column, value: mappedValues[column].Interface()})
 	}
 
 	return stmt

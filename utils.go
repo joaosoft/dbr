@@ -187,11 +187,11 @@ func loadColumnStructValues(loadOption loadOption, columns []string, mapColumns 
 	}
 }
 
-func loadStructValues(loadOption loadOption, object reflect.Value, mappedValues map[string]reflect.Value) {
+func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]string, mappedValues map[string]reflect.Value) {
 	switch object.Kind() {
 	case reflect.Ptr:
 		if !object.IsNil() {
-			loadStructValues(loadOption, object.Elem(), mappedValues)
+			loadStructValues(loadOption, object.Elem(), columns, mappedValues)
 		}
 	case reflect.Struct:
 		t := object.Type()
@@ -216,7 +216,12 @@ func loadStructValues(loadOption loadOption, object reflect.Value, mappedValues 
 				}
 			}
 
-			mappedValues[tag] = object.Field(i)
+			if _, ok := mappedValues[tag]; !ok {
+				mappedValues[tag] = object.Field(i)
+				if columns != nil {
+					*columns = append(*columns, tag)
+				}
+			}
 		}
 	}
 }

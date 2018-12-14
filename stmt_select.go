@@ -13,6 +13,8 @@ type StmtSelect struct {
 	isDistinct        bool
 	distinctColumns   columns
 	distinctOnColumns columns
+	orders            orders
+	unions            unions
 	returning         columns
 
 	db *Db
@@ -60,6 +62,27 @@ func (stmt *StmtSelect) Distinct(column ...string) *StmtSelect {
 
 func (stmt *StmtSelect) DistinctOn(column ...string) *StmtSelect {
 	stmt.distinctOnColumns = append(stmt.distinctOnColumns, column...)
+	return stmt
+}
+
+func (stmt *StmtSelect) Union(stmt1 *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, stmt1)
+	return stmt
+}
+
+func (stmt *StmtSelect) OrderAsc(columns ...string) *StmtSelect {
+	for _, column := range columns {
+		stmt.orders = append(stmt.orders, &order{column: column, direction: orderAsc})
+	}
+
+	return stmt
+}
+
+func (stmt *StmtSelect) OrderDesc(columns ...string) *StmtSelect {
+	for _, column := range columns {
+		stmt.orders = append(stmt.orders, &order{column: column, direction: orderDesc})
+	}
+
 	return stmt
 }
 
@@ -118,6 +141,24 @@ func (stmt *StmtSelect) Build() (string, error) {
 		}
 
 		query += fmt.Sprintf(" WHERE %s", conds)
+	}
+
+	if len(stmt.unions) > 0 {
+		unions, err := stmt.unions.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += unions
+	}
+
+	if len(stmt.orders) > 0 {
+		orders, err := stmt.orders.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += orders
 	}
 
 	if len(stmt.returning) > 0 {

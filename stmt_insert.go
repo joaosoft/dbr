@@ -29,46 +29,8 @@ func (stmt *StmtInsert) Columns(columns ...string) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) Values(values ...interface{}) *StmtInsert {
-	stmt.values.list = append(stmt.values.list, values...)
-	return stmt
-}
-
-func (stmt *StmtInsert) Line(lineValues ...interface{}) *StmtInsert {
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: lineValues})
-	return stmt
-}
-
-func (stmt *StmtInsert) Lines(lines ...[]interface{}) *StmtInsert {
-	for _, line := range lines {
-		stmt.Line(line...)
-	}
-	return stmt
-}
-
-func (stmt *StmtInsert) LineRecord(lineRecord interface{}) *StmtInsert {
-	value := reflect.ValueOf(lineRecord)
-
-	mappedValues := make(map[string]reflect.Value)
-	loadStructValues(loadOptionWrite, value, mappedValues)
-
-	var valueList []interface{}
-	for _, column := range stmt.columns {
-		if columnValue, ok := mappedValues[column]; ok {
-			valueList = append(valueList, columnValue.Interface())
-		}
-	}
-
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
-
-	return stmt
-}
-
-func (stmt *StmtInsert) LinesRecords(linesRecord ...interface{}) *StmtInsert {
-	for _, lineRecord := range linesRecord {
-		stmt.LineRecord(lineRecord)
-	}
-
+func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valuesList})
 	return stmt
 }
 
@@ -107,15 +69,32 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 	return stmt.db.Exec(query)
 }
 
-func (stmt *StmtInsert) Record(object interface{}) *StmtInsert {
-	value := reflect.ValueOf(object)
+func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
+	value := reflect.ValueOf(record)
 
 	mappedValues := make(map[string]reflect.Value)
-	loadStructValues(loadOptionWrite, value, mappedValues)
 
-	for column, value := range mappedValues {
-		stmt.columns = append(stmt.columns, column)
-		stmt.values.list = append(stmt.values.list, value.Interface())
+	if len(stmt.columns) == 0 {
+		var columns []string
+		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
+		stmt.columns = columns
+	} else {
+		loadStructValues(loadOptionWrite, value, nil, mappedValues)
+	}
+
+	var valueList []interface{}
+	for _, column := range stmt.columns {
+		valueList = append(valueList, mappedValues[column].Interface())
+	}
+
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
+
+	return stmt
+}
+
+func (stmt *StmtInsert) Records(records []interface{}) *StmtInsert {
+	for _, record := range records {
+		stmt.Record(record)
 	}
 
 	return stmt
