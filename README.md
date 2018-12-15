@@ -14,7 +14,7 @@ The main goal of this project is to allow a application to write in a master dat
 * SqlLite3
 
 ## With support for methods
-* Select, Join, Distinct, Distinct on, Order by, Union, Load
+* Select, Join, Distinct, Distinct on, Group by, Having, Order by, Union, Intersect, Except, Limit, Offset, Load
 * Insert, Multi insert, Record, Returning, Load
 * Update, Record, Returning, Load
 * Delete, Returning, Load
@@ -59,6 +59,7 @@ func main() {
 	InsertRecords()
 	SelectAll()
 	SelectWith()
+	SelectGroupBy()
 
 	Update()
 	Select()
@@ -187,9 +188,11 @@ func SelectAll() {
 	var persons []Person
 
 	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
-		From("public.person").
+		Limit(5).
+		Offset(1).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
@@ -197,6 +200,8 @@ func SelectAll() {
 		From("public.person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
+		Limit(5).
+		Offset(1).
 		Load(&persons)
 	if err != nil {
 		panic(err)
@@ -233,6 +238,38 @@ func SelectWith() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectGroupBy() {
+	fmt.Println("\n\n:: SELECT GROUP BY")
+
+	var persons []Person
+
+	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("age").
+		OrderDesc("first_name").
+		GroupBy("id_person", "last_name", "first_name", "age").
+		Having("age > 20").
+		Limit(5).
+		Offset(1).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("age").
+		OrderDesc("first_name").
+		GroupBy("id_person", "last_name", "first_name", "age").
+		Having("age > 20").
+		Limit(5).
+		Offset(1).
+		Load(&persons)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSONS: %+v", persons)
 }
 
 func Update() {
@@ -380,7 +417,7 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:266 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:360 FirstName:joao LastName:ribeiro Age:30}
 
 :: INSERT
 
@@ -394,13 +431,18 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc
-LOADED PERSONS: [{IdPerson:266 FirstName:joao LastName:ribeiro Age:30} {IdPerson:267 FirstName:a LastName:a Age:1} {IdPerson:268 FirstName:b LastName:b Age:2} {IdPerson:269 FirstName:c LastName:c Age:3} {IdPerson:270 FirstName:joao LastName:ribeiro Age:30} {IdPerson:271 FirstName:luis LastName:ribeiro Age:31}]
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
+LOADED PERSONS: [{IdPerson:355 FirstName:a LastName:a Age:1} {IdPerson:356 FirstName:b LastName:b Age:2} {IdPerson:357 FirstName:c LastName:c Age:3} {IdPerson:358 FirstName:joao LastName:ribeiro Age:30} {IdPerson:359 FirstName:luis LastName:ribeiro Age:31}]
 
 :: SELECT WITH
 
 QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao') SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:266 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:360 FirstName:joao LastName:ribeiro Age:30}
+
+:: SELECT GROUP BY
+
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
+LOADED PERSONS: [{IdPerson:358 FirstName:joao LastName:ribeiro Age:30} {IdPerson:366 FirstName:joao LastName:ribeiro Age:30} {IdPerson:370 FirstName:joao LastName:ribeiro Age:30} {IdPerson:372 FirstName:joao LastName:ribeiro Age:30} {IdPerson:376 FirstName:joao LastName:ribeiro Age:30}]
 
 :: UPDATE
 
@@ -410,7 +452,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:266 FirstName:joao LastName:males Age:30}
+LOADED PERSON: {IdPerson:360 FirstName:joao LastName:males Age:30}
 
 :: UPDATE
 
@@ -422,7 +464,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:266 FirstName:joao LastName:luis Age:30}
+LOADED PERSON: {IdPerson:360 FirstName:joao LastName:luis Age:30}
 
 :: DELETE
 

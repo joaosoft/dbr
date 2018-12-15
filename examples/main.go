@@ -22,6 +22,7 @@ func main() {
 	InsertRecords()
 	SelectAll()
 	SelectWith()
+	SelectGroupBy()
 
 	Update()
 	Select()
@@ -150,9 +151,11 @@ func SelectAll() {
 	var persons []Person
 
 	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
-		From("public.person").
+		Limit(5).
+		Offset(1).
 		Build()
 	fmt.Printf("\nQUERY: %s", builder)
 
@@ -160,6 +163,8 @@ func SelectAll() {
 		From("public.person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
+		Limit(5).
+		Offset(1).
 		Load(&persons)
 	if err != nil {
 		panic(err)
@@ -196,6 +201,38 @@ func SelectWith() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectGroupBy() {
+	fmt.Println("\n\n:: SELECT GROUP BY")
+
+	var persons []Person
+
+	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("age").
+		OrderDesc("first_name").
+		GroupBy("id_person", "last_name", "first_name", "age").
+		Having("age > 20").
+		Limit(5).
+		Offset(1).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		OrderAsc("age").
+		OrderDesc("first_name").
+		GroupBy("id_person", "last_name", "first_name", "age").
+		Having("age > 20").
+		Limit(5).
+		Offset(1).
+		Load(&persons)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSONS: %+v", persons)
 }
 
 func Update() {

@@ -14,15 +14,19 @@ type StmtSelect struct {
 	isDistinct        bool
 	distinctColumns   columns
 	distinctOnColumns columns
-	orders            orders
 	unions            unions
+	groupBy           groupBy
+	having            conditions
+	orders            orders
 	returning         columns
+	limit             int
+	offset            int
 
 	db *db
 }
 
 func newStmtSelect(db *db, withs withs, columns []string) *StmtSelect {
-	return &StmtSelect{db: db, withs: withs, columns: columns, conditions: conditions{db: db}}
+	return &StmtSelect{db: db, withs: withs, columns: columns, conditions: conditions{db: db}, having: conditions{db: db}}
 }
 
 func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
@@ -67,7 +71,27 @@ func (stmt *StmtSelect) DistinctOn(column ...string) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, stmtUnion)
+	stmt.unions = append(stmt.unions, &union{unionType: unionNormal, stmt: stmtUnion})
+	return stmt
+}
+
+func (stmt *StmtSelect) Intersect(stmtUnion *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, &union{unionType: unionIntersect, stmt: stmtUnion})
+	return stmt
+}
+
+func (stmt *StmtSelect) Except(stmtUnion *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, &union{unionType: unionExcept, stmt: stmtUnion})
+	return stmt
+}
+
+func (stmt *StmtSelect) GroupBy(columns ...string) *StmtSelect {
+	stmt.groupBy = append(stmt.groupBy, columns...)
+	return stmt
+}
+
+func (stmt *StmtSelect) Having(query string, values ...interface{}) *StmtSelect {
+	stmt.having.list = append(stmt.having.list, &condition{query: query, values: values})
 	return stmt
 }
 
@@ -89,6 +113,16 @@ func (stmt *StmtSelect) OrderDesc(columns ...string) *StmtSelect {
 
 func (stmt *StmtSelect) Return(column ...string) *StmtSelect {
 	stmt.returning = append(stmt.returning, column...)
+	return stmt
+}
+
+func (stmt *StmtSelect) Limit(limit int) *StmtSelect {
+	stmt.limit = limit
+	return stmt
+}
+
+func (stmt *StmtSelect) Offset(offset int) *StmtSelect {
+	stmt.offset = offset
 	return stmt
 }
 
@@ -171,6 +205,26 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += unions
 	}
 
+	// group by
+	if len(stmt.groupBy) > 0 {
+		groupBy, err := stmt.groupBy.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += groupBy
+	}
+
+	// having
+	if len(stmt.having.list) > 0 {
+		havingConds, err := stmt.having.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += fmt.Sprintf(" HAVING %s", havingConds)
+	}
+
 	// orders
 	if len(stmt.orders) > 0 {
 		orders, err := stmt.orders.Build()
@@ -179,6 +233,16 @@ func (stmt *StmtSelect) Build() (string, error) {
 		}
 
 		query += orders
+	}
+
+	// limit
+	if stmt.limit > 0 {
+		query += fmt.Sprintf(" LIMIT %d", stmt.limit)
+	}
+
+	// offset
+	if stmt.offset > 0 {
+		query += fmt.Sprintf(" OFFSET %d", stmt.offset)
 	}
 
 	// returning
