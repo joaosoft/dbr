@@ -104,6 +104,10 @@ func (dbr *Dbr) Delete() *StmtDelete {
 	return newStmtDelete(dbr.conections.write, nil)
 }
 
+func (dbr *Dbr) Execute(query string) *StmtExecute {
+	return newStmtExecute(dbr.conections.write, query)
+}
+
 func (dbr *Dbr) With(name string, builder builder) *StmtWith {
 	return newStmtWith(dbr.conections, name, builder)
 }

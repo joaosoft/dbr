@@ -23,6 +23,8 @@ type Address struct {
 var db, _ = dbr.NewDbr()
 
 func main() {
+	DeleteAll()
+
 	Insert()
 	Select()
 
@@ -39,6 +41,8 @@ func main() {
 	UpdateReturning()
 	Select()
 	Delete()
+
+	Execute()
 
 	Transaction()
 	DeleteTransactionData()
@@ -377,6 +381,24 @@ func Join() {
 	}
 
 	fmt.Printf("\nSAVED ADDRESS: %+v", person)
+}
+
+func Execute() {
+	fmt.Println("\n\n:: EXECUTE")
+
+	builder, _ := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
+		Values("%joao%").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
+		Values("%joao%").
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n EXECUTE DONE")
 }
 
 func Transaction() {

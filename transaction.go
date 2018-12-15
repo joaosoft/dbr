@@ -51,6 +51,10 @@ func (tx *Transaction) Delete() *StmtDelete {
 	return newStmtDelete(tx.db, nil)
 }
 
+func (tx *Transaction) Execute(query string) *StmtExecute {
+	return newStmtExecute(tx.db, query)
+}
+
 func (tx *Transaction) With(name string, with *with) *StmtWith {
 	return &StmtWith{conn: &connections{read: tx.db, write: tx.db}, withs: withs{with}}
 }
