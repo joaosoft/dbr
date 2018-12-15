@@ -22,7 +22,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Execute
 
 ## With support for type annotations
-["-" when is to exlude]
+["-" when is to exclude a field]
 * db -> used to read and write
 * db.read -> used for select
 * db.write -> used for insert and update
