@@ -21,6 +21,7 @@ func main() {
 	InsertValues()
 	InsertRecords()
 	SelectAll()
+	SelectWith()
 
 	Update()
 	Select()
@@ -165,6 +166,36 @@ func SelectAll() {
 	}
 
 	fmt.Printf("\nLOADED PERSONS: %+v", persons)
+}
+
+func SelectWith() {
+	fmt.Println("\n\n:: SELECT WITH")
+
+	var person Person
+
+	builder := db.
+		With("load_one",
+			db.Select("first_name").
+				From("public.person").
+				Where("first_name = ?", "joao")).
+		With("load_two",
+			db.Select("id_person", "load_one.first_name", "last_name", "age").
+				From("load_one").
+				From(dbr.Field("public.person").As("person")).
+				Where("person.first_name = ?", "joao")).
+		Select("id_person", "first_name", "last_name", "age").
+		From("load_two").
+		Where("first_name = ?", "joao")
+
+	stmt, _ := builder.Build()
+	fmt.Printf("\nQUERY: %s", stmt)
+
+	_, err := builder.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
 }
 
 func Update() {

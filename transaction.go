@@ -36,17 +36,21 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 }
 
 func (tx *Transaction) Select(column ...string) *StmtSelect {
-	return newStmtSelect(tx.db, column)
+	return newStmtSelect(tx.db, nil, column)
 }
 
 func (tx *Transaction) Insert() *StmtInsert {
-	return newStmtInsert(tx.db)
+	return newStmtInsert(tx.db, nil)
 }
 
 func (tx *Transaction) Update(table string) *StmtUpdate {
-	return newStmtUpdate(tx.db, table)
+	return newStmtUpdate(tx.db, nil, table)
 }
 
 func (tx *Transaction) Delete() *StmtDelete {
-	return newStmtDelete(tx.db)
+	return newStmtDelete(tx.db, nil)
+}
+
+func (tx *Transaction) With(name string, with *with) *StmtWith {
+	return &StmtWith{conn: &connections{read: tx.db, write: tx.db}, withs: withs{with}}
 }

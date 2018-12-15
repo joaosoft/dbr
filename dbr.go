@@ -89,19 +89,23 @@ func NewDbr(options ...DbrOption) (*Dbr, error) {
 }
 
 func (dbr *Dbr) Select(column ...string) *StmtSelect {
-	return newStmtSelect(dbr.conections.read, column)
+	return newStmtSelect(dbr.conections.read, nil, column)
 }
 
 func (dbr *Dbr) Insert() *StmtInsert {
-	return newStmtInsert(dbr.conections.write)
+	return newStmtInsert(dbr.conections.write, nil)
 }
 
 func (dbr *Dbr) Update(table string) *StmtUpdate {
-	return newStmtUpdate(dbr.conections.write, table)
+	return newStmtUpdate(dbr.conections.write, nil, table)
 }
 
 func (dbr *Dbr) Delete() *StmtDelete {
-	return newStmtDelete(dbr.conections.write)
+	return newStmtDelete(dbr.conections.write, nil)
+}
+
+func (dbr *Dbr) With(name string, builder builder) *StmtWith {
+	return newStmtWith(dbr.conections, name, builder)
 }
 
 func (dbr *Dbr) Begin() (*Transaction, error) {

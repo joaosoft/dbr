@@ -7,6 +7,7 @@ import (
 )
 
 type StmtUpdate struct {
+	withs      withs
 	table      string
 	sets       sets
 	columns    columns
@@ -16,8 +17,8 @@ type StmtUpdate struct {
 	db *db
 }
 
-func newStmtUpdate(db *db, table string) *StmtUpdate {
-	return &StmtUpdate{db: db, table: table, sets: sets{db: db}, conditions: conditions{db: db}}
+func newStmtUpdate(db *db, withs withs, table string) *StmtUpdate {
+	return &StmtUpdate{db: db, withs: withs, table: table, sets: sets{db: db}, conditions: conditions{db: db}}
 }
 
 func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
@@ -36,13 +37,23 @@ func (stmt *StmtUpdate) Where(query string, values ...interface{}) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) Build() (string, error) {
+	var query string
+
+	// withs
+	if len(stmt.withs) > 0 {
+		withs, err := stmt.withs.Build()
+		if err != nil {
+			return "", err
+		}
+		query += fmt.Sprintf("WITH %s ", withs)
+	}
 
 	sets, err := stmt.sets.Build()
 	if err != nil {
 		return "", err
 	}
 
-	query := fmt.Sprintf("UPDATE %s SET %s", stmt.table, sets)
+	query += fmt.Sprintf("UPDATE %s SET %s", stmt.table, sets)
 
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()

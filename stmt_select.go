@@ -6,6 +6,7 @@ import (
 )
 
 type StmtSelect struct {
+	withs             withs
 	columns           columns
 	tables            tables
 	joins             joins
@@ -20,12 +21,12 @@ type StmtSelect struct {
 	db *db
 }
 
-func newStmtSelect(db *db, columns []string) *StmtSelect {
-	return &StmtSelect{db: db, columns: columns, conditions: conditions{db: db}}
+func newStmtSelect(db *db, withs withs, columns []string) *StmtSelect {
+	return &StmtSelect{db: db, withs: withs, columns: columns, conditions: conditions{db: db}}
 }
 
 func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
-	stmt.tables = tables
+	stmt.tables = append(stmt.tables, tables...)
 	return stmt
 }
 
@@ -65,8 +66,8 @@ func (stmt *StmtSelect) DistinctOn(column ...string) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Union(stmt1 *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, stmt1)
+func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, stmtUnion)
 	return stmt
 }
 
@@ -92,6 +93,16 @@ func (stmt *StmtSelect) Return(column ...string) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Build() (string, error) {
+	var query string
+
+	// withs
+	if len(stmt.withs) > 0 {
+		withs, err := stmt.withs.Build()
+		if err != nil {
+			return "", err
+		}
+		query += fmt.Sprintf("WITH %s ", withs)
+	}
 
 	// distinct
 	var distinct string
@@ -128,7 +139,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	}
 
 	// query
-	query := fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, tables)
+	query += fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, tables)
 
 	// joins
 	if len(stmt.joins) > 0 {

@@ -7,6 +7,7 @@ import (
 )
 
 type StmtDelete struct {
+	withs      withs
 	table      string
 	conditions conditions
 	returning  columns
@@ -14,8 +15,8 @@ type StmtDelete struct {
 	db *db
 }
 
-func newStmtDelete(db *db) *StmtDelete {
-	return &StmtDelete{db: db, conditions: conditions{db: db}}
+func newStmtDelete(db *db, withs withs) *StmtDelete {
+	return &StmtDelete{db: db, withs: withs, conditions: conditions{db: db}}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -29,7 +30,18 @@ func (stmt *StmtDelete) Where(query string, values ...interface{}) *StmtDelete {
 }
 
 func (stmt *StmtDelete) Build() (string, error) {
-	query := fmt.Sprintf("DELETE FROM %s", stmt.table)
+	var query string
+
+	// withs
+	if len(stmt.withs) > 0 {
+		withs, err := stmt.withs.Build()
+		if err != nil {
+			return "", err
+		}
+		query += fmt.Sprintf("WITH %s ", withs)
+	}
+
+	query += fmt.Sprintf("DELETE FROM %s", stmt.table)
 
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()

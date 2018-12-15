@@ -18,6 +18,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Insert, Multi insert, Record, Returning, Load
 * Update, Record, Returning, Load
 * Delete, Returning, Load
+* With
 
 ## With support for type annotations
 ["-" when is to exlude]
@@ -57,6 +58,7 @@ func main() {
 	InsertValues()
 	InsertRecords()
 	SelectAll()
+	SelectWith()
 
 	Update()
 	Select()
@@ -201,6 +203,36 @@ func SelectAll() {
 	}
 
 	fmt.Printf("\nLOADED PERSONS: %+v", persons)
+}
+
+func SelectWith() {
+	fmt.Println("\n\n:: SELECT WITH")
+
+	var person Person
+
+	builder := db.
+		With("load_one",
+			db.Select("first_name").
+				From("public.person").
+				Where("first_name = ?", "joao")).
+		With("load_two",
+			db.Select("id_person", "load_one.first_name", "last_name", "age").
+				From("load_one").
+				From(dbr.Field("public.person").As("person")).
+				Where("person.first_name = ?", "joao")).
+		Select("id_person", "first_name", "last_name", "age").
+		From("load_two").
+		Where("first_name = ?", "joao")
+
+	stmt, _ := builder.Build()
+	fmt.Printf("\nQUERY: %s", stmt)
+
+	_, err := builder.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
 }
 
 func Update() {
@@ -348,7 +380,7 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:182 FirstName:joao LastName:ribeiro Age:30}
+LOADED PERSON: {IdPerson:266 FirstName:joao LastName:ribeiro Age:30}
 
 :: INSERT
 
@@ -363,7 +395,12 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30}
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc
-LOADED PERSONS: [{IdPerson:182 FirstName:joao LastName:ribeiro Age:30} {IdPerson:183 FirstName:a LastName:a Age:1} {IdPerson:184 FirstName:b LastName:b Age:2} {IdPerson:185 FirstName:c LastName:c Age:3} {IdPerson:186 FirstName:joao LastName:ribeiro Age:30} {IdPerson:187 FirstName:luis LastName:ribeiro Age:31}]
+LOADED PERSONS: [{IdPerson:266 FirstName:joao LastName:ribeiro Age:30} {IdPerson:267 FirstName:a LastName:a Age:1} {IdPerson:268 FirstName:b LastName:b Age:2} {IdPerson:269 FirstName:c LastName:c Age:3} {IdPerson:270 FirstName:joao LastName:ribeiro Age:30} {IdPerson:271 FirstName:luis LastName:ribeiro Age:31}]
+
+:: SELECT WITH
+
+QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao') SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
+LOADED PERSON: {IdPerson:266 FirstName:joao LastName:ribeiro Age:30}
 
 :: UPDATE
 
@@ -373,7 +410,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:182 FirstName:joao LastName:males Age:30}
+LOADED PERSON: {IdPerson:266 FirstName:joao LastName:males Age:30}
 
 :: UPDATE
 
@@ -385,7 +422,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:182 FirstName:joao LastName:luis Age:30}
+LOADED PERSON: {IdPerson:266 FirstName:joao LastName:luis Age:30}
 
 :: DELETE
 

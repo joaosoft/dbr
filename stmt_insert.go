@@ -7,6 +7,7 @@ import (
 )
 
 type StmtInsert struct {
+	withs     withs
 	table     string
 	columns   columns
 	values    values
@@ -15,8 +16,8 @@ type StmtInsert struct {
 	db *db
 }
 
-func newStmtInsert(db *db) *StmtInsert {
-	return &StmtInsert{db: db, values: values{db: db}}
+func newStmtInsert(db *db, withs withs) *StmtInsert {
+	return &StmtInsert{db: db, withs: withs, values: values{db: db}}
 }
 
 func (stmt *StmtInsert) Into(table string) *StmtInsert {
@@ -35,6 +36,16 @@ func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Build() (string, error) {
+	var query string
+
+	// withs
+	if len(stmt.withs) > 0 {
+		withs, err := stmt.withs.Build()
+		if err != nil {
+			return "", err
+		}
+		query += fmt.Sprintf("WITH %s ", withs)
+	}
 
 	columns, err := stmt.columns.Build()
 	if err != nil {
@@ -46,7 +57,7 @@ func (stmt *StmtInsert) Build() (string, error) {
 		return "", err
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", stmt.table, columns, values)
+	query += fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", stmt.table, columns, values)
 
 	if len(stmt.returning) > 0 {
 		returning, err := stmt.returning.Build()

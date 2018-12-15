@@ -13,10 +13,6 @@ type values struct {
 func (v values) Build() (string, error) {
 	var query string
 
-	if len(v.list) == 0 {
-		return "", ErrorNumberOfConditionValues
-	}
-
 	lenV := len(v.list)
 	var err error
 	var withoutParentheses bool

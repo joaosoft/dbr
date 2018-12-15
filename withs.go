@@ -1,0 +1,33 @@
+package dbr
+
+import (
+	"fmt"
+)
+
+type withs []*with
+
+type with struct {
+	name    string
+	builder builder
+}
+
+func (w withs) Build() (string, error) {
+	var query string
+
+	lenS := len(w)
+	for i, item := range w {
+
+		build, err := item.builder.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += fmt.Sprintf("%s AS (%s)", item.name, build)
+
+		if i+1 < lenS {
+			query += ", "
+		}
+	}
+
+	return query, nil
+}
