@@ -20,7 +20,7 @@ type Address struct {
 	Country   string `json:"country" db:"country"`
 }
 
-var db, _ = dbr.NewDbr()
+var db, _ = dbr.New()
 
 func main() {
 	DeleteAll()

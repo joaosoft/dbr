@@ -32,8 +32,8 @@ type db struct {
 	duration time.Duration
 }
 
-// NewDbr ...
-func NewDbr(options ...DbrOption) (*Dbr, error) {
+// New ...
+func New(options ...DbrOption) (*Dbr, error) {
 	dbr := &Dbr{
 		pm: manager.NewManager(manager.WithRunInBackground(true)),
 	}
