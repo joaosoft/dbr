@@ -10,6 +10,14 @@ type Person struct {
 	FirstName string `json:"first_name" db:"first_name"`
 	LastName  string `json:"last_name" db:"last_name"`
 	Age       int    `json:"age" db:"age"`
+	IdAddress *int   `json:"fk_address" db:"fk_address"`
+}
+
+type Address struct {
+	IdAddress int    `json:"id_address" db:"id_address"`
+	Street    string `json:"street" db:"street"`
+	Number    int    `json:"number" db:"number"`
+	Country   string `json:"country" db:"country"`
 }
 
 var db, _ = dbr.NewDbr()
@@ -23,6 +31,7 @@ func main() {
 	SelectAll()
 	SelectWith()
 	SelectGroupBy()
+	Join()
 
 	Update()
 	Select()
@@ -299,6 +308,77 @@ func Delete() {
 	fmt.Printf("\nDELETED PERSON")
 }
 
+func Join() {
+	fmt.Println("\n\n:: JOIN")
+
+	address := Address{
+		IdAddress: 1,
+		Street:    "street one",
+		Number:    1,
+		Country:   "portugal",
+	}
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.address").As("new_name")).
+		Record(address).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.address").As("new_name")).
+		Record(address).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED ADDRESS: %+v", address)
+
+	idAddress := 1
+	person := Person{
+		FirstName: "joao-join",
+		LastName:  "ribeiro-join",
+		Age:       30,
+		IdAddress: &idAddress,
+	}
+
+	builder, _ = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Record(person).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Record(person).
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED PERSON: %+v", person)
+
+	builder, _ = db.Select("address.street").
+		From("public.person").
+		Join("public.address", "fk_address = id_address").
+		Where("first_name = ?", "joao-join").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	var street string
+	_, err = db.Select("address.street").
+		From("public.person").
+		Join("public.address", "fk_address = id_address").
+		Where("first_name = ?", "joao-join").
+		Load(&street)
+	fmt.Printf("\nSTREET: %s", street)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSAVED ADDRESS: %+v", person)
+}
+
 func Transaction() {
 	fmt.Println("\n\n:: TRANSACTION")
 
@@ -361,6 +441,18 @@ func DeleteAll() {
 
 	_, err := db.Delete().
 		From("public.person").
+		Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	builder, _ = db.Delete().
+		From("public.address").
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Delete().
+		From("public.address").
 		Exec()
 	if err != nil {
 		panic(err)

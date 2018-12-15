@@ -40,7 +40,11 @@ func (v values) Build() (string, error) {
 			}
 			value = fmt.Sprintf("%+v", valuer)
 		default:
-			value = fmt.Sprintf("%s", v.db.dialect.Encode(item))
+			if item == nil {
+				value = fmt.Sprintf("NULL")
+			} else {
+				value = fmt.Sprintf("%s", v.db.dialect.Encode(item))
+			}
 		}
 
 		query += value

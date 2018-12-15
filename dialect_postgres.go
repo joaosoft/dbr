@@ -18,7 +18,7 @@ func (d *DialectPostgres) Encode(i interface{}) string {
 
 	if value.Kind() == reflect.Ptr {
 		if value.IsNil() {
-			return fmt.Sprintf("%+v", i)
+			return "NULL"
 		}
 		value = value.Elem()
 	}
@@ -37,7 +37,7 @@ func (d *DialectPostgres) Encode(i interface{}) string {
 		}
 	}
 
-	return fmt.Sprintf("%+v", i)
+	return fmt.Sprintf("%+v", value.Interface())
 }
 
 func (d *DialectPostgres) EncodeString(s string) string {
