@@ -26,6 +26,7 @@ func main() {
 	DeleteAll()
 
 	Insert()
+	InsertOnConflict()
 	Select()
 
 	InsertValues()
@@ -74,6 +75,62 @@ func Insert() {
 	}
 
 	fmt.Printf("\nSAVED PERSON: %+v", person)
+}
+
+func InsertOnConflict() {
+	fmt.Println("\n\n:: INSERT")
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		Exec()
+
+	// on conflict do update
+	builder, _ = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoUpdate("id_person", 100).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoUpdate("id_person", 100).
+		Exec()
+
+	// on conflict do nothing
+	builder, _ = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoNothing().
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoNothing().
+		Exec()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func InsertValues() {

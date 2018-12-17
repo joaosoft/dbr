@@ -20,6 +20,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Delete, Returning, Load
 * With
 * Execute
+* OnConflict (DoNothing, DoUpdate)
 
 ## With support for type annotations
 ["-" when is to exclude a field]
@@ -64,6 +65,7 @@ func main() {
 	DeleteAll()
 
 	Insert()
+	InsertOnConflict()
 	Select()
 
 	InsertValues()
@@ -112,6 +114,62 @@ func Insert() {
 	}
 
 	fmt.Printf("\nSAVED PERSON: %+v", person)
+}
+
+func InsertOnConflict() {
+	fmt.Println("\n\n:: INSERT")
+
+	builder, _ := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err := db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		Exec()
+
+	// on conflict do update
+	builder, _ = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoUpdate("id_person", 100).
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoUpdate("id_person", 100).
+		Exec()
+
+	// on conflict do nothing
+	builder, _ = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoNothing().
+		Build()
+	fmt.Printf("\nQUERY: %s", builder)
+
+	_, err = db.Insert().
+		Into(dbr.Field("public.person").As("new_name")).
+		Columns("first_name", "last_name", "age").
+		Values("duplicated", "duplicated", 10).
+		OnConflict("id_person").
+		DoNothing().
+		Exec()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func InsertValues() {
@@ -535,10 +593,16 @@ DELETED ALL
 QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao', 'ribeiro', 30, NULL)
 SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
+:: INSERT
+
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10)
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO UPDATE SET id_person = 100
+QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO NOTHING
+
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:564 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:622 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT
 
@@ -553,27 +617,27 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:565 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:566 FirstName:b LastName:b Age:2 IdAddress:<nil>} {IdPerson:567 FirstName:c LastName:c Age:3 IdAddress:<nil>} {IdPerson:568 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:569 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:623 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:624 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:625 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:626 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:627 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
 
 :: SELECT WITH
 
 QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao') SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:564 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:622 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT GROUP BY
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:568 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:569 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:629 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:630 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
 
 :: JOIN
 
 QUERY: INSERT INTO public.address AS new_name (id_address, street, number, country) VALUES (1, 'street one', 1, 'portugal')
 SAVED ADDRESS: {IdAddress:1 Street:street one Number:1 Country:portugal}
 QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao-join', 'ribeiro-join', 30, 1)
-SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4200209d0}
+SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a09b0}
 QUERY: SELECT address.street FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join'
 STREET: street one
-SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4200209d0}
+SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a09b0}
 
 :: UPDATE
 
@@ -583,7 +647,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:564 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:622 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: UPDATE
 
@@ -595,7 +659,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:564 FirstName:joao LastName:luis Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:622 FirstName:joao LastName:luis Age:30 IdAddress:<nil>}
 
 :: DELETE
 

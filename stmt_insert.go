@@ -7,17 +7,18 @@ import (
 )
 
 type StmtInsert struct {
-	withs     withs
-	table     string
-	columns   columns
-	values    values
-	returning columns
+	withs        withs
+	table        string
+	columns      columns
+	values       values
+	returning    columns
+	stmtConflict StmtConflict
 
 	db *db
 }
 
 func newStmtInsert(db *db, withs withs) *StmtInsert {
-	return &StmtInsert{db: db, withs: withs, values: values{db: db}}
+	return &StmtInsert{db: db, withs: withs, values: values{db: db}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: db}}}
 }
 
 func (stmt *StmtInsert) Into(table string) *StmtInsert {
@@ -47,11 +48,13 @@ func (stmt *StmtInsert) Build() (string, error) {
 		query += fmt.Sprintf("WITH %s ", withs)
 	}
 
+	// columns
 	columns, err := stmt.columns.Build()
 	if err != nil {
 		return "", err
 	}
 
+	// values
 	values, err := stmt.values.Build()
 	if err != nil {
 		return "", err
@@ -59,6 +62,17 @@ func (stmt *StmtInsert) Build() (string, error) {
 
 	query += fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", stmt.table, columns, values)
 
+	// on conflict
+	if stmt.stmtConflict.onConflictType != "" {
+		onConflictStmt, err := stmt.stmtConflict.Build()
+		if err != nil {
+			return "", err
+		}
+
+		query += onConflictStmt
+	}
+
+	// returning
 	if len(stmt.returning) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {
@@ -106,6 +120,38 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 func (stmt *StmtInsert) Records(records []interface{}) *StmtInsert {
 	for _, record := range records {
 		stmt.Record(record)
+	}
+
+	return stmt
+}
+
+func (stmt *StmtInsert) OnConflict(column ...string) *StmtInsert {
+	stmt.stmtConflict.onConflictType = onConflictColumn
+	stmt.stmtConflict.onConflict = append(stmt.stmtConflict.onConflict, column...)
+	return stmt
+}
+
+func (stmt *StmtInsert) OnConflictConstraint(constraint string) *StmtInsert {
+	stmt.stmtConflict.onConflictType = onConflictConstraint
+	stmt.stmtConflict.onConflict = []string{constraint}
+	return stmt
+}
+
+func (stmt *StmtInsert) DoNothing() *StmtInsert {
+	stmt.stmtConflict.onConflictDoType = onConflictDoNothing
+	return stmt
+}
+
+func (stmt *StmtInsert) DoUpdate(fieldValue ...interface{}) *StmtInsert {
+	stmt.stmtConflict.onConflictDoType = onConflictDoUpdate
+
+	if len(fieldValue)%2 != 0 {
+		return stmt
+	}
+
+	lenC := len(fieldValue)
+	for i := 0; i < lenC; i += 2 {
+		stmt.stmtConflict.onConflictDoUpdate.list = append(stmt.stmtConflict.onConflictDoUpdate.list, &set{column: fieldValue[i].(string), value: fieldValue[i+1]})
 	}
 
 	return stmt
