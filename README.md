@@ -19,8 +19,8 @@ The main goal of this project is to allow a application to write in a master dat
 * Update, Record, Returning, Load
 * Delete, Returning, Load
 * With
-* Execute
 * OnConflict (DoNothing, DoUpdate)
+* Execute
 
 ## With support for type annotations
 ["-" when is to exclude a field]
@@ -99,16 +99,17 @@ func Insert() {
 		Age:       30,
 	}
 
-	builder, _ := db.Insert().
+	stmt := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Record(person).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Record(person)
 
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Record(person).
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -119,54 +120,53 @@ func Insert() {
 func InsertOnConflict() {
 	fmt.Println("\n\n:: INSERT")
 
-	builder, _ := db.Insert().
+	stmt := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
-		Values("duplicated", "duplicated", 10).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Values("duplicated", "duplicated", 10)
 
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Values("duplicated", "duplicated", 10).
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 
 	// on conflict do update
-	builder, _ = db.Insert().
+	stmt = db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
-		DoUpdate("id_person", 100).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		DoUpdate("id_person", 100)
 
-	_, err = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Values("duplicated", "duplicated", 10).
-		OnConflict("id_person").
-		DoUpdate("id_person", 100).
-		Exec()
+	query, err = stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
+	if err != nil {
+		panic(err)
+	}
 
 	// on conflict do nothing
-	builder, _ = db.Insert().
+	stmt = db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
-		DoNothing().
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		DoNothing()
 
-	_, err = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Values("duplicated", "duplicated", 10).
-		OnConflict("id_person").
-		DoNothing().
-		Exec()
+	query, err = stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -175,22 +175,20 @@ func InsertOnConflict() {
 func InsertValues() {
 	fmt.Println("\n\n:: INSERT")
 
-	builder, _ := db.Insert().
+	stmt := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("a", "a", 1).
 		Values("b", "b", 2).
-		Values("c", "c", 3).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Values("c", "c", 3)
 
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Columns("first_name", "last_name", "age").
-		Values("a", "a", 1).
-		Values("b", "b", 2).
-		Values("c", "c", 3).
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -213,18 +211,18 @@ func InsertRecords() {
 		Age:       31,
 	}
 
-	builder, _ := db.Insert().
+	stmt := db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
 		Record(person1).
-		Record(person2).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Record(person2)
 
-	_, err := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Record(person1).
-		Record(person2).
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -237,16 +235,17 @@ func Select() {
 
 	var person Person
 
-	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("public.person").
-		Where("first_name = ?", "joao").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao")
 
-	_, err := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
-		Where("first_name = ?", "joao").
-		Load(&person)
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
 	if err != nil {
 		panic(err)
 	}
@@ -259,22 +258,20 @@ func SelectAll() {
 
 	var persons []Person
 
-	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("public.person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
 		Limit(5).
-		Offset(1).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Offset(1)
 
-	_, err := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
-		OrderAsc("id_person").
-		OrderDesc("first_name").
-		Limit(5).
-		Offset(1).
-		Load(&persons)
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&persons)
 	if err != nil {
 		panic(err)
 	}
@@ -287,7 +284,7 @@ func SelectWith() {
 
 	var person Person
 
-	builder := db.
+	stmt := db.
 		With("load_one",
 			db.Select("first_name").
 				From("public.person").
@@ -301,10 +298,13 @@ func SelectWith() {
 		From("load_two").
 		Where("first_name = ?", "joao")
 
-	stmt, _ := builder.Build()
-	fmt.Printf("\nQUERY: %s", stmt)
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
 
-	_, err := builder.Load(&person)
+	_, err = stmt.Load(&person)
 	if err != nil {
 		panic(err)
 	}
@@ -317,26 +317,23 @@ func SelectGroupBy() {
 
 	var persons []Person
 
-	builder, _ := db.Select("id_person", "first_name", "last_name", "age").
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("public.person").
 		OrderAsc("age").
 		OrderDesc("first_name").
 		GroupBy("id_person", "last_name", "first_name", "age").
 		Having("age > 20").
 		Limit(5).
-		Offset(1).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Offset(1)
 
-	_, err := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
-		OrderAsc("age").
-		OrderDesc("first_name").
-		GroupBy("id_person", "last_name", "first_name", "age").
-		Having("age > 20").
-		Limit(5).
-		Offset(1).
-		Load(&persons)
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&persons)
 	if err != nil {
 		panic(err)
 	}
@@ -347,16 +344,17 @@ func SelectGroupBy() {
 func Update() {
 	fmt.Println("\n\n:: UPDATE")
 
-	builder, _ := db.Update("public.person").
+	stmt := db.Update("public.person").
 		Set("last_name", "males").
-		Where("first_name = ?", "joao").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao")
 
-	_, err := db.Update("public.person").
-		Set("last_name", "males").
-		Where("first_name = ?", "joao").
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -367,18 +365,18 @@ func Update() {
 func UpdateReturning() {
 	fmt.Println("\n\n:: UPDATE")
 
-	builder, _ := db.Update("public.person").
+	stmt := db.Update("public.person").
 		Set("last_name", "males").
-		Where("first_name = ?", "joao").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
 
 	var age int
-	err := db.Update("public.person").
-		Set("last_name", "luis").
-		Where("first_name = ?", "joao").
-		Return("age").
-		Load(&age)
+	err = stmt.Load(&age)
 	fmt.Printf("\n\nAGE: %d", age)
 
 	if err != nil {
@@ -391,16 +389,17 @@ func UpdateReturning() {
 func Delete() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().
+	stmt := db.Delete().
 		From("public.person").
-		Where("first_name = ?", "joao").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao")
 
-	_, err := db.Delete().
-		From("public.person").
-		Where("first_name = ?", "joao").
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -418,16 +417,17 @@ func Join() {
 		Country:   "portugal",
 	}
 
-	builder, _ := db.Insert().
+	stmtInsert := db.Insert().
 		Into(dbr.Field("public.address").As("new_name")).
-		Record(address).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Record(address)
 
-	_, err := db.Insert().
-		Into(dbr.Field("public.address").As("new_name")).
-		Record(address).
-		Exec()
+	query, err := stmtInsert.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmtInsert.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -442,35 +442,36 @@ func Join() {
 		IdAddress: &idAddress,
 	}
 
-	builder, _ = db.Insert().
+	stmtInsert = db.Insert().
 		Into(dbr.Field("public.person").As("new_name")).
-		Record(person).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Record(person)
 
-	_, err = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
-		Record(person).
-		Exec()
+	query, err = stmtInsert.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmtInsert.Exec()
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 
-	builder, _ = db.Select("address.street").
+	stmtSelect := db.Select("address.street").
 		From("public.person").
 		Join("public.address", "fk_address = id_address").
-		Where("first_name = ?", "joao-join").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao-join")
+
+	query, err = stmtSelect.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
 
 	var street string
-	_, err = db.Select("address.street").
-		From("public.person").
-		Join("public.address", "fk_address = id_address").
-		Where("first_name = ?", "joao-join").
-		Load(&street)
+	_, err = stmtSelect.Load(&street)
 	fmt.Printf("\nSTREET: %s", street)
 	if err != nil {
 		panic(err)
@@ -482,14 +483,16 @@ func Join() {
 func Execute() {
 	fmt.Println("\n\n:: EXECUTE")
 
-	builder, _ := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
-		Values("%joao%").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+	stmt := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
+		Values("%joao%")
 
-	_, err := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
-		Values("%joao%").
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -509,16 +512,17 @@ func Transaction() {
 		Age:       30,
 	}
 
-	builder, _ := tx.Insert().
+	stmt := tx.Insert().
 		Into("public.person").
-		Record(person).
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Record(person)
 
-	_, err := tx.Insert().
-		Into("public.person").
-		Record(person).
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -532,16 +536,17 @@ func Transaction() {
 func DeleteTransactionData() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().
+	stmt := db.Delete().
 		From("public.person").
-		Where("first_name = ?", "joao-2").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+		Where("first_name = ?", "joao-2")
 
-	_, err := db.Delete().
-		From("public.person").
-		Where("first_name = ?", "joao-2").
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -552,26 +557,30 @@ func DeleteTransactionData() {
 func DeleteAll() {
 	fmt.Println("\n\n:: DELETE")
 
-	builder, _ := db.Delete().
-		From("public.person").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+	stmt := db.Delete().
+		From("public.person")
 
-	_, err := db.Delete().
-		From("public.person").
-		Exec()
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
 
-	builder, _ = db.Delete().
-		From("public.address").
-		Build()
-	fmt.Printf("\nQUERY: %s", builder)
+	stmt = db.Delete().
+		From("public.address")
 
-	_, err = db.Delete().
-		From("public.address").
-		Exec()
+	query, err = stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
@@ -602,7 +611,7 @@ QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:622 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:644 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT
 
@@ -617,27 +626,27 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:623 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:624 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:625 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:626 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:627 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:645 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:646 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:647 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:648 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:649 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
 
 :: SELECT WITH
 
 QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao') SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:622 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:644 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT GROUP BY
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:629 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:630 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:651 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:652 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
 
 :: JOIN
 
 QUERY: INSERT INTO public.address AS new_name (id_address, street, number, country) VALUES (1, 'street one', 1, 'portugal')
 SAVED ADDRESS: {IdAddress:1 Street:street one Number:1 Country:portugal}
 QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao-join', 'ribeiro-join', 30, 1)
-SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a09b0}
+SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a0c68}
 QUERY: SELECT address.street FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join'
 STREET: street one
-SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a09b0}
+SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc4201a0c68}
 
 :: UPDATE
 
@@ -647,19 +656,19 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:622 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:644 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: UPDATE
 
 QUERY: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao'
 
-AGE: 30
+AGE: 0
 UPDATED PERSON
 
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:622 FirstName:joao LastName:luis Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:644 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: DELETE
 
