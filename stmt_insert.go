@@ -13,6 +13,7 @@ type StmtInsert struct {
 	values       values
 	returning    columns
 	stmtConflict StmtConflict
+	fromSelect   *StmtSelect
 
 	db *db
 }
@@ -36,6 +37,11 @@ func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
 	return stmt
 }
 
+func (stmt *StmtInsert) FromSelect(selectStmt *StmtSelect) *StmtInsert {
+	stmt.fromSelect = selectStmt
+	return stmt
+}
+
 func (stmt *StmtInsert) Build() (string, error) {
 	var query string
 
@@ -55,12 +61,26 @@ func (stmt *StmtInsert) Build() (string, error) {
 	}
 
 	// values
-	values, err := stmt.values.Build()
-	if err != nil {
-		return "", err
+	var values string
+	if len(stmt.values.list) > 0 {
+		values = "VALUES "
+		val, err := stmt.values.Build()
+		if err != nil {
+			return "", err
+		}
+		values += val
 	}
 
-	query += fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", stmt.table, columns, values)
+	// from select statement
+	var selectStmt string
+	if stmt.fromSelect != nil {
+		selectStmt, err = stmt.fromSelect.Build()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	query += fmt.Sprintf("INSERT INTO %s (%s) %s%s", stmt.table, columns, values, selectStmt)
 
 	// on conflict
 	if stmt.stmtConflict.onConflictType != "" {

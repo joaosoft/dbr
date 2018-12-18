@@ -33,6 +33,7 @@ func main() {
 	InsertRecords()
 	SelectAll()
 	SelectWith()
+	InsertWith()
 	SelectGroupBy()
 	Join()
 
@@ -46,9 +47,9 @@ func main() {
 	Execute()
 
 	Transaction()
-	DeleteTransactionData()
+	//DeleteTransactionData()
 
-	DeleteAll()
+	//DeleteAll()
 }
 
 func Insert() {
@@ -273,6 +274,62 @@ func SelectWith() {
 	fmt.Printf("\nLOADED PERSON: %+v", person)
 }
 
+func InsertWith() {
+	fmt.Println("\n\n:: INSERT WITH")
+
+	var person Person
+
+	stmt := db.
+		With("load_one",
+			db.Select("first_name").
+				From("public.person").
+				Where("first_name = ?", "joao").
+				Limit(1)).
+		With("load_two",
+			db.Select("id_person", "load_one.first_name", "last_name", "age").
+				From("load_one").
+				From(dbr.Field("public.person").As("person")).
+				Where("person.first_name = ?", "joao").Limit(1)).
+		Insert().
+		Into("public.person").
+		Columns("id_person", "first_name", "last_name", "age").
+		FromSelect(
+			db.Select("999", "first_name", "last_name", "age").
+				From("load_two"))
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nINSERT PERSON 999: %+v", person)
+
+	fmt.Println("\n\n:: SELECT")
+
+	stmtSelect := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		Where("id_person = ?", 999)
+
+	query, err = stmtSelect.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmtSelect.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON 999: %+v", person)
+}
+
 func SelectGroupBy() {
 	fmt.Println("\n\n:: SELECT GROUP BY")
 
@@ -328,7 +385,8 @@ func UpdateReturning() {
 
 	stmt := db.Update("public.person").
 		Set("last_name", "males").
-		Where("first_name = ?", "joao")
+		Where("first_name = ?", "joao").
+		Return("age")
 
 	query, err := stmt.Build()
 	if err != nil {
