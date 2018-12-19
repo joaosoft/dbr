@@ -40,6 +40,41 @@ Project dependencies are managed using Dep. Read more about [Dep](https://github
 go get github.com/joaosoft/dbr
 ```
 
+>### Configuration
+>>#### master / slave
+```
+{
+  "dbr": {
+    "read_db": {
+      "driver": "postgres",
+      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable&search_path=public"
+    },
+    "write_db": {
+      "driver": "postgres",
+      "datasource": "postgres://user:password@localhost:7100/postgres?sslmode=disable&search_path=public"
+    },
+    "log": {
+      "level": "info"
+    }
+  }
+}
+```
+
+>>#### one instance only
+```
+{
+  "dbr": {
+    "db": {
+      "driver": "postgres",
+      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable&search_path=public"
+    },
+    "log": {
+      "level": "info"
+    }
+  }
+}
+```
+
 ## Usage 
 This examples are available in the project at [dbr/examples](https://github.com/joaosoft/dbr/tree/master/examples)
 
