@@ -10,6 +10,11 @@ type conditions struct {
 }
 
 func (c conditions) Build() (string, error) {
+
+	if len(c.list) == 0 {
+		return "", nil
+	}
+
 	var query string
 
 	lenC := len(c.list)

@@ -89,19 +89,19 @@ func New(options ...DbrOption) (*Dbr, error) {
 }
 
 func (dbr *Dbr) Select(column ...string) *StmtSelect {
-	return newStmtSelect(dbr.conections.read, nil, column)
+	return newStmtSelect(dbr.conections.read, &StmtWith{}, column)
 }
 
 func (dbr *Dbr) Insert() *StmtInsert {
-	return newStmtInsert(dbr.conections.write, nil)
+	return newStmtInsert(dbr.conections.write, &StmtWith{})
 }
 
 func (dbr *Dbr) Update(table string) *StmtUpdate {
-	return newStmtUpdate(dbr.conections.write, nil, table)
+	return newStmtUpdate(dbr.conections.write, &StmtWith{}, table)
 }
 
 func (dbr *Dbr) Delete() *StmtDelete {
-	return newStmtDelete(dbr.conections.write, nil)
+	return newStmtDelete(dbr.conections.write, &StmtWith{})
 }
 
 func (dbr *Dbr) Execute(query string) *StmtExecute {
@@ -109,7 +109,11 @@ func (dbr *Dbr) Execute(query string) *StmtExecute {
 }
 
 func (dbr *Dbr) With(name string, builder builder) *StmtWith {
-	return newStmtWith(dbr.conections, name, builder)
+	return newStmtWith(dbr.conections, name, false, builder)
+}
+
+func (dbr *Dbr) WithRecursive(name string, builder builder) *StmtWith {
+	return newStmtWith(dbr.conections, name, true, builder)
 }
 
 func (dbr *Dbr) Begin() (*Transaction, error) {

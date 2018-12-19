@@ -18,7 +18,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Insert, Multi insert, Record, Returning, Load
 * Update, Record, Returning, Load
 * Delete, Returning, Load
-* With
+* With, With Recursive
 * OnConflict (DoNothing, DoUpdate)
 * Execute
 

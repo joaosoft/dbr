@@ -8,16 +8,21 @@ type unionType string
 type unions []*union
 type union struct {
 	unionType unionType
-	stmt *StmtSelect
+	stmt      *StmtSelect
 }
 
-const(
-	unionNormal = "UNION"
+const (
+	unionNormal    = "UNION"
 	unionIntersect = "INTERSECT"
-	unionExcept = "EXCEPT"
+	unionExcept    = "EXCEPT"
 )
 
 func (u unions) Build() (string, error) {
+
+	if len(u) == 0 {
+		return "", nil
+	}
+
 	var query string
 
 	for _, union := range u {

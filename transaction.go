@@ -36,25 +36,29 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 }
 
 func (tx *Transaction) Select(column ...string) *StmtSelect {
-	return newStmtSelect(tx.db, nil, column)
+	return newStmtSelect(tx.db, &StmtWith{}, column)
 }
 
 func (tx *Transaction) Insert() *StmtInsert {
-	return newStmtInsert(tx.db, nil)
+	return newStmtInsert(tx.db, &StmtWith{})
 }
 
 func (tx *Transaction) Update(table string) *StmtUpdate {
-	return newStmtUpdate(tx.db, nil, table)
+	return newStmtUpdate(tx.db, &StmtWith{}, table)
 }
 
 func (tx *Transaction) Delete() *StmtDelete {
-	return newStmtDelete(tx.db, nil)
+	return newStmtDelete(tx.db, &StmtWith{})
 }
 
 func (tx *Transaction) Execute(query string) *StmtExecute {
 	return newStmtExecute(tx.db, query)
 }
 
-func (tx *Transaction) With(name string, with *with) *StmtWith {
-	return &StmtWith{conn: &connections{read: tx.db, write: tx.db}, withs: withs{with}}
+func (tx *Transaction) With(name string, builder builder) *StmtWith {
+	return newStmtWith(&connections{read: tx.db, write: tx.db}, name, false, builder)
+}
+
+func (tx *Transaction) WithRecursive(name string, builder builder) *StmtWith {
+	return newStmtWith(&connections{read: tx.db, write: tx.db}, name, true, builder)
 }

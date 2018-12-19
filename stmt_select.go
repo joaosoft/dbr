@@ -6,7 +6,7 @@ import (
 )
 
 type StmtSelect struct {
-	withs             withs
+	withStmt          *StmtWith
 	columns           columns
 	tables            tables
 	joins             joins
@@ -25,8 +25,8 @@ type StmtSelect struct {
 	db *db
 }
 
-func newStmtSelect(db *db, withs withs, columns []string) *StmtSelect {
-	return &StmtSelect{db: db, withs: withs, columns: columns, conditions: conditions{db: db}, having: conditions{db: db}}
+func newStmtSelect(db *db, withStmt *StmtWith, columns []string) *StmtSelect {
+	return &StmtSelect{db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: db}, having: conditions{db: db}}
 }
 
 func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
@@ -129,13 +129,13 @@ func (stmt *StmtSelect) Offset(offset int) *StmtSelect {
 func (stmt *StmtSelect) Build() (string, error) {
 	var query string
 
-	// withs
-	if len(stmt.withs) > 0 {
-		withs, err := stmt.withs.Build()
+	// withStmt
+	if len(stmt.withStmt.withs) > 0 {
+		withStmt, err := stmt.withStmt.Build()
 		if err != nil {
 			return "", err
 		}
-		query += fmt.Sprintf("WITH %s ", withs)
+		query += withStmt
 	}
 
 	// distinct

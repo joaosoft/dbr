@@ -12,6 +12,11 @@ type with struct {
 }
 
 func (w withs) Build() (string, error) {
+
+	if len(w) == 0 {
+		return "", nil
+	}
+
 	var query string
 
 	lenS := len(w)

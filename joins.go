@@ -7,6 +7,11 @@ import (
 type joins []*StmtJoin
 
 func (j joins) Build() (string, error) {
+
+	if len(j) == 0 {
+		return "", nil
+	}
+
 	var query string
 
 	lenJ := len(j)

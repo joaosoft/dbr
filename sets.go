@@ -10,6 +10,11 @@ type sets struct {
 }
 
 func (s sets) Build() (string, error) {
+
+	if len(s.list) == 0 {
+		return "", nil
+	}
+
 	var query string
 
 	lenS := len(s.list)

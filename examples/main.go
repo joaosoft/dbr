@@ -33,6 +33,7 @@ func main() {
 	InsertRecords()
 	SelectAll()
 	SelectWith()
+	SelectWithRecursive()
 	InsertWith()
 	SelectGroupBy()
 	Join()
@@ -248,6 +249,39 @@ func SelectWith() {
 
 	stmt := db.
 		With("load_one",
+			db.Select("first_name").
+				From("public.person").
+				Where("first_name = ?", "joao")).
+		With("load_two",
+			db.Select("id_person", "load_one.first_name", "last_name", "age").
+				From("load_one").
+				From(dbr.Field("public.person").As("person")).
+				Where("person.first_name = ?", "joao")).
+		Select("id_person", "first_name", "last_name", "age").
+		From("load_two").
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectWithRecursive() {
+	fmt.Println("\n\n:: SELECT WITH RECURSIVE")
+
+	var person Person
+
+	stmt := db.
+		WithRecursive("load_one",
 			db.Select("first_name").
 				From("public.person").
 				Where("first_name = ?", "joao")).

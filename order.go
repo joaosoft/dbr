@@ -20,10 +20,11 @@ type orders []*order
 
 func (o orders) Build() (string, error) {
 	var query string
-	if len(o) > 0 {
-		query = " ORDER BY "
+	if len(o) == 0 {
+		return "", nil
 	}
 
+	query = " ORDER BY "
 	lenO := len(o)
 	for i, item := range o {
 		query += fmt.Sprintf("%s %s", item.column, item.direction)

@@ -7,7 +7,7 @@ import (
 )
 
 type StmtInsert struct {
-	withs        withs
+	withStmt     *StmtWith
 	table        string
 	columns      columns
 	values       values
@@ -18,8 +18,8 @@ type StmtInsert struct {
 	db *db
 }
 
-func newStmtInsert(db *db, withs withs) *StmtInsert {
-	return &StmtInsert{db: db, withs: withs, values: values{db: db}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: db}}}
+func newStmtInsert(db *db, withStmt *StmtWith) *StmtInsert {
+	return &StmtInsert{db: db, withStmt: withStmt, values: values{db: db}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: db}}}
 }
 
 func (stmt *StmtInsert) Into(table string) *StmtInsert {
@@ -45,13 +45,13 @@ func (stmt *StmtInsert) FromSelect(selectStmt *StmtSelect) *StmtInsert {
 func (stmt *StmtInsert) Build() (string, error) {
 	var query string
 
-	// withs
-	if len(stmt.withs) > 0 {
-		withs, err := stmt.withs.Build()
+	// withStmt
+	if len(stmt.withStmt.withs) > 0 {
+		withStmt, err := stmt.withStmt.Build()
 		if err != nil {
 			return "", err
 		}
-		query += fmt.Sprintf("WITH %s ", withs)
+		query += withStmt
 	}
 
 	// columns
