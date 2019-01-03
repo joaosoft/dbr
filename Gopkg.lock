@@ -52,13 +52,13 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "3ebf6983bd704eae5217e69e4371dd3f13834572"
+  revision = "fdf3056873e72340b59c5b286ca94b07ae6fcf37"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "5dbae6961bbbc65c8be766e065787c71c37dbe99"
+  revision = "b245b1fd47dcf07bfac383551078de3c1d890de0"
 
 [[projects]]
   branch = "master"
@@ -70,7 +70,7 @@
   branch = "master"
   name = "github.com/joaosoft/web"
   packages = ["."]
-  revision = "8230370c8f2c96d7007f6b2751bf86b9538abef0"
+  revision = "e35184df0822c622df91f8fca56cd32ba1eabd20"
 
 [[projects]]
   branch = "master"
@@ -202,7 +202,7 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
+  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 
 [[projects]]
   branch = "master"
