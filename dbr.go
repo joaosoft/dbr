@@ -112,6 +112,14 @@ func (dbr *Dbr) With(name string, builder builder) *StmtWith {
 	return newStmtWith(dbr.conections, name, false, builder)
 }
 
+func (dbr *Dbr) UseOnlyWrite(name string, builder builder) *StmtWith {
+	return newStmtWith(&connections{read: dbr.conections.write, write: dbr.conections.write}, name, false, builder)
+}
+
+func (dbr *Dbr) UseOnlyRead(name string, builder builder) *StmtWith {
+	return newStmtWith(&connections{read: dbr.conections.read, write: dbr.conections.read}, name, false, builder)
+}
+
 func (dbr *Dbr) WithRecursive(name string, builder builder) *StmtWith {
 	return newStmtWith(dbr.conections, name, true, builder)
 }

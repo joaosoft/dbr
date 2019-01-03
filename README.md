@@ -21,6 +21,7 @@ The main goal of this project is to allow a application to write in a master dat
 * With, With Recursive
 * OnConflict (DoNothing, DoUpdate)
 * Execute
+* UseOnlyRead, UseOnlyWrite (allows to use only read or write connection for the query)
 
 ## With support for type annotations
 ["-" when is to exclude a field]

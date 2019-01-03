@@ -50,12 +50,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/joaosoft/dropbox"
-  packages = ["."]
-  revision = "7a7a99fd63e0db8cf659f1198f940d6fea0e12f5"
-
-[[projects]]
-  branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
   revision = "3ebf6983bd704eae5217e69e4371dd3f13834572"
@@ -71,18 +65,6 @@
   name = "github.com/joaosoft/manager"
   packages = ["."]
   revision = "e87747bfcc071131cb47f6270d5b52135bcfb4d2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/joaosoft/migration"
-  packages = ["services"]
-  revision = "4647bbf9068e69abd5dbf3a8312dd6acc3aee908"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/joaosoft/validator"
-  packages = ["."]
-  revision = "64e4cfe1c0a6f9b0601a7a0fa801d6adda18c5e2"
 
 [[projects]]
   branch = "master"
@@ -151,22 +133,16 @@
   version = "v1.0.7"
 
 [[projects]]
-  name = "github.com/oklog/ulid"
-  packages = ["."]
-  revision = "02a8604050d8466dd915307496174adb9be4593a"
-  version = "v1.3.1"
-
-[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "b2ce2384e17bbe0c6d34077efa39dbab3e09123b"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/spf13/afero"
@@ -174,8 +150,8 @@
     ".",
     "mem"
   ]
-  revision = "d40851caa0d747393da1ffb28f7f9d8b4eeffebd"
-  version = "v1.1.2"
+  revision = "a5d6946387efe7d64d09dcba68cdd523dc1273a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -198,14 +174,14 @@
 [[projects]]
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "2c12c60302a5a0e62ee102ca9bc996277c2f64f5"
-  version = "v1.2.1"
+  revision = "6d33b5a963d922d182c91e8a1c88d81fd150cfd4"
+  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
   name = "github.com/streadway/amqp"
   packages = ["."]
-  revision = "02019c73da7a16c968b4b9206e551ac19a58be82"
+  revision = "a314942b2fd9dde7a3f70ba3f1062848ce6eb392"
 
 [[projects]]
   name = "github.com/valyala/bytebufferpool"
@@ -226,13 +202,13 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
+  revision = "82a175fd1598e8a172e58ebdf5ed262bb29129e5"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -250,8 +226,8 @@
 [[projects]]
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
-  revision = "4a4468ece617fc8205e99368fa2200e9d1fad421"
-  version = "v1.3.0"
+  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
+  version = "v1.4.0"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -262,6 +238,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2968f4b00d65f4568b71d5bf65d49fcf3c8db9a219283d59e5a0b539e5c3fba3"
+  inputs-digest = "90bd9606207db183ad357cd2ef1c458cd5e3a4ffad93a98c77d6c5e0f0101966"
   solver-name = "gps-cdcl"
   solver-version = 1
