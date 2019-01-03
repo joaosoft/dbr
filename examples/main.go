@@ -48,9 +48,9 @@ func main() {
 	Execute()
 
 	Transaction()
-	//DeleteTransactionData()
+	DeleteTransactionData()
 
-	//DeleteAll()
+	DeleteAll()
 }
 
 func Insert() {
