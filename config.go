@@ -28,5 +28,5 @@ func NewConfig(endpoint string) *DbrConfig {
 		log.Error(err.Error())
 	}
 
-	return &appConfig.Dbr
+	return appConfig.Dbr
 }
