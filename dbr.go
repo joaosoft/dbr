@@ -46,14 +46,14 @@ func New(options ...DbrOption) (*Dbr, error) {
 	appConfig := &AppConfig{}
 	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		log.Error(err.Error())
-	} else {
+	} else if appConfig.Dbr != nil {
 		dbr.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(appConfig.Dbr.Log.Level)
 		log.Debugf("setting log level to %s", level)
 		log.Reconfigure(logger.WithLevel(level))
 	}
 
-	dbr.config = &appConfig.Dbr
+	dbr.config = appConfig.Dbr
 
 	dbr.Reconfigure(options...)
 
