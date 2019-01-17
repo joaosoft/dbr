@@ -36,7 +36,7 @@ type db struct {
 func New(options ...DbrOption) (*Dbr, error) {
 	dbr := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		config: NewConfig(),
+		config: &DbrConfig{},
 	}
 
 	if dbr.isLogExternal {
