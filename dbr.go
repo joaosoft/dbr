@@ -35,7 +35,8 @@ type db struct {
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
 	dbr := &Dbr{
-		pm: manager.NewManager(manager.WithRunInBackground(true)),
+		pm:     manager.NewManager(manager.WithRunInBackground(true)),
+		config: NewConfig(),
 	}
 
 	if dbr.isLogExternal {
@@ -51,9 +52,8 @@ func New(options ...DbrOption) (*Dbr, error) {
 		level, _ := logger.ParseLevel(appConfig.Dbr.Log.Level)
 		log.Debugf("setting log level to %s", level)
 		log.Reconfigure(logger.WithLevel(level))
+		dbr.config = appConfig.Dbr
 	}
-
-	dbr.config = appConfig.Dbr
 
 	dbr.Reconfigure(options...)
 
