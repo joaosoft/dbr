@@ -14,6 +14,7 @@ type Dbr struct {
 	conections *connections
 
 	config        *DbrConfig
+	logger        logger.ILogger
 	isLogExternal bool
 	pm            *manager.Manager
 	mux           sync.Mutex
@@ -34,56 +35,58 @@ type db struct {
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
 	config, simpleConfig, err := NewConfig()
+	log := logger.NewLogDefault("builder", logger.DebugLevel)
 
-	dbr := &Dbr{
+	service := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
+		logger: log,
 		config: &config.Dbr,
 	}
 
 	if err != nil {
-		log.Error(err.Error())
+		service.logger.Error(err.Error())
 	} else {
-		dbr.pm.AddConfig("config_app", simpleConfig)
+		service.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(config.Dbr.Log.Level)
-		log.Debugf("setting log level to %s", level)
-		log.Reconfigure(logger.WithLevel(level))
+		service.logger.Debugf("setting log level to %s", level)
+		service.logger.Reconfigure(logger.WithLevel(level))
 	}
 
-	if dbr.isLogExternal {
-		dbr.pm.Reconfigure(manager.WithLogger(log))
+	if service.isLogExternal {
+		service.pm.Reconfigure(manager.WithLogger(log))
 	}
 
-	dbr.Reconfigure(options...)
+	service.Reconfigure(options...)
 
 	// connect to database
-	if dbr.config.Db != nil {
-		dbCon := manager.NewSimpleDB(dbr.config.Db)
+	if service.config.Db != nil {
+		dbCon := manager.NewSimpleDB(service.config.Db)
 		if err := dbCon.Start(nil); err != nil {
 			return nil, err
 		}
-		dbr.pm.AddDB("db", dbCon)
+		service.pm.AddDB("db", dbCon)
 
-		db := &db{database: dbCon.Get(), dialect: newDialect(dbr.config.Db.Driver)}
-		dbr.conections = &connections{read: db, write: db}
+		db := &db{database: dbCon.Get(), dialect: newDialect(service.config.Db.Driver)}
+		service.conections = &connections{read: db, write: db}
 	} else {
-		dbReadCon := manager.NewSimpleDB(dbr.config.ReadDb)
+		dbReadCon := manager.NewSimpleDB(service.config.ReadDb)
 		if err := dbReadCon.Start(nil); err != nil {
 			return nil, err
 		}
-		dbr.pm.AddDB("db-read", dbReadCon)
-		dbRead := &db{database: dbReadCon.Get(), dialect: newDialect(dbr.config.ReadDb.Driver)}
+		service.pm.AddDB("db-read", dbReadCon)
+		dbRead := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.ReadDb.Driver)}
 
-		dbWriteCon := manager.NewSimpleDB(dbr.config.WriteDb)
+		dbWriteCon := manager.NewSimpleDB(service.config.WriteDb)
 		if err := dbWriteCon.Start(nil); err != nil {
 			return nil, err
 		}
-		dbr.pm.AddDB("db-write", dbWriteCon)
-		dbWrite := &db{database: dbReadCon.Get(), dialect: newDialect(dbr.config.WriteDb.Driver)}
+		service.pm.AddDB("db-write", dbWriteCon)
+		dbWrite := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.WriteDb.Driver)}
 
-		dbr.conections = &connections{read: dbRead, write: dbWrite}
+		service.conections = &connections{read: dbRead, write: dbWrite}
 	}
 
-	return dbr, nil
+	return service, nil
 }
 
 func (dbr *Dbr) Select(column ...string) *StmtSelect {
