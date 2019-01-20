@@ -35,11 +35,10 @@ type db struct {
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
 	config, simpleConfig, err := NewConfig()
-	log := logger.NewLogDefault("dbr", logger.DebugLevel)
 
 	service := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		logger: log,
+		logger: logger.NewLogDefault("dbr", logger.DebugLevel),
 		config: &config.Dbr,
 	}
 
@@ -53,7 +52,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 	}
 
 	if service.isLogExternal {
-		service.pm.Reconfigure(manager.WithLogger(log))
+		service.pm.Reconfigure(manager.WithLogger(service.logger))
 	}
 
 	service.Reconfigure(options...)
