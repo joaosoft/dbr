@@ -28,9 +28,7 @@ func NewConfig() (*AppConfig, manager.IConfig, error) {
 
 	if err != nil {
 		log.Error(err.Error())
-
-		appConfig.Dbr = &DbrConfig{}
 	}
 
-	return appConfig, simpleConfig, nil
+	return appConfig, simpleConfig, err
 }
