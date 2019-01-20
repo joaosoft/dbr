@@ -1,7 +1,7 @@
 package dbr
 
 import (
-	logger "github.com/joaosoft/logger"
+	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
 )
 
@@ -25,7 +25,7 @@ func WithConfiguration(config *DbrConfig) DbrOption {
 // WithLogger ...
 func WithLogger(logger logger.ILogger) DbrOption {
 	return func(dbr *Dbr) {
-		log = logger
+		dbr.logger = logger
 		dbr.isLogExternal = true
 	}
 }
@@ -33,7 +33,7 @@ func WithLogger(logger logger.ILogger) DbrOption {
 // WithLogLevel ...
 func WithLogLevel(level logger.Level) DbrOption {
 	return func(dbr *Dbr) {
-		log.SetLevel(level)
+		dbr.logger.SetLevel(level)
 	}
 }
 
