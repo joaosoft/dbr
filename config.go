@@ -26,6 +26,8 @@ func NewConfig() *DbrConfig {
 	appConfig := &AppConfig{}
 	if _, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		log.Error(err.Error())
+
+		return &DbrConfig{}
 	}
 
 	return appConfig.Dbr
