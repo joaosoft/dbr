@@ -35,7 +35,7 @@ type db struct {
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
 	config, simpleConfig, err := NewConfig()
-	log := logger.NewLogDefault("builder", logger.DebugLevel)
+	log := logger.NewLogDefault("dbr", logger.DebugLevel)
 
 	service := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
