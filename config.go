@@ -8,7 +8,7 @@ import (
 
 // AppConfig ...
 type AppConfig struct {
-	Dbr *DbrConfig `json:"dbr"`
+	Dbr DbrConfig `json:"dbr"`
 }
 
 // DbrConfig ...
