@@ -40,7 +40,9 @@ func New(options ...DbrOption) (*Dbr, error) {
 		config: &config.Dbr,
 	}
 
-	if err == nil {
+	if err != nil {
+		log.Error(err.Error())
+	} else {
 		dbr.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(config.Dbr.Log.Level)
 		log.Debugf("setting log level to %s", level)
