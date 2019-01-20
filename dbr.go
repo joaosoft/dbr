@@ -37,7 +37,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 
 	dbr := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		config: &DbrConfig{},
+		config: config.Dbr,
 	}
 
 	if err == nil {
