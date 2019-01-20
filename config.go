@@ -22,13 +22,15 @@ type DbrConfig struct {
 }
 
 // NewConfig ...
-func NewConfig() (*DbrConfig, error) {
+func NewConfig() (*AppConfig, manager.IConfig, error) {
 	appConfig := &AppConfig{}
-	if _, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
+	simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig)
+
+	if err != nil {
 		log.Error(err.Error())
 
-		return &DbrConfig{}, err
+		appConfig.Dbr = &DbrConfig{}
 	}
 
-	return appConfig.Dbr, nil
+	return appConfig, simpleConfig, nil
 }

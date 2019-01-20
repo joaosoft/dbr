@@ -2,7 +2,6 @@ package dbr
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"sync"
@@ -34,25 +33,22 @@ type db struct {
 
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
+	config, simpleConfig, err := NewConfig()
+
 	dbr := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
 		config: &DbrConfig{},
 	}
 
-	if dbr.isLogExternal {
-		dbr.pm.Reconfigure(manager.WithLogger(log))
-	}
-
-	// load configuration File
-	appConfig := &AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
-		log.Error(err.Error())
-	} else if appConfig.Dbr != nil {
+	if err == nil {
 		dbr.pm.AddConfig("config_app", simpleConfig)
-		level, _ := logger.ParseLevel(appConfig.Dbr.Log.Level)
+		level, _ := logger.ParseLevel(config.Dbr.Log.Level)
 		log.Debugf("setting log level to %s", level)
 		log.Reconfigure(logger.WithLevel(level))
-		dbr.config = appConfig.Dbr
+	}
+
+	if dbr.isLogExternal {
+		dbr.pm.Reconfigure(manager.WithLogger(log))
 	}
 
 	dbr.Reconfigure(options...)
