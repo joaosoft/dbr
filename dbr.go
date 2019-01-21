@@ -38,7 +38,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 
 	service := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		logger: logger.NewLogDefault("dbr", logger.DebugLevel),
+		logger: logger.NewLogDefault("dbr", logger.InfoLevel),
 		config: &config.Dbr,
 	}
 
