@@ -39,12 +39,12 @@ func New(options ...DbrOption) (*Dbr, error) {
 	service := &Dbr{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
 		logger: logger.NewLogDefault("dbr", logger.WarnLevel),
-		config: &config.Dbr,
+		config: config.Dbr,
 	}
 
 	if err != nil {
 		service.logger.Error(err.Error())
-	} else {
+	} else if config.Dbr != nil {
 		service.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(config.Dbr.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
