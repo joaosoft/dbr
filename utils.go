@@ -11,6 +11,8 @@ import (
 	"github.com/joaosoft/errors"
 )
 
+var typeScanner = reflect.TypeOf((*sql.Scanner)(nil)).Elem()
+
 func GetEnv() string {
 	env := os.Getenv("env")
 	if env == "" {
@@ -96,7 +98,9 @@ func WriteFile(file string, obj interface{}) error {
 func read(columns []string, rows *sql.Rows, value reflect.Value) (int, error) {
 
 	value = value.Elem()
-	isSlice := value.Kind() == reflect.Slice
+	isScanner := value.Addr().Type().Implements(typeScanner)
+	isSlice := value.Kind() == reflect.Slice && !isScanner
+
 	count := 0
 
 	// load each row
@@ -151,6 +155,10 @@ func getFields(loadOption loadOption, columns []string, object reflect.Value) ([
 }
 
 func loadColumnStructValues(loadOption loadOption, columns []string, mapColumns map[string]bool, object reflect.Value, mappedValues map[string]interface{}) {
+	if object.CanAddr() && object.Addr().Type().Implements(typeScanner) {
+		mappedValues[columns[0]] = object.Addr().Interface()
+		return
+	}
 	switch object.Kind() {
 	case reflect.Ptr:
 		if !object.IsNil() {
