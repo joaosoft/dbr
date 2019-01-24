@@ -15,11 +15,11 @@ type StmtInsert struct {
 	stmtConflict StmtConflict
 	fromSelect   *StmtSelect
 
-	db *db
+	Db *db
 }
 
 func newStmtInsert(db *db, withStmt *StmtWith) *StmtInsert {
-	return &StmtInsert{db: db, withStmt: withStmt, values: values{db: db}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: db}}}
+	return &StmtInsert{Db: db, withStmt: withStmt, values: values{db: db}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: db}}}
 }
 
 func (stmt *StmtInsert) Into(table string) *StmtInsert {
@@ -33,7 +33,7 @@ func (stmt *StmtInsert) Columns(columns ...string) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valuesList})
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valuesList})
 	return stmt
 }
 
@@ -111,7 +111,7 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
 
 func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
@@ -132,7 +132,7 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 		valueList = append(valueList, mappedValues[column].Interface())
 	}
 
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valueList})
 
 	return stmt
 }
@@ -193,7 +193,7 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return err
 	}

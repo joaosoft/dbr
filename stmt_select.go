@@ -22,11 +22,11 @@ type StmtSelect struct {
 	limit             int
 	offset            int
 
-	db *db
+	Db *db
 }
 
 func newStmtSelect(db *db, withStmt *StmtWith, columns []string) *StmtSelect {
-	return &StmtSelect{db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: db}, having: conditions{db: db}}
+	return &StmtSelect{Db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: db}, having: conditions{db: db}}
 }
 
 func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
@@ -40,22 +40,22 @@ func (stmt *StmtSelect) Where(query string, values ...interface{}) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Join(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.db, ConstJoin, table, on))
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, table, on))
 	return stmt
 }
 
 func (stmt *StmtSelect) LeftJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.db, ConstLeftJoin, table, on))
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, table, on))
 	return stmt
 }
 
 func (stmt *StmtSelect) RightJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.db, ConstRightJoin, table, on))
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, table, on))
 	return stmt
 }
 
 func (stmt *StmtSelect) FullJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.db, ConstFullJoin, table, on))
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, table, on))
 	return stmt
 }
 
@@ -269,7 +269,7 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		return 0, err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return 0, err
 	}

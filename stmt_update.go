@@ -14,11 +14,11 @@ type StmtUpdate struct {
 	conditions conditions
 	returning  columns
 
-	db *db
+	Db *db
 }
 
 func newStmtUpdate(db *db, withStmt *StmtWith, table string) *StmtUpdate {
-	return &StmtUpdate{db: db, withStmt: withStmt, table: table, sets: sets{db: db}, conditions: conditions{db: db}}
+	return &StmtUpdate{Db: db, withStmt: withStmt, table: table, sets: sets{db: db}, conditions: conditions{db: db}}
 }
 
 func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
@@ -80,7 +80,7 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
 
 func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
@@ -119,7 +119,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return err
 	}

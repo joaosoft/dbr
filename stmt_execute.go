@@ -9,11 +9,11 @@ type StmtExecute struct {
 	query  string
 	values values
 
-	db *db
+	Db *db
 }
 
 func newStmtExecute(db *db, query string) *StmtExecute {
-	return &StmtExecute{db: db, query: query, values: values{db: db}}
+	return &StmtExecute{Db: db, query: query, values: values{db: db}}
 }
 
 func (stmt *StmtExecute) Values(valuesList ...interface{}) *StmtExecute {
@@ -24,12 +24,12 @@ func (stmt *StmtExecute) Values(valuesList ...interface{}) *StmtExecute {
 func (stmt *StmtExecute) Build() (string, error) {
 	query := stmt.query
 
-	if strings.Count(query, stmt.db.dialect.Placeholder()) != len(stmt.values.list) {
+	if strings.Count(query, stmt.Db.dialect.Placeholder()) != len(stmt.values.list) {
 		return "", ErrorNumberOfConditionValues
 	}
 
 	for _, value := range stmt.values.list {
-		query = strings.Replace(query, stmt.db.dialect.Placeholder(), stmt.db.dialect.Encode(value), 1)
+		query = strings.Replace(query, stmt.Db.dialect.Placeholder(), stmt.Db.dialect.Encode(value), 1)
 	}
 
 	return query, nil
@@ -41,5 +41,5 @@ func (stmt *StmtExecute) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
