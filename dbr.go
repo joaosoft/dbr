@@ -58,7 +58,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 	service.Reconfigure(options...)
 
 	// connect to database
-	if service.config.Db != nil {
+	if service.config != nil {
 		dbCon := service.pm.NewSimpleDB(service.config.Db)
 		if err := dbCon.Start(nil); err != nil {
 			return nil, err
