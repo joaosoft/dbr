@@ -6,17 +6,23 @@ import (
 )
 
 type Transaction struct {
-	commited bool
-	dbr      *Dbr
-	db       *db
-	Duration time.Duration
+	commited  bool
+	dbr       *Dbr
+	db        *db
+	startTime time.Time
+	Duration  time.Duration
 }
 
-func newTransaction(dbr *Dbr, db *db) *Transaction {
-	return &Transaction{dbr: dbr, db: db}
+func newTransaction(dbr *Dbr, db *db, startTime time.Time) *Transaction {
+	return &Transaction{dbr: dbr, db: db, startTime: startTime}
 }
 
 func (tx *Transaction) Commit() error {
+
+	defer func() {
+		tx.Duration = time.Since(tx.startTime)
+	}()
+
 	err := tx.db.database.(*sql.Tx).Commit()
 	if err != nil {
 		return err
@@ -27,6 +33,11 @@ func (tx *Transaction) Commit() error {
 }
 
 func (tx *Transaction) Rollback() error {
+
+	defer func() {
+		tx.Duration = time.Since(tx.startTime)
+	}()
+
 	return tx.db.database.(*sql.Tx).Rollback()
 }
 
@@ -55,12 +66,6 @@ func (tx *Transaction) Delete() *StmtDelete {
 }
 
 func (tx *Transaction) Execute(query string) *StmtExecute {
-
-	startTime := time.Now()
-	defer func() {
-		tx.Duration = time.Since(startTime)
-	}()
-
 	return newStmtExecute(tx.dbr, tx.dbr.Connections.Write, query)
 }
 

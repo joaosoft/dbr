@@ -3,6 +3,7 @@ package dbr
 import (
 	"database/sql"
 	"sync"
+	"time"
 
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
@@ -123,10 +124,11 @@ func (dbr *Dbr) WithRecursive(name string, builder builder) *StmtWith {
 }
 
 func (dbr *Dbr) Begin() (*Transaction, error) {
+	startTime := time.Now()
 	tx, err := dbr.Connections.Write.database.(*sql.DB).Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	return newTransaction(dbr, &db{database: tx, Dialect: dbr.Connections.Write.Dialect}), nil
+	return newTransaction(dbr, &db{database: tx, Dialect: dbr.Connections.Write.Dialect}, startTime), nil
 }

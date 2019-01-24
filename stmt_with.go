@@ -8,12 +8,12 @@ type StmtWith struct {
 	withs       withs
 	isRecursive bool
 
-	dbr *Dbr
-	conn *connections
+	dbr         *Dbr
+	connections *connections
 }
 
-func newStmtWith(dbr *Dbr, conn *connections, name string, isRecursive bool, builder builder) *StmtWith {
-	return &StmtWith{dbr: dbr, conn: conn, withs: withs{&with{name: name, builder: builder}}, isRecursive: isRecursive}
+func newStmtWith(dbr *Dbr, connections *connections, name string, isRecursive bool, builder builder) *StmtWith {
+	return &StmtWith{dbr: dbr, connections: connections, withs: withs{&with{name: name, builder: builder}}, isRecursive: isRecursive}
 }
 
 func (w *StmtWith) With(name string, builder builder) *StmtWith {
@@ -23,19 +23,19 @@ func (w *StmtWith) With(name string, builder builder) *StmtWith {
 }
 
 func (w *StmtWith) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(w.dbr, w.conn.Read, w, column)
+	return newStmtSelect(w.dbr, w.connections.Read, w, column)
 }
 
 func (w *StmtWith) Insert() *StmtInsert {
-	return newStmtInsert(w.dbr, w.conn.Write, w)
+	return newStmtInsert(w.dbr, w.connections.Write, w)
 }
 
 func (w *StmtWith) Update(table string) *StmtUpdate {
-	return newStmtUpdate(w.dbr, w.conn.Write, w, table)
+	return newStmtUpdate(w.dbr, w.connections.Write, w, table)
 }
 
 func (w *StmtWith) Delete() *StmtDelete {
-	return newStmtDelete(w.dbr, w.conn.Write, w)
+	return newStmtDelete(w.dbr, w.connections.Write, w)
 }
 
 func (w *StmtWith) Build() (string, error) {

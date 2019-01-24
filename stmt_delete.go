@@ -13,12 +13,13 @@ type StmtDelete struct {
 	conditions conditions
 	returning  columns
 
-	Dbr *Dbr
-	db *db
+	Dbr      *Dbr
+	Db       *db
+	Duration time.Duration
 }
 
 func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
-	return &StmtDelete{Dbr: dbr, db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
+	return &StmtDelete{Dbr: dbr, Db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -70,7 +71,7 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	query, err := stmt.Build()
@@ -78,7 +79,7 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
 
 func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
@@ -90,7 +91,7 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	value := reflect.ValueOf(object)
@@ -103,7 +104,7 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return err
 	}

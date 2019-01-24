@@ -4,6 +4,6 @@ type loadOption string
 
 const (
 	loadOptionDefault loadOption = "db"
-	loadOptionRead    loadOption = "db.Read"
-	loadOptionWrite   loadOption = "db.Write"
+	loadOptionRead    loadOption = "db.read"
+	loadOptionWrite   loadOption = "db.write"
 )

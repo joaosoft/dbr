@@ -15,12 +15,13 @@ type StmtUpdate struct {
 	conditions conditions
 	returning  columns
 
-	Dbr *Dbr
-	db *db
+	Dbr      *Dbr
+	Db       *db
+	Duration time.Duration
 }
 
 func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table string) *StmtUpdate {
-	return &StmtUpdate{Dbr: dbr, db: db, withStmt: withStmt, table: table, sets: sets{db: dbr.Connections.Write}, conditions: conditions{db: dbr.Connections.Write}}
+	return &StmtUpdate{Dbr: dbr, Db: db, withStmt: withStmt, table: table, sets: sets{db: dbr.Connections.Write}, conditions: conditions{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
@@ -80,7 +81,7 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	query, err := stmt.Build()
@@ -88,7 +89,7 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
 
 func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
@@ -120,7 +121,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	value := reflect.ValueOf(object)
@@ -133,7 +134,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return err
 	}

@@ -16,12 +16,13 @@ type StmtInsert struct {
 	stmtConflict StmtConflict
 	fromSelect   *StmtSelect
 
-	Dbr *Dbr
-	db  *db
+	Dbr      *Dbr
+	Db       *db
+	Duration time.Duration
 }
 
 func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
-	return &StmtInsert{Dbr: dbr, db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
+	return &StmtInsert{Dbr: dbr, Db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
@@ -35,7 +36,7 @@ func (stmt *StmtInsert) Columns(columns ...interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valuesList})
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valuesList})
 	return stmt
 }
 
@@ -111,7 +112,7 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	query, err := stmt.Build()
@@ -119,7 +120,7 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.db.Exec(query)
+	return stmt.Db.Exec(query)
 }
 
 func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
@@ -140,7 +141,7 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 		valueList = append(valueList, mappedValues[column].Interface())
 	}
 
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.db, list: valueList})
+	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valueList})
 
 	return stmt
 }
@@ -194,7 +195,7 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	value := reflect.ValueOf(object)
@@ -207,7 +208,7 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.db.Query(query)
+	rows, err := stmt.Db.Query(query)
 	if err != nil {
 		return err
 	}
