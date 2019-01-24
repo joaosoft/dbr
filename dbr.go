@@ -2,8 +2,6 @@ package dbr
 
 import (
 	"database/sql"
-	"time"
-
 	"sync"
 
 	"github.com/joaosoft/logger"
@@ -28,7 +26,6 @@ type connections struct {
 type db struct {
 	database
 	Dialect  dialect
-	Duration time.Duration
 }
 
 // New ...

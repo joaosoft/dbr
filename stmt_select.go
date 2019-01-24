@@ -23,8 +23,9 @@ type StmtSelect struct {
 	limit             int
 	offset            int
 
-	Dbr *Dbr
-	db  *db
+	Dbr      *Dbr
+	db       *db
+	Duration time.Duration
 }
 
 func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
@@ -269,7 +270,7 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
 	startTime := time.Now()
 	defer func() {
-		stmt.db.Duration = time.Since(startTime)
+		stmt.Duration = time.Since(startTime)
 	}()
 
 	value := reflect.ValueOf(object)
