@@ -6,14 +6,14 @@ import (
 
 type tables []interface{}
 
-func (c tables) Build() (string, error) {
+func (t tables) Build() (string, error) {
 
 	var query string
 
-	lenC := len(c)
+	lenT := len(t)
 	var err error
 
-	for i, item := range c {
+	for i, item := range t {
 		var value string
 
 		switch stmt := item.(type) {
@@ -29,7 +29,7 @@ func (c tables) Build() (string, error) {
 
 		query += value
 
-		if i+1 < lenC {
+		if i+1 < lenT {
 			query += ", "
 		}
 	}

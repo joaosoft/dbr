@@ -8,7 +8,7 @@ import (
 
 type StmtInsert struct {
 	withStmt     *StmtWith
-	table        string
+	table        interface{}
 	columns      columns
 	values       values
 	returning    columns
@@ -16,19 +16,19 @@ type StmtInsert struct {
 	fromSelect   *StmtSelect
 
 	Dbr *Dbr
-	db *db
+	db  *db
 }
 
 func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
 	return &StmtInsert{Dbr: dbr, db: db, withStmt: withStmt, values: values{db: dbr.connections.write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.connections.write}}}
 }
 
-func (stmt *StmtInsert) Into(table string) *StmtInsert {
+func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
 	stmt.table = table
 	return stmt
 }
 
-func (stmt *StmtInsert) Columns(columns ...string) *StmtInsert {
+func (stmt *StmtInsert) Columns(columns ...interface{}) *StmtInsert {
 	stmt.columns = append(stmt.columns, columns...)
 	return stmt
 }
@@ -118,10 +118,10 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 	value := reflect.ValueOf(record)
 
-	mappedValues := make(map[string]reflect.Value)
+	mappedValues := make(map[interface{}]reflect.Value)
 
 	if len(stmt.columns) == 0 {
-		var columns []string
+		var columns []interface{}
 		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
 		stmt.columns = columns
 	} else {
@@ -146,15 +146,15 @@ func (stmt *StmtInsert) Records(records []interface{}) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) OnConflict(column ...string) *StmtInsert {
+func (stmt *StmtInsert) OnConflict(column ...interface{}) *StmtInsert {
 	stmt.stmtConflict.onConflictType = onConflictColumn
 	stmt.stmtConflict.onConflict = append(stmt.stmtConflict.onConflict, column...)
 	return stmt
 }
 
-func (stmt *StmtInsert) OnConflictConstraint(constraint string) *StmtInsert {
+func (stmt *StmtInsert) OnConflictConstraint(constraint interface{}) *StmtInsert {
 	stmt.stmtConflict.onConflictType = onConflictConstraint
-	stmt.stmtConflict.onConflict = []string{constraint}
+	stmt.stmtConflict.onConflict = []interface{}{constraint}
 	return stmt
 }
 
@@ -178,7 +178,7 @@ func (stmt *StmtInsert) DoUpdate(fieldValue ...interface{}) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) Return(column ...string) *StmtInsert {
+func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
 }

@@ -2,7 +2,6 @@ package dbr
 
 import (
 	"fmt"
-	"strings"
 )
 
 type onConflictType string
@@ -37,11 +36,17 @@ func (stmt *StmtConflict) Build() (string, error) {
 	}
 
 	query := " ON CONFLICT "
+
+	columns, err := stmt.onConflict.Build()
+	if err != nil {
+		return "", err
+	}
+
 	switch stmt.onConflictType {
 	case onConflictColumn:
-		query += fmt.Sprintf("(%s) ", strings.Join(stmt.onConflict, ", "))
+		query += fmt.Sprintf("(%s) ", columns)
 	case onConflictConstraint:
-		query += fmt.Sprintf("ON CONSTRAINT (%s) ", strings.Join(stmt.onConflict, ", "))
+		query += fmt.Sprintf("ON CONSTRAINT (%s) ", columns)
 	}
 
 	switch stmt.onConflictDoType {

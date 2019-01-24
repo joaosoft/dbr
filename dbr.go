@@ -90,7 +90,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 	return service, nil
 }
 
-func (dbr *Dbr) Select(column ...string) *StmtSelect {
+func (dbr *Dbr) Select(column ...interface{}) *StmtSelect {
 	return newStmtSelect(dbr, dbr.connections.read, &StmtWith{}, column)
 }
 

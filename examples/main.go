@@ -63,7 +63,7 @@ func Insert() {
 	}
 
 	stmt := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Record(person)
 
 	query, err := stmt.Build()
@@ -84,7 +84,7 @@ func InsertOnConflict() {
 	fmt.Println("\n\n:: INSERT")
 
 	stmt := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10)
 
@@ -98,7 +98,7 @@ func InsertOnConflict() {
 
 	// on conflict do update
 	stmt = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
@@ -117,7 +117,7 @@ func InsertOnConflict() {
 
 	// on conflict do nothing
 	stmt = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
@@ -139,7 +139,7 @@ func InsertValues() {
 	fmt.Println("\n\n:: INSERT")
 
 	stmt := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("a", "a", 1).
 		Values("b", "b", 2).
@@ -175,7 +175,7 @@ func InsertRecords() {
 	}
 
 	stmt := db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Record(person1).
 		Record(person2)
 
@@ -255,7 +255,7 @@ func SelectWith() {
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.Field("public.person").As("person")).
+				From(dbr.As("public.person", "person")).
 				Where("person.first_name = ?", "joao")).
 		Select("id_person", "first_name", "last_name", "age").
 		From("load_two").
@@ -288,7 +288,7 @@ func SelectWithRecursive() {
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.Field("public.person").As("person")).
+				From(dbr.As("public.person", "person")).
 				Where("person.first_name = ?", "joao")).
 		Select("id_person", "first_name", "last_name", "age").
 		From("load_two").
@@ -322,7 +322,7 @@ func InsertWith() {
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.Field("public.person").As("person")).
+				From(dbr.As("public.person", "person")).
 				Where("person.first_name = ?", "joao").Limit(1)).
 		Insert().
 		Into("public.person").
@@ -471,7 +471,7 @@ func Join() {
 	}
 
 	stmtInsert := db.Insert().
-		Into(dbr.Field("public.address").As("new_name")).
+		Into(dbr.As("public.address", "new_name")).
 		Record(address)
 
 	query, err := stmtInsert.Build()
@@ -496,7 +496,7 @@ func Join() {
 	}
 
 	stmtInsert = db.Insert().
-		Into(dbr.Field("public.person").As("new_name")).
+		Into(dbr.As("public.person", "new_name")).
 		Record(person)
 
 	query, err = stmtInsert.Build()

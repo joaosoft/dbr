@@ -22,7 +22,7 @@ func (w *StmtWith) With(name string, builder builder) *StmtWith {
 	return w
 }
 
-func (w *StmtWith) Select(column ...string) *StmtSelect {
+func (w *StmtWith) Select(column ...interface{}) *StmtSelect {
 	return newStmtSelect(w.dbr, w.conn.read, w, column)
 }
 

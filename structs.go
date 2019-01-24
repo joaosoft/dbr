@@ -6,6 +6,6 @@ type condition struct {
 }
 
 type set struct {
-	column string
+	column interface{}
 	value  interface{}
 }

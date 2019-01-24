@@ -36,7 +36,7 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 	return nil
 }
 
-func (tx *Transaction) Select(column ...string) *StmtSelect {
+func (tx *Transaction) Select(column ...interface{}) *StmtSelect {
 	return newStmtSelect(tx.dbr, tx.dbr.connections.write, &StmtWith{}, column)
 }
 

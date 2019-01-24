@@ -74,7 +74,7 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 	return stmt.db.Exec(query)
 }
 
-func (stmt *StmtDelete) Return(column ...string) *StmtDelete {
+func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
 }

@@ -87,10 +87,10 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
 	value := reflect.ValueOf(record)
 
-	mappedValues := make(map[string]reflect.Value)
+	mappedValues := make(map[interface{}]reflect.Value)
 
 	if len(stmt.columns) == 0 {
-		var columns []string
+		var columns []interface{}
 		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
 		stmt.columns = columns
 	} else {
@@ -104,7 +104,7 @@ func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
 	return stmt
 }
 
-func (stmt *StmtUpdate) Return(column ...string) *StmtUpdate {
+func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
 }

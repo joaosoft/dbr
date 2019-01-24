@@ -26,7 +26,7 @@ type StmtSelect struct {
 	db *db
 }
 
-func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []string) *StmtSelect {
+func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
 	return &StmtSelect{Dbr: dbr, db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.connections.read}, having: conditions{db: dbr.connections.read}}
 }
 
@@ -60,13 +60,13 @@ func (stmt *StmtSelect) FullJoin(table, on string) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Distinct(column ...string) *StmtSelect {
+func (stmt *StmtSelect) Distinct(column ...interface{}) *StmtSelect {
 	stmt.isDistinct = true
 	stmt.distinctColumns = append(stmt.distinctColumns, column...)
 	return stmt
 }
 
-func (stmt *StmtSelect) DistinctOn(column ...string) *StmtSelect {
+func (stmt *StmtSelect) DistinctOn(column ...interface{}) *StmtSelect {
 	stmt.distinctOnColumns = append(stmt.distinctOnColumns, column...)
 	return stmt
 }
@@ -112,7 +112,7 @@ func (stmt *StmtSelect) OrderDesc(columns ...string) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Return(column ...string) *StmtSelect {
+func (stmt *StmtSelect) Return(column ...interface{}) *StmtSelect {
 	stmt.returning = append(stmt.returning, column...)
 	return stmt
 }
@@ -282,5 +282,10 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		return 0, err
 	}
 
-	return read(columns, rows, value)
+	var cols []interface{}
+	for _, col := range columns {
+		cols = append(cols, col)
+	}
+
+	return read(cols, rows, value)
 }

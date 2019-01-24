@@ -1,16 +1,28 @@
 package dbr
 
-import (
-	"fmt"
+import "fmt"
+
+type command string
+
+const (
+	commandAs command = "as"
 )
 
-type Function struct {
-	field interface{}
+type function struct {
+	field   interface{}
+	value   string
+	command command
 }
 
-func Field(field interface{}) *Function {
-	return &Function{field: field}
+func As(field interface{}, name string) *function {
+	return &function{field: field, value: name, command: commandAs}
 }
-func (f *Function) As(name string) string {
-	return fmt.Sprintf("%s AS %s", f.field, name)
+
+func (f *function) String() string {
+	switch f.command {
+	case commandAs:
+		return fmt.Sprintf("%s AS %s", f.field, f.value)
+	}
+
+	return ""
 }

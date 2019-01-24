@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -95,7 +96,7 @@ func WriteFile(file string, obj interface{}) error {
 	return nil
 }
 
-func read(columns []string, rows *sql.Rows, value reflect.Value) (int, error) {
+func read(columns []interface{}, rows *sql.Rows, value reflect.Value) (int, error) {
 
 	value = value.Elem()
 	isScanner := value.Addr().Type().Implements(typeScanner)
@@ -135,28 +136,28 @@ func read(columns []string, rows *sql.Rows, value reflect.Value) (int, error) {
 	return count, nil
 }
 
-func getFields(loadOption loadOption, columns []string, object reflect.Value) ([]interface{}, error) {
+func getFields(loadOption loadOption, columns []interface{}, object reflect.Value) ([]interface{}, error) {
 	var fields []interface{}
 
 	// add columns to a map
-	mapColumns := make(map[string]bool)
+	mapColumns := make(map[interface{}]bool)
 	for _, name := range columns {
-		mapColumns[name] = true
+		mapColumns[fmt.Sprint(name)] = true
 	}
 
-	mappedValues := make(map[string]interface{})
+	mappedValues := make(map[interface{}]interface{})
 	loadColumnStructValues(loadOption, columns, mapColumns, object, mappedValues)
 
 	for _, name := range columns {
-		fields = append(fields, mappedValues[name])
+		fields = append(fields, mappedValues[fmt.Sprint(name)])
 	}
 
 	return fields, nil
 }
 
-func loadColumnStructValues(loadOption loadOption, columns []string, mapColumns map[string]bool, object reflect.Value, mappedValues map[string]interface{}) {
+func loadColumnStructValues(loadOption loadOption, columns []interface{}, mapColumns map[interface{}]bool, object reflect.Value, mappedValues map[interface{}]interface{}) {
 	if object.CanAddr() && object.Addr().Type().Implements(typeScanner) {
-		mappedValues[columns[0]] = object.Addr().Interface()
+		mappedValues[fmt.Sprint(columns[0])] = object.Addr().Interface()
 		return
 	}
 	switch object.Kind() {
@@ -191,11 +192,11 @@ func loadColumnStructValues(loadOption loadOption, columns []string, mapColumns 
 			}
 		}
 	default:
-		mappedValues[columns[0]] = object.Addr().Interface()
+		mappedValues[fmt.Sprint(columns[0])] = object.Addr().Interface()
 	}
 }
 
-func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]string, mappedValues map[string]reflect.Value) {
+func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]interface{}, mappedValues map[interface{}]reflect.Value) {
 	switch object.Kind() {
 	case reflect.Ptr:
 		if !object.IsNil() {
