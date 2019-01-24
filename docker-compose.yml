@@ -1,9 +1,9 @@
 version: '3.3'
 services:
 
-  dbr.postgres:
+  local.postgres:
     image: postgres
-    container_name: dbr.postgres
+    container_name: local.postgres
     restart: always
     environment:
       POSTGRES_USER: user
@@ -19,7 +19,7 @@ services:
     networks:
       default:
         aliases:
-        - dbr.postgres
+        - local.postgres
 
 volumes:
   esdata1:
