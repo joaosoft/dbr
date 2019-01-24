@@ -59,30 +59,32 @@ func New(options ...DbrOption) (*Dbr, error) {
 
 	// connect to database
 	if service.config != nil {
-		dbCon := service.pm.NewSimpleDB(service.config.Db)
-		if err := dbCon.Start(nil); err != nil {
-			return nil, err
-		}
-		service.pm.AddDB("db", dbCon)
+		if service.config.Db != nil {
+			dbCon := service.pm.NewSimpleDB(service.config.Db)
+			if err := dbCon.Start(nil); err != nil {
+				return nil, err
+			}
+			service.pm.AddDB("db", dbCon)
 
-		db := &db{database: dbCon.Get(), dialect: newDialect(service.config.Db.Driver)}
-		service.conections = &connections{read: db, write: db}
-	} else {
-		dbReadCon := service.pm.NewSimpleDB(service.config.ReadDb)
-		if err := dbReadCon.Start(nil); err != nil {
-			return nil, err
-		}
-		service.pm.AddDB("db-read", dbReadCon)
-		dbRead := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.ReadDb.Driver)}
+			db := &db{database: dbCon.Get(), dialect: newDialect(service.config.Db.Driver)}
+			service.conections = &connections{read: db, write: db}
+		} else if service.config.ReadDb != nil && service.config.WriteDb != nil {
+			dbReadCon := service.pm.NewSimpleDB(service.config.ReadDb)
+			if err := dbReadCon.Start(nil); err != nil {
+				return nil, err
+			}
+			service.pm.AddDB("db-read", dbReadCon)
+			dbRead := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.ReadDb.Driver)}
 
-		dbWriteCon := service.pm.NewSimpleDB(service.config.WriteDb)
-		if err := dbWriteCon.Start(nil); err != nil {
-			return nil, err
-		}
-		service.pm.AddDB("db-write", dbWriteCon)
-		dbWrite := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.WriteDb.Driver)}
+			dbWriteCon := service.pm.NewSimpleDB(service.config.WriteDb)
+			if err := dbWriteCon.Start(nil); err != nil {
+				return nil, err
+			}
+			service.pm.AddDB("db-write", dbWriteCon)
+			dbWrite := &db{database: dbReadCon.Get(), dialect: newDialect(service.config.WriteDb.Driver)}
 
-		service.conections = &connections{read: dbRead, write: dbWrite}
+			service.conections = &connections{read: dbRead, write: dbWrite}
+		}
 	}
 
 	return service, nil
