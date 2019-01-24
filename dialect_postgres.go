@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-type DialectPostgres struct{}
+type dialectPostgres struct{}
 
-func (d *DialectPostgres) Name() string {
+func (d *dialectPostgres) Name() string {
 	return string(ConstDialectPostgres)
 }
 
-func (d *DialectPostgres) Encode(i interface{}) string {
+func (d *dialectPostgres) Encode(i interface{}) string {
 	value := reflect.ValueOf(i)
 
 	if value.Kind() == reflect.Ptr {
@@ -40,25 +40,25 @@ func (d *DialectPostgres) Encode(i interface{}) string {
 	return fmt.Sprintf("%+v", value.Interface())
 }
 
-func (d *DialectPostgres) EncodeString(s string) string {
+func (d *dialectPostgres) EncodeString(s string) string {
 	return `'` + strings.Replace(s, `'`, `''`, -1) + `'`
 }
 
-func (d *DialectPostgres) EncodeBool(b bool) string {
+func (d *dialectPostgres) EncodeBool(b bool) string {
 	if b {
 		return "TRUE"
 	}
 	return "FALSE"
 }
 
-func (d *DialectPostgres) EncodeTime(t time.Time) string {
+func (d *dialectPostgres) EncodeTime(t time.Time) string {
 	return `'` + t.UTC().Format(ConstTimeFormat) + `'`
 }
 
-func (d *DialectPostgres) EncodeBytes(b []byte) string {
+func (d *dialectPostgres) EncodeBytes(b []byte) string {
 	return fmt.Sprintf(`E'\\x%x'`, b)
 }
 
-func (d *DialectPostgres) Placeholder() string {
+func (d *dialectPostgres) Placeholder() string {
 	return ConstPostgresPlaceHolder
 }

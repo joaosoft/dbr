@@ -5,12 +5,13 @@ import (
 )
 
 type Transaction struct {
-	db       *db
 	commited bool
+	dbr      *Dbr
+	db       *db
 }
 
-func newTransaction(db *db) *Transaction {
-	return &Transaction{db: db}
+func newTransaction(dbr *Dbr, db *db) *Transaction {
+	return &Transaction{dbr: dbr, db: db}
 }
 
 func (tx *Transaction) Commit() error {
@@ -36,29 +37,29 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 }
 
 func (tx *Transaction) Select(column ...string) *StmtSelect {
-	return newStmtSelect(tx.db, &StmtWith{}, column)
+	return newStmtSelect(tx.dbr, tx.dbr.connections.write, &StmtWith{}, column)
 }
 
 func (tx *Transaction) Insert() *StmtInsert {
-	return newStmtInsert(tx.db, &StmtWith{})
+	return newStmtInsert(tx.dbr, tx.dbr.connections.write, &StmtWith{})
 }
 
 func (tx *Transaction) Update(table string) *StmtUpdate {
-	return newStmtUpdate(tx.db, &StmtWith{}, table)
+	return newStmtUpdate(tx.dbr, tx.dbr.connections.write, &StmtWith{}, table)
 }
 
 func (tx *Transaction) Delete() *StmtDelete {
-	return newStmtDelete(tx.db, &StmtWith{})
+	return newStmtDelete(tx.dbr, tx.dbr.connections.write, &StmtWith{})
 }
 
 func (tx *Transaction) Execute(query string) *StmtExecute {
-	return newStmtExecute(tx.db, query)
+	return newStmtExecute(tx.dbr, tx.dbr.connections.write, query)
 }
 
 func (tx *Transaction) With(name string, builder builder) *StmtWith {
-	return newStmtWith(&connections{read: tx.db, write: tx.db}, name, false, builder)
+	return newStmtWith(tx.dbr, tx.dbr.connections, name, false, builder)
 }
 
 func (tx *Transaction) WithRecursive(name string, builder builder) *StmtWith {
-	return newStmtWith(&connections{read: tx.db, write: tx.db}, name, true, builder)
+	return newStmtWith(tx.dbr, tx.dbr.connections, name, true, builder)
 }

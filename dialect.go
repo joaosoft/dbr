@@ -4,6 +4,12 @@ import "time"
 
 type DialectName string
 
+var(
+	DialectPostgres = &dialectPostgres{}
+	DialectMySql = &dialectMySql{}
+	DialectSqlLite3 = &dialectSqlLite3{}
+)
+
 const (
 	ConstDialectPostgres DialectName = "postgres"
 	ConstDialectMysql    DialectName = "mysql"
@@ -23,11 +29,11 @@ type dialect interface {
 func newDialect(name string) dialect {
 	switch name {
 	case string(ConstDialectPostgres):
-		return &DialectPostgres{}
+		return DialectPostgres
 	case string(ConstDialectMysql):
-		return &DialectMySql{}
+		return DialectMySql
 	case string(ConstDialectSqlLite3):
-		return &DialectSqlLite3{}
+		return DialectSqlLite3
 	}
 
 	return nil

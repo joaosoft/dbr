@@ -12,11 +12,12 @@ type StmtDelete struct {
 	conditions conditions
 	returning  columns
 
-	Db *db
+	Dbr *Dbr
+	db *db
 }
 
-func newStmtDelete(db *db, withStmt *StmtWith) *StmtDelete {
-	return &StmtDelete{Db: db, withStmt: withStmt, conditions: conditions{db: db}}
+func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
+	return &StmtDelete{Dbr: dbr, db: db, withStmt: withStmt, conditions: conditions{db: dbr.connections.write}}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -70,7 +71,7 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.Db.Exec(query)
+	return stmt.db.Exec(query)
 }
 
 func (stmt *StmtDelete) Return(column ...string) *StmtDelete {
@@ -89,7 +90,7 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 		return err
 	}
 
-	rows, err := stmt.Db.Query(query)
+	rows, err := stmt.db.Query(query)
 	if err != nil {
 		return err
 	}

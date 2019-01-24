@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-type DialectMySql struct{}
+type dialectMySql struct{}
 
-func (d *DialectMySql) Name() string {
+func (d *dialectMySql) Name() string {
 	return string(ConstDialectMysql)
 }
 
-func (d *DialectMySql) Encode(i interface{}) string {
+func (d *dialectMySql) Encode(i interface{}) string {
 	value := reflect.ValueOf(i)
 
 	if value.Kind() == reflect.Ptr {
@@ -41,7 +41,7 @@ func (d *DialectMySql) Encode(i interface{}) string {
 }
 
 // https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
-func (d *DialectMySql) EncodeString(s string) string {
+func (d *dialectMySql) EncodeString(s string) string {
 	buf := new(bytes.Buffer)
 
 	buf.WriteRune('\'')
@@ -74,21 +74,21 @@ func (d *DialectMySql) EncodeString(s string) string {
 	return buf.String()
 }
 
-func (d *DialectMySql) EncodeBool(b bool) string {
+func (d *dialectMySql) EncodeBool(b bool) string {
 	if b {
 		return "1"
 	}
 	return "0"
 }
 
-func (d *DialectMySql) EncodeTime(t time.Time) string {
+func (d *dialectMySql) EncodeTime(t time.Time) string {
 	return `'` + t.UTC().Format(ConstTimeFormat) + `'`
 }
 
-func (d *DialectMySql) EncodeBytes(b []byte) string {
+func (d *dialectMySql) EncodeBytes(b []byte) string {
 	return fmt.Sprintf(`0x%x`, b)
 }
 
-func (d *DialectMySql) Placeholder() string {
+func (d *dialectMySql) Placeholder() string {
 	return ConstMysqlPlaceHolder
 }
