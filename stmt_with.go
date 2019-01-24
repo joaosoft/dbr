@@ -23,19 +23,19 @@ func (w *StmtWith) With(name string, builder builder) *StmtWith {
 }
 
 func (w *StmtWith) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(w.dbr, w.conn.read, w, column)
+	return newStmtSelect(w.dbr, w.conn.Read, w, column)
 }
 
 func (w *StmtWith) Insert() *StmtInsert {
-	return newStmtInsert(w.dbr, w.conn.write, w)
+	return newStmtInsert(w.dbr, w.conn.Write, w)
 }
 
 func (w *StmtWith) Update(table string) *StmtUpdate {
-	return newStmtUpdate(w.dbr, w.conn.write, w, table)
+	return newStmtUpdate(w.dbr, w.conn.Write, w, table)
 }
 
 func (w *StmtWith) Delete() *StmtDelete {
-	return newStmtDelete(w.dbr, w.conn.write, w)
+	return newStmtDelete(w.dbr, w.conn.Write, w)
 }
 
 func (w *StmtWith) Build() (string, error) {

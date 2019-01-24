@@ -43,7 +43,7 @@ func (v values) Build() (string, error) {
 			if item == nil {
 				value = fmt.Sprintf("NULL")
 			} else {
-				value = fmt.Sprintf("%s", v.db.dialect.Encode(item))
+				value = fmt.Sprintf("%s", v.db.Dialect.Encode(item))
 			}
 		}
 

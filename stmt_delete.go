@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type StmtDelete struct {
@@ -17,7 +18,7 @@ type StmtDelete struct {
 }
 
 func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
-	return &StmtDelete{Dbr: dbr, db: db, withStmt: withStmt, conditions: conditions{db: dbr.connections.write}}
+	return &StmtDelete{Dbr: dbr, db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -66,6 +67,12 @@ func (stmt *StmtDelete) Build() (string, error) {
 }
 
 func (stmt *StmtDelete) Exec() (sql.Result, error) {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	query, err := stmt.Build()
 	if err != nil {
 		return nil, err
@@ -80,6 +87,12 @@ func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
 }
 
 func (stmt *StmtDelete) Load(object interface{}) error {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return ErrorInvalidPointer

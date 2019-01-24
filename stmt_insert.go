@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type StmtInsert struct {
@@ -20,7 +21,7 @@ type StmtInsert struct {
 }
 
 func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
-	return &StmtInsert{Dbr: dbr, db: db, withStmt: withStmt, values: values{db: dbr.connections.write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.connections.write}}}
+	return &StmtInsert{Dbr: dbr, db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
@@ -107,6 +108,12 @@ func (stmt *StmtInsert) Build() (string, error) {
 }
 
 func (stmt *StmtInsert) Exec() (sql.Result, error) {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	query, err := stmt.Build()
 	if err != nil {
 		return nil, err
@@ -184,6 +191,12 @@ func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Load(object interface{}) error {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return ErrorInvalidPointer

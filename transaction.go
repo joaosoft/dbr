@@ -2,12 +2,14 @@ package dbr
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Transaction struct {
 	commited bool
 	dbr      *Dbr
 	db       *db
+	Duration time.Duration
 }
 
 func newTransaction(dbr *Dbr, db *db) *Transaction {
@@ -37,29 +39,35 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 }
 
 func (tx *Transaction) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(tx.dbr, tx.dbr.connections.write, &StmtWith{}, column)
+	return newStmtSelect(tx.dbr, tx.dbr.Connections.Write, &StmtWith{}, column)
 }
 
 func (tx *Transaction) Insert() *StmtInsert {
-	return newStmtInsert(tx.dbr, tx.dbr.connections.write, &StmtWith{})
+	return newStmtInsert(tx.dbr, tx.dbr.Connections.Write, &StmtWith{})
 }
 
 func (tx *Transaction) Update(table string) *StmtUpdate {
-	return newStmtUpdate(tx.dbr, tx.dbr.connections.write, &StmtWith{}, table)
+	return newStmtUpdate(tx.dbr, tx.dbr.Connections.Write, &StmtWith{}, table)
 }
 
 func (tx *Transaction) Delete() *StmtDelete {
-	return newStmtDelete(tx.dbr, tx.dbr.connections.write, &StmtWith{})
+	return newStmtDelete(tx.dbr, tx.dbr.Connections.Write, &StmtWith{})
 }
 
 func (tx *Transaction) Execute(query string) *StmtExecute {
-	return newStmtExecute(tx.dbr, tx.dbr.connections.write, query)
+
+	startTime := time.Now()
+	defer func() {
+		tx.Duration = time.Since(startTime)
+	}()
+
+	return newStmtExecute(tx.dbr, tx.dbr.Connections.Write, query)
 }
 
 func (tx *Transaction) With(name string, builder builder) *StmtWith {
-	return newStmtWith(tx.dbr, tx.dbr.connections, name, false, builder)
+	return newStmtWith(tx.dbr, tx.dbr.Connections, name, false, builder)
 }
 
 func (tx *Transaction) WithRecursive(name string, builder builder) *StmtWith {
-	return newStmtWith(tx.dbr, tx.dbr.connections, name, true, builder)
+	return newStmtWith(tx.dbr, tx.dbr.Connections, name, true, builder)
 }

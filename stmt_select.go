@@ -3,6 +3,7 @@ package dbr
 import (
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type StmtSelect struct {
@@ -27,7 +28,7 @@ type StmtSelect struct {
 }
 
 func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
-	return &StmtSelect{Dbr: dbr, db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.connections.read}, having: conditions{db: dbr.connections.read}}
+	return &StmtSelect{Dbr: dbr, db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.Connections.Read}, having: conditions{db: dbr.Connections.Read}}
 }
 
 func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
@@ -265,6 +266,12 @@ func (stmt *StmtSelect) Build() (string, error) {
 }
 
 func (stmt *StmtSelect) Load(object interface{}) (int, error) {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return 0, ErrorInvalidPointer

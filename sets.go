@@ -19,7 +19,7 @@ func (s sets) Build() (string, error) {
 
 	lenS := len(s.list)
 	for i, item := range s.list {
-		query += fmt.Sprintf("%s = %s", item.column, s.db.dialect.Encode(item.value))
+		query += fmt.Sprintf("%s = %s", item.column, s.db.Dialect.Encode(item.value))
 
 		if i+1 < lenS {
 			query += ", "

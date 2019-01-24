@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type StmtUpdate struct {
@@ -19,7 +20,7 @@ type StmtUpdate struct {
 }
 
 func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table string) *StmtUpdate {
-	return &StmtUpdate{Dbr: dbr, db: db, withStmt: withStmt, table: table, sets: sets{db: dbr.connections.write}, conditions: conditions{db: dbr.connections.write}}
+	return &StmtUpdate{Dbr: dbr, db: db, withStmt: withStmt, table: table, sets: sets{db: dbr.Connections.Write}, conditions: conditions{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
@@ -76,6 +77,12 @@ func (stmt *StmtUpdate) Build() (string, error) {
 }
 
 func (stmt *StmtUpdate) Exec() (sql.Result, error) {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	query, err := stmt.Build()
 	if err != nil {
 		return nil, err
@@ -110,6 +117,12 @@ func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) Load(object interface{}) error {
+
+	startTime := time.Now()
+	defer func() {
+		stmt.db.Duration = time.Since(startTime)
+	}()
+
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return ErrorInvalidPointer
