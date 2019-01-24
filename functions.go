@@ -29,6 +29,7 @@ func (f *function) String() string {
 			if err != nil {
 				return ""
 			}
+			return fmt.Sprintf("(%s) AS %s", field, f.value)
 		}
 
 		return fmt.Sprintf("%s AS %s", field, f.value)
