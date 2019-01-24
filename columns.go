@@ -15,6 +15,8 @@ func (c columns) Build() (string, error) {
 		var value string
 
 		switch stmt := item.(type) {
+		case *function:
+			value = stmt.String()
 		case *StmtSelect:
 			value, err = stmt.Build()
 			if err != nil {

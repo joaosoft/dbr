@@ -19,9 +19,19 @@ func As(field interface{}, name string) *function {
 }
 
 func (f *function) String() string {
+	field := f.field
+
 	switch f.command {
 	case commandAs:
-		return fmt.Sprintf("%s AS %s", f.field, f.value)
+		if stmt, ok := f.field.(*StmtSelect); ok {
+			var err error
+			field, err = stmt.Build()
+			if err != nil {
+				return ""
+			}
+		}
+
+		return fmt.Sprintf("%s AS %s", field, f.value)
 	}
 
 	return ""
