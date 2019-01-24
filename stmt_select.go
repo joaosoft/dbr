@@ -30,7 +30,7 @@ func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []string) *Stmt
 	return &StmtSelect{Dbr: dbr, db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.connections.read}, having: conditions{db: dbr.connections.read}}
 }
 
-func (stmt *StmtSelect) From(tables ...string) *StmtSelect {
+func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
 	stmt.tables = append(stmt.tables, tables...)
 	return stmt
 }
