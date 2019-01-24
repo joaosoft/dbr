@@ -23,7 +23,7 @@ type StmtSelect struct {
 	offset            int
 
 	Dbr *Dbr
-	db *db
+	db  *db
 }
 
 func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
@@ -93,6 +93,11 @@ func (stmt *StmtSelect) GroupBy(columns ...string) *StmtSelect {
 
 func (stmt *StmtSelect) Having(query string, values ...interface{}) *StmtSelect {
 	stmt.having.list = append(stmt.having.list, &condition{query: query, values: values})
+	return stmt
+}
+
+func (stmt *StmtSelect) OrderBy(column string, direction direction) *StmtSelect {
+	stmt.orders = append(stmt.orders, &order{column: column, direction: direction})
 	return stmt
 }
 
