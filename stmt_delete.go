@@ -89,6 +89,10 @@ func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
 
 func (stmt *StmtDelete) Load(object interface{}) error {
 
+	if !reflect.ValueOf(object).CanAddr() {
+		panic("the object is not a pointer the load")
+	}
+
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)

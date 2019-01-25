@@ -268,6 +268,10 @@ func (stmt *StmtSelect) Build() (string, error) {
 
 func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
+	if !reflect.ValueOf(object).CanAddr() {
+		panic("the object is not a pointer the load")
+	}
+
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)

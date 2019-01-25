@@ -119,6 +119,10 @@ func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
 
 func (stmt *StmtUpdate) Load(object interface{}) error {
 
+	if !reflect.ValueOf(object).CanAddr() {
+		panic("the object is not a pointer the load")
+	}
+
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)

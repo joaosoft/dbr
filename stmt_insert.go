@@ -193,6 +193,10 @@ func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 
 func (stmt *StmtInsert) Load(object interface{}) error {
 
+	if !reflect.ValueOf(object).CanAddr() {
+		panic("the object is not a pointer the load")
+	}
+
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)
