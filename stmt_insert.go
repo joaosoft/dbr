@@ -193,7 +193,7 @@ func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 
 func (stmt *StmtInsert) Load(object interface{}) error {
 
-	if !reflect.ValueOf(object).CanAddr() {
+	if reflect.ValueOf(object).Kind() != reflect.Ptr {
 		panic("the object is not a pointer the load")
 	}
 

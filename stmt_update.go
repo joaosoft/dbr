@@ -119,7 +119,7 @@ func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
 
 func (stmt *StmtUpdate) Load(object interface{}) error {
 
-	if !reflect.ValueOf(object).CanAddr() {
+	if reflect.ValueOf(object).Kind() != reflect.Ptr {
 		panic("the object is not a pointer the load")
 	}
 

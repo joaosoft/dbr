@@ -89,7 +89,7 @@ func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
 
 func (stmt *StmtDelete) Load(object interface{}) error {
 
-	if !reflect.ValueOf(object).CanAddr() {
+	if reflect.ValueOf(object).Kind() != reflect.Ptr {
 		panic("the object is not a pointer the load")
 	}
 
