@@ -13,7 +13,7 @@ type AppConfig struct {
 
 // DbrConfig ...
 type DbrConfig struct {
-	Db      *manager.DBConfig `json:"Db"`
+	Db      *manager.DBConfig `json:"db"`
 	ReadDb  *manager.DBConfig `json:"read_db"`
 	WriteDb *manager.DBConfig `json:"write_db"`
 	Log     struct {

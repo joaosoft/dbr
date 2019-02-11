@@ -43,3 +43,14 @@ func WithManager(mgr *manager.Manager) DbrOption {
 		dbr.pm = mgr
 	}
 }
+
+// WithDatabase ...
+func WithDatabase(master *db, slave ...*db) DbrOption {
+	return func(dbr *Dbr) {
+		if len(slave) > 0 {
+			dbr.Connections = &connections{Write: master, Read: slave[0]}
+		} else {
+			dbr.Connections = &connections{Write: master, Read: master}
+		}
+	}
+}

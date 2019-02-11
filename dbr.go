@@ -20,13 +20,20 @@ type Dbr struct {
 }
 
 type connections struct {
-	Read     *db
-	Write    *db
+	Read  *db
+	Write *db
 }
 
 type db struct {
 	database
-	Dialect  dialect
+	Dialect dialect
+}
+
+func NewDb(database database, dialect dialect) *db {
+	return &db{
+		database: database,
+		Dialect:  dialect,
+	}
 }
 
 // New ...
@@ -55,13 +62,13 @@ func New(options ...DbrOption) (*Dbr, error) {
 	service.Reconfigure(options...)
 
 	// connect to database
-	if service.config != nil {
+	if service.config != nil && service.Connections == nil {
 		if service.config.Db != nil {
 			dbCon := service.pm.NewSimpleDB(service.config.Db)
 			if err := dbCon.Start(nil); err != nil {
 				return nil, err
 			}
-			service.pm.AddDB("Db", dbCon)
+			service.pm.AddDB("db", dbCon)
 
 			db := &db{database: dbCon.Get(), Dialect: newDialect(service.config.Db.Driver)}
 			service.Connections = &connections{Read: db, Write: db}
@@ -70,14 +77,14 @@ func New(options ...DbrOption) (*Dbr, error) {
 			if err := dbReadCon.Start(nil); err != nil {
 				return nil, err
 			}
-			service.pm.AddDB("Db-Read", dbReadCon)
+			service.pm.AddDB("db-Read", dbReadCon)
 			dbRead := &db{database: dbReadCon.Get(), Dialect: newDialect(service.config.ReadDb.Driver)}
 
 			dbWriteCon := service.pm.NewSimpleDB(service.config.WriteDb)
 			if err := dbWriteCon.Start(nil); err != nil {
 				return nil, err
 			}
-			service.pm.AddDB("Db-Write", dbWriteCon)
+			service.pm.AddDB("db-Write", dbWriteCon)
 			dbWrite := &db{database: dbReadCon.Get(), Dialect: newDialect(service.config.WriteDb.Driver)}
 
 			service.Connections = &connections{Read: dbRead, Write: dbWrite}
