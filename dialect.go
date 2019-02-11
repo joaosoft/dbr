@@ -4,9 +4,9 @@ import "time"
 
 type DialectName string
 
-var(
+var (
 	DialectPostgres = &dialectPostgres{}
-	DialectMySql = &dialectMySql{}
+	DialectMySql    = &dialectMySql{}
 	DialectSqlLite3 = &dialectSqlLite3{}
 )
 
@@ -26,7 +26,7 @@ type dialect interface {
 	Placeholder() string
 }
 
-func newDialect(name string) dialect {
+func NewDialect(name string) dialect {
 	switch name {
 	case string(ConstDialectPostgres):
 		return DialectPostgres
