@@ -268,7 +268,8 @@ func (stmt *StmtSelect) Build() (string, error) {
 
 func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
-	if reflect.ValueOf(object).Kind() != reflect.Ptr {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Ptr {
 		panic("the object is not a pointer the load")
 	}
 
@@ -277,7 +278,6 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		stmt.Duration = time.Since(startTime)
 	}()
 
-	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return 0, ErrorInvalidPointer
 	}

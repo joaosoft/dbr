@@ -89,7 +89,8 @@ func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
 
 func (stmt *StmtDelete) Load(object interface{}) error {
 
-	if reflect.ValueOf(object).Kind() != reflect.Ptr {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Ptr {
 		panic("the object is not a pointer the load")
 	}
 
@@ -98,7 +99,6 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 		stmt.Duration = time.Since(startTime)
 	}()
 
-	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
 		return ErrorInvalidPointer
 	}

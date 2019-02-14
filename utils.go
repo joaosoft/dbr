@@ -98,17 +98,21 @@ func WriteFile(file string, obj interface{}) error {
 
 func read(columns []interface{}, rows *sql.Rows, value reflect.Value) (int, error) {
 
-	value = value.Elem()
+	value = value.Elem() // get the addressable value
 	isScanner := value.Addr().Type().Implements(typeScanner)
 	isSlice := value.Kind() == reflect.Slice && !isScanner
+	isMap := value.Kind() == reflect.Map && !isScanner
+	isMapOfSlices := isMap && value.Type().Elem().Kind() == reflect.Slice
 
 	count := 0
 
 	// load each row
 	for rows.Next() {
 		var elem reflect.Value
-		if isSlice {
-			elem = reflect.New(value.Type().Elem()).Elem()
+		if isMapOfSlices {
+			elem = reflectAlloc(value.Type().Elem().Elem())
+		} else if isSlice || isMap {
+			elem = reflectAlloc(value.Type().Elem())
 		} else {
 			elem = value
 		}
@@ -134,6 +138,13 @@ func read(columns []interface{}, rows *sql.Rows, value reflect.Value) (int, erro
 	}
 
 	return count, nil
+}
+
+func reflectAlloc(typ reflect.Type) reflect.Value {
+	if typ.Kind() == reflect.Ptr {
+		return reflect.New(typ.Elem())
+	}
+	return reflect.New(typ).Elem()
 }
 
 func getFields(loadOption loadOption, columns []interface{}, object reflect.Value) ([]interface{}, error) {
