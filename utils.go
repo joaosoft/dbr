@@ -160,7 +160,9 @@ func getFields(loadOption loadOption, columns []interface{}, object reflect.Valu
 	loadColumnStructValues(loadOption, columns, mapColumns, object, mappedValues)
 
 	for _, name := range columns {
-		fields = append(fields, mappedValues[fmt.Sprint(name)])
+		if value, ok := mappedValues[fmt.Sprint(name)]; ok {
+			fields = append(fields, value)
+		}
 	}
 
 	return fields, nil
