@@ -162,6 +162,9 @@ func getFields(loadOption loadOption, columns []interface{}, object reflect.Valu
 	for _, name := range columns {
 		if value, ok := mappedValues[fmt.Sprint(name)]; ok {
 			fields = append(fields, value)
+		} else {
+			var value interface{}
+			fields = append(fields, &value)
 		}
 	}
 
