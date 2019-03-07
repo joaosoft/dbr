@@ -38,27 +38,56 @@ func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Where(query string, values ...interface{}) *StmtSelect {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
-func (stmt *StmtSelect) Join(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, table, on))
+func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect {
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
-func (stmt *StmtSelect) LeftJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, table, on))
+func (stmt *StmtSelect) Join(table, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, table,
+		&condition{
+			operator: operatorAnd,
+			query:    onQuery,
+			values:   values,
+			db: stmt.Db,
+		}))
 	return stmt
 }
 
-func (stmt *StmtSelect) RightJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, table, on))
+func (stmt *StmtSelect) LeftJoin(table, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, table,
+		&condition{
+		operator: operatorAnd,
+		query:    onQuery,
+		values:   values,
+			db: stmt.Db,
+	}))
 	return stmt
 }
 
-func (stmt *StmtSelect) FullJoin(table, on string) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, table, on))
+func (stmt *StmtSelect) RightJoin(table, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, table,
+		&condition{
+			operator: operatorAnd,
+			query:    onQuery,
+			values:   values,
+			db: stmt.Db,
+		}))
+	return stmt
+}
+
+func (stmt *StmtSelect) FullJoin(table, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, table,
+		&condition{
+			operator: operatorAnd,
+			query:    onQuery,
+			values:   values,
+			db: stmt.Db,
+		}))
 	return stmt
 }
 
@@ -94,7 +123,12 @@ func (stmt *StmtSelect) GroupBy(columns ...string) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Having(query string, values ...interface{}) *StmtSelect {
-	stmt.having.list = append(stmt.having.list, &condition{query: query, values: values})
+	stmt.having.list = append(stmt.having.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
+	return stmt
+}
+
+func (stmt *StmtSelect) HavingOr(query string, values ...interface{}) *StmtSelect {
+	stmt.having.list = append(stmt.having.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 

@@ -7,7 +7,7 @@ import (
 type StmtJoin struct {
 	join  Join
 	table string
-	on    string
+	on    *condition
 
 	db *db
 }
@@ -21,12 +21,17 @@ const (
 	ConstFullJoin  Join = "FULL JOIN"
 )
 
-func newStmtJoin(db *db, join Join, table, on string) *StmtJoin {
+func newStmtJoin(db *db, join Join, table string, on *condition) *StmtJoin {
 	return &StmtJoin{db: db, join: join, table: table, on: on}
 }
 
 func (stmt *StmtJoin) Build() (string, error) {
-	query := fmt.Sprintf("%s %s ON (%s)", stmt.join, stmt.table, stmt.on)
+	condition, err := stmt.on.Build()
+	if err != nil {
+		return "", err
+	}
+
+	query := fmt.Sprintf("%s %s ON (%s)", stmt.join, stmt.table, condition)
 
 	return query, nil
 }

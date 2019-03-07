@@ -35,7 +35,12 @@ func (stmt *StmtUpdate) From(table string) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) Where(query string, values ...interface{}) *StmtUpdate {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{query: query, values: values})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
+	return stmt
+}
+
+func (stmt *StmtUpdate) WhereOr(query string, values ...interface{}) *StmtUpdate {
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 

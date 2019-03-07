@@ -1,7 +1,7 @@
 package dbr
 
 import (
-	"strings"
+	"fmt"
 )
 
 type conditions struct {
@@ -19,17 +19,15 @@ func (c conditions) Build() (string, error) {
 
 	lenC := len(c.list)
 	for i, item := range c.list {
-		if strings.Count(item.query, c.db.Dialect.Placeholder()) != len(item.values) {
-			return "", ErrorNumberOfConditionValues
+		condition, err := item.Build()
+		if err != nil {
+			return "", nil
 		}
 
-		query += item.query
-		for _, value := range item.values {
-			query = strings.Replace(query, c.db.Dialect.Placeholder(), c.db.Dialect.Encode(value), 1)
-		}
+		query += condition
 
 		if i+1 < lenC {
-			query += " AND "
+			query += fmt.Sprintf(" %s ", c.list[i+1].operator)
 		}
 	}
 

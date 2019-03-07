@@ -28,6 +28,7 @@ func main() {
 	Insert()
 	InsertOnConflict()
 	Select()
+	SelectOr()
 
 	InsertValues()
 	InsertRecords()
@@ -201,6 +202,30 @@ func Select() {
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("public.person").
 		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectOr() {
+	fmt.Println("\n\n:: SELECT OR")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		Where("first_name = ?", "joao").
+		WhereOr("last_name = ?", "maria")
 
 	query, err := stmt.Build()
 	if err != nil {
