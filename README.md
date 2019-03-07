@@ -14,10 +14,10 @@ The main goal of this project is to allow a application to write in a master dat
 * SqlLite3
 
 ## With support for methods
-* Select, Join, Distinct, Distinct on, Group by, Having, Order by, Union, Intersect, Except, Limit, Offset, Load
-* Insert, Multi insert, Record, Returning, Load
-* Update, Record, Returning, Load
-* Delete, Returning, Load
+* Select, Where, Join, Distinct, Distinct on, Group by, Having, Order by, Union, Intersect, Except, Limit, Offset, Load
+* Insert, Multi insert, Where, Record, Returning, Load
+* Update, Where, Set, Record, Returning, Load
+* Delete, Where, Returning, Load
 * With, With Recursive
 * OnConflict (DoNothing, DoUpdate)
 * Execute

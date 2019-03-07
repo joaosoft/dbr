@@ -118,12 +118,26 @@ func (dbr *Dbr) With(name string, builder builder) *StmtWith {
 	return newStmtWith(dbr, dbr.Connections, name, false, builder)
 }
 
-func (dbr *Dbr) UseOnlyWrite(name string, builder builder) *StmtWith {
-	return newStmtWith(dbr, &connections{Read: dbr.Connections.Write, Write: dbr.Connections.Write}, name, false, builder)
+func (dbr *Dbr) UseOnlyWrite(name string, builder builder) *Dbr {
+	return &Dbr{
+		config:        dbr.config,
+		logger:        dbr.logger,
+		isLogExternal: dbr.isLogExternal,
+		pm:            dbr.pm,
+		mux:           dbr.mux,
+		Connections:   &connections{Read: dbr.Connections.Write, Write: dbr.Connections.Write},
+	}
 }
 
-func (dbr *Dbr) UseOnlyRead(name string, builder builder) *StmtWith {
-	return newStmtWith(dbr, &connections{Read: dbr.Connections.Read, Write: dbr.Connections.Read}, name, false, builder)
+func (dbr *Dbr) UseOnlyRead(name string, builder builder) *Dbr {
+	return &Dbr{
+		config:        dbr.config,
+		logger:        dbr.logger,
+		isLogExternal: dbr.isLogExternal,
+		pm:            dbr.pm,
+		mux:           dbr.mux,
+		Connections:   &connections{Read: dbr.Connections.Read, Write: dbr.Connections.Read},
+	}
 }
 
 func (dbr *Dbr) WithRecursive(name string, builder builder) *StmtWith {
