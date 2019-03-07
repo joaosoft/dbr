@@ -103,6 +103,7 @@ func main() {
 	Insert()
 	InsertOnConflict()
 	Select()
+	SelectOr()
 
 	InsertValues()
 	InsertRecords()
@@ -276,6 +277,30 @@ func Select() {
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("public.person").
 		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectOr() {
+	fmt.Println("\n\n:: SELECT OR")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
+		From("public.person").
+		Where("first_name = ?", "joao").
+		WhereOr("last_name = ?", "maria")
 
 	query, err := stmt.Build()
 	if err != nil {
@@ -739,7 +764,12 @@ QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:806 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+
+:: SELECT OR
+
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao' OR last_name = 'maria'
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT
 
@@ -754,17 +784,17 @@ SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:807 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:808 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:809 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:810 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:811 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:104 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:105 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:106 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:107 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:108 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
 
 :: SELECT WITH
 
 QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:806 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT WITH RECURSIVE
 
 QUERY: WITH RECURSIVE load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:806 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT WITH
 
@@ -773,23 +803,23 @@ INSERT PERSON 999: {IdPerson:0 FirstName: LastName: Age:0 IdAddress:<nil>}
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE id_person = 999
+QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE id_person = '999'
 LOADED PERSON 999: {IdPerson:999 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT GROUP BY
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
-LOADED PERSONS: [{IdPerson:813 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:999 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:814 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
+LOADED PERSONS: [{IdPerson:103 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:110 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:111 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
 
 :: JOIN
 
 QUERY: INSERT INTO public.address AS new_name (id_address, street, number, country) VALUES (1, 'street one', 1, 'portugal')
 SAVED ADDRESS: {IdAddress:1 Street:street one Number:1 Country:portugal}
 QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao-join', 'ribeiro-join', 30, 1)
-SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc42019ec58}
+SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc0001b44e8}
 QUERY: SELECT address.street FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join'
 STREET: street one
-SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc42019ec58}
+SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc0001b44e8}
 
 :: UPDATE
 
@@ -799,7 +829,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:806 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: UPDATE
 
@@ -811,7 +841,7 @@ UPDATED PERSON
 :: SELECT
 
 QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-LOADED PERSON: {IdPerson:806 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+LOADED PERSON: {IdPerson:103 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: DELETE
 
@@ -827,6 +857,17 @@ QUERY: SELECT * FROM public.person WHERE first_name LIKE '%joao%'
 
 QUERY: INSERT INTO public.person (first_name, last_name, age, fk_address) VALUES ('joao-2', 'ribeiro', 30, NULL)
 SAVED PERSON: {IdPerson:0 FirstName:joao-2 LastName:ribeiro Age:30 IdAddress:<nil>}
+
+:: DELETE
+
+QUERY: DELETE FROM public.person WHERE first_name = 'joao-2'
+DELETED PERSON
+
+:: DELETE
+
+QUERY: DELETE FROM public.person
+QUERY: DELETE FROM public.address
+DELETED ALL
 ```
 
 ## Known issues
