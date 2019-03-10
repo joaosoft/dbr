@@ -49,7 +49,7 @@
     "basic",
     "jwt"
   ]
-  revision = "a5e4749b30937cfb0b6216037870f3ebee06dd99"
+  revision = "c69fd62ab4415c9c103eb2173d7eccb44c6b20fb"
 
 [[projects]]
   branch = "master"
@@ -73,13 +73,13 @@
   branch = "master"
   name = "github.com/joaosoft/manager"
   packages = ["."]
-  revision = "2e0055403b3c0b9efc31052f8d9929186c22bad1"
+  revision = "00f745232ad142116e108bfc94b2f4a5951f6ea4"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/web"
   packages = ["."]
-  revision = "15b9cb36034645ef0d6307db41a970698d2e5129"
+  revision = "5f40ce1666ebcd4ccb554ce6a5f9279fa55f6afc"
 
 [[projects]]
   branch = "master"
@@ -211,13 +211,13 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
+  revision = "c2843e01d9a2bc60bb26ad24e09734fdc2d9ec58"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "572b51eaf7221935bdec454796989ba8318fa6f3"
+  revision = "10058d7d4faa7dd5ef860cbd31af00903076e7b8"
 
 [[projects]]
   name = "golang.org/x/text"

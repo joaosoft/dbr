@@ -65,7 +65,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 	if service.config != nil && service.Connections == nil {
 		if service.config.Db != nil {
 			dbCon := service.pm.NewSimpleDB(service.config.Db)
-			if err := dbCon.Start(nil); err != nil {
+			if err := dbCon.Start(); err != nil {
 				return nil, err
 			}
 			service.pm.AddDB("db", dbCon)
@@ -74,14 +74,14 @@ func New(options ...DbrOption) (*Dbr, error) {
 			service.Connections = &connections{Read: db, Write: db}
 		} else if service.config.ReadDb != nil && service.config.WriteDb != nil {
 			dbReadCon := service.pm.NewSimpleDB(service.config.ReadDb)
-			if err := dbReadCon.Start(nil); err != nil {
+			if err := dbReadCon.Start(); err != nil {
 				return nil, err
 			}
 			service.pm.AddDB("db-Read", dbReadCon)
 			dbRead := &db{database: dbReadCon.Get(), Dialect: NewDialect(service.config.ReadDb.Driver)}
 
 			dbWriteCon := service.pm.NewSimpleDB(service.config.WriteDb)
-			if err := dbWriteCon.Start(nil); err != nil {
+			if err := dbWriteCon.Start(); err != nil {
 				return nil, err
 			}
 			service.pm.AddDB("db-Write", dbWriteCon)
