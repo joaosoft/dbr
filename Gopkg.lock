@@ -73,7 +73,7 @@
   branch = "master"
   name = "github.com/joaosoft/manager"
   packages = ["."]
-  revision = "00f745232ad142116e108bfc94b2f4a5951f6ea4"
+  revision = "9339e2e09aa8bff3a1d6514be0c977863e11aef4"
 
 [[projects]]
   branch = "master"
