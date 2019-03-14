@@ -54,3 +54,19 @@ func WithDatabase(master *db, slave ...*db) DbrOption {
 		}
 	}
 }
+
+// WithSuccessEventHandler ...
+func WithSuccessEventHandler(eventHandler SuccessEventHandler) DbrOption {
+	return func(dbr *Dbr) {
+		dbr.isSuccessEventHandlerActive = true
+		dbr.successEventHandler = eventHandler
+	}
+}
+
+// WithErrorEventHandler ...
+func WithErrorEventHandler(eventHandler ErrorEventHandler) DbrOption {
+	return func(dbr *Dbr) {
+		dbr.isErrorEventHandlerActive = true
+		dbr.errorEventHandler = eventHandler
+	}
+}

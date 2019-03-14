@@ -10,13 +10,14 @@ type StmtExecute struct {
 	query  string
 	values values
 
-	Dbr      *Dbr
-	Db       *db
-	Duration time.Duration
+	Dbr          *Dbr
+	Db           *db
+	Duration     time.Duration
+	sqlOperation SqlOperation
 }
 
 func newStmtExecute(dbr *Dbr, db *db, query string) *StmtExecute {
-	return &StmtExecute{Dbr: dbr, Db: db, query: query, values: values{db: dbr.Connections.Write}}
+	return &StmtExecute{sqlOperation: ExecuteOperation, Dbr: dbr, Db: db, query: query, values: values{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtExecute) Values(valuesList ...interface{}) *StmtExecute {
@@ -50,5 +51,9 @@ func (stmt *StmtExecute) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.Db.Exec(query)
+	result, err := stmt.Db.Exec(query)
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{}, query, err, result)
+
+	return result, err
 }

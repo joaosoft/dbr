@@ -13,13 +13,14 @@ type StmtDelete struct {
 	conditions conditions
 	returning  columns
 
-	Dbr      *Dbr
-	Db       *db
-	Duration time.Duration
+	Dbr          *Dbr
+	Db           *db
+	Duration     time.Duration
+	sqlOperation SqlOperation
 }
 
 func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
-	return &StmtDelete{Dbr: dbr, Db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
+	return &StmtDelete{sqlOperation: DeleteOperation, Dbr: dbr, Db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -84,7 +85,11 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.Db.Exec(query)
+	result, err := stmt.Db.Exec(query)
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, result)
+
+	return result, err
 }
 
 func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
@@ -117,6 +122,8 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, rows)
 
 	defer rows.Close()
 

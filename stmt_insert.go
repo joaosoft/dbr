@@ -16,13 +16,14 @@ type StmtInsert struct {
 	stmtConflict StmtConflict
 	fromSelect   *StmtSelect
 
-	Dbr      *Dbr
-	Db       *db
-	Duration time.Duration
+	Dbr          *Dbr
+	Db           *db
+	Duration     time.Duration
+	sqlOperation SqlOperation
 }
 
 func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
-	return &StmtInsert{Dbr: dbr, Db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
+	return &StmtInsert{sqlOperation: InsertOperation, Dbr: dbr, Db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
@@ -120,7 +121,11 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	return stmt.Db.Exec(query)
+	result, err := stmt.Db.Exec(query)
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, result)
+
+	return result, err
 }
 
 func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
@@ -216,6 +221,8 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, rows)
 
 	defer rows.Close()
 

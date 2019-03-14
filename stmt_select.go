@@ -3,6 +3,7 @@ package dbr
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -23,13 +24,14 @@ type StmtSelect struct {
 	limit             int
 	offset            int
 
-	Dbr      *Dbr
-	Db       *db
-	Duration time.Duration
+	Dbr          *Dbr
+	Db           *db
+	Duration     time.Duration
+	sqlOperation SqlOperation
 }
 
 func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
-	return &StmtSelect{Dbr: dbr, Db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.Connections.Read}, having: conditions{db: dbr.Connections.Read}}
+	return &StmtSelect{sqlOperation: SelectOperation, Dbr: dbr, Db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.Connections.Read}, having: conditions{db: dbr.Connections.Read}}
 }
 
 func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
@@ -53,7 +55,7 @@ func (stmt *StmtSelect) Join(table, onQuery string, values ...interface{}) *Stmt
 			operator: operatorAnd,
 			query:    onQuery,
 			values:   values,
-			db: stmt.Db,
+			db:       stmt.Db,
 		}))
 	return stmt
 }
@@ -61,11 +63,11 @@ func (stmt *StmtSelect) Join(table, onQuery string, values ...interface{}) *Stmt
 func (stmt *StmtSelect) LeftJoin(table, onQuery string, values ...interface{}) *StmtSelect {
 	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, table,
 		&condition{
-		operator: operatorAnd,
-		query:    onQuery,
-		values:   values,
-			db: stmt.Db,
-	}))
+			operator: operatorAnd,
+			query:    onQuery,
+			values:   values,
+			db:       stmt.Db,
+		}))
 	return stmt
 }
 
@@ -75,7 +77,7 @@ func (stmt *StmtSelect) RightJoin(table, onQuery string, values ...interface{}) 
 			operator: operatorAnd,
 			query:    onQuery,
 			values:   values,
-			db: stmt.Db,
+			db:       stmt.Db,
 		}))
 	return stmt
 }
@@ -86,7 +88,7 @@ func (stmt *StmtSelect) FullJoin(table, onQuery string, values ...interface{}) *
 			operator: operatorAnd,
 			query:    onQuery,
 			values:   values,
-			db: stmt.Db,
+			db:       stmt.Db,
 		}))
 	return stmt
 }
@@ -325,6 +327,10 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	tables, _ := stmt.tables.Build()
+
+	stmt.Dbr.eventHandler(stmt.sqlOperation, strings.Split(tables, ", "), query, err, rows)
 
 	defer rows.Close()
 

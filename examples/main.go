@@ -3,6 +3,7 @@ package main
 import (
 	"dbr"
 	"fmt"
+	"strings"
 )
 
 type Person struct {
@@ -20,7 +21,15 @@ type Address struct {
 	Country   string `json:"country" db:"country"`
 }
 
-var db, _ = dbr.New()
+var db, _ = dbr.New(
+	dbr.WithSuccessEventHandler(
+		func(operation dbr.SqlOperation, table []string, query string, result interface{}) {
+			fmt.Printf("\nSuccess event [operation: %s, tables: %s, query: %s]", operation, strings.Join(table, "; "), query)
+		}),
+	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) {
+		fmt.Printf("\nError event [operation: %s, tables: %s, query: %s, error: %s]", operation, strings.Join(table, "; "), query, err.Error())
+
+	}))
 
 func main() {
 	DeleteAll()

@@ -12,11 +12,16 @@ import (
 type Dbr struct {
 	Connections *connections
 
-	config        *DbrConfig
-	logger        logger.ILogger
-	isLogExternal bool
-	pm            *manager.Manager
-	mux           sync.Mutex
+	isSuccessEventHandlerActive bool
+	isErrorEventHandlerActive   bool
+	eventHandler                eventHandler
+	successEventHandler         SuccessEventHandler
+	errorEventHandler           ErrorEventHandler
+	config                      *DbrConfig
+	logger                      logger.ILogger
+	isLogExternal               bool
+	pm                          *manager.Manager
+	mux                         sync.Mutex
 }
 
 type connections struct {
@@ -29,13 +34,6 @@ type db struct {
 	Dialect dialect
 }
 
-func NewDb(database database, dialect dialect) *db {
-	return &db{
-		database: database,
-		Dialect:  dialect,
-	}
-}
-
 // New ...
 func New(options ...DbrOption) (*Dbr, error) {
 	config, simpleConfig, err := NewConfig()
@@ -45,6 +43,9 @@ func New(options ...DbrOption) (*Dbr, error) {
 		logger: logger.NewLogDefault("dbr", logger.WarnLevel),
 		config: config.Dbr,
 	}
+
+	// set the internal event handler
+	service.eventHandler = service.handle
 
 	if err != nil {
 		service.logger.Error(err.Error())
