@@ -97,7 +97,7 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, result)
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, nil, result)
 
 	return result, err
 }
@@ -153,7 +153,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 		return err
 	}
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, rows)
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, rows, nil)
 
 	defer rows.Close()
 

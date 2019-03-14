@@ -53,7 +53,7 @@ func (stmt *StmtExecute) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{}, query, err, result)
+	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{}, query, err, nil, result)
 
 	return result, err
 }

@@ -330,7 +330,7 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
 	tables, _ := stmt.tables.Build()
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, strings.Split(tables, ", "), query, err, rows)
+	stmt.Dbr.eventHandler(stmt.sqlOperation, strings.Split(tables, ", "), query, err, rows, nil)
 
 	defer rows.Close()
 

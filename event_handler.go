@@ -1,8 +1,10 @@
 package dbr
 
-type eventHandler func(operation SqlOperation, table []string, query string, err error, result interface{})
+import "database/sql"
 
-type SuccessEventHandler func(operation SqlOperation, table []string, query string, result interface{})
+type eventHandler func(operation SqlOperation, table []string, query string, err error, rows *sql.Rows, sqlResult sql.Result)
+
+type SuccessEventHandler func(operation SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result)
 type ErrorEventHandler func(operation SqlOperation, table []string, query string, err error)
 
 func NewDb(database database, dialect dialect) *db {
@@ -12,9 +14,9 @@ func NewDb(database database, dialect dialect) *db {
 	}
 }
 
-func (dbr *Dbr) handle(operation SqlOperation, table []string, query string, err error, result interface{}) {
+func (dbr *Dbr) handle(operation SqlOperation, table []string, query string, err error, rows *sql.Rows, sqlResult sql.Result) {
 	if err == nil && dbr.isSuccessEventHandlerActive {
-		dbr.successEventHandler(operation, table, query, result)
+		dbr.successEventHandler(operation, table, query, rows, sqlResult)
 	}
 
 	if err != nil && dbr.isErrorEventHandlerActive {
