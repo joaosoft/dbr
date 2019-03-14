@@ -106,7 +106,7 @@ type Address struct {
 
 var db, _ = dbr.New(
 	dbr.WithSuccessEventHandler(
-		func(operation dbr.SqlOperation, table []string, query string, result interface{}) {
+		func(operation dbr.SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result) {
 			fmt.Printf("\nSuccess event [operation: %s, tables: %s, query: %s]", operation, strings.Join(table, "; "), query)
 		}),
 	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) {
