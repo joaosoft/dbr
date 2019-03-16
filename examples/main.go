@@ -24,12 +24,13 @@ type Address struct {
 
 var db, _ = dbr.New(
 	dbr.WithSuccessEventHandler(
-		func(operation dbr.SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result) {
+		func(operation dbr.SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result) error {
 			fmt.Printf("\nSuccess event [operation: %s, tables: %s, query: %s]", operation, strings.Join(table, "; "), query)
+			return nil
 		}),
-	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) {
+	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) error {
 		fmt.Printf("\nError event [operation: %s, tables: %s, query: %s, error: %s]", operation, strings.Join(table, "; "), query, err.Error())
-
+		return nil
 	}))
 
 func main() {

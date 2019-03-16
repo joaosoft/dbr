@@ -123,7 +123,9 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, nil, result)
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, nil, result); err != nil {
+		return nil, err
+	}
 
 	return result, err
 }
@@ -222,7 +224,9 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 		return err
 	}
 
-	stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, rows, nil)
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, rows, nil); err != nil {
+		return err
+	}
 
 	defer rows.Close()
 

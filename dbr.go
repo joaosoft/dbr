@@ -12,16 +12,14 @@ import (
 type Dbr struct {
 	Connections *connections
 
-	isSuccessEventHandlerActive bool
-	isErrorEventHandlerActive   bool
-	eventHandler                eventHandler
-	successEventHandler         SuccessEventHandler
-	errorEventHandler           ErrorEventHandler
-	config                      *DbrConfig
-	logger                      logger.ILogger
-	isLogExternal               bool
-	pm                          *manager.Manager
-	mux                         sync.Mutex
+	eventHandler        eventHandler
+	successEventHandler SuccessEventHandler
+	errorEventHandler   ErrorEventHandler
+	config              *DbrConfig
+	logger              logger.ILogger
+	isLogExternal       bool
+	pm                  *manager.Manager
+	mux                 sync.Mutex
 }
 
 type connections struct {
