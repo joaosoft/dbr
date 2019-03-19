@@ -32,7 +32,7 @@ func (f *function) String() string {
 			return fmt.Sprintf("(%s) AS %s", field, f.value)
 		}
 
-		return fmt.Sprintf("%s AS %s", field, f.value)
+		return fmt.Sprintf("%s AS %s", encodeColumn(field), f.value)
 	}
 
 	return ""

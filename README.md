@@ -106,12 +106,13 @@ type Address struct {
 
 var db, _ = dbr.New(
 	dbr.WithSuccessEventHandler(
-		func(operation dbr.SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result) {
+		func(operation dbr.SqlOperation, table []string, query string, rows *sql.Rows, sqlResult sql.Result) error {
 			fmt.Printf("\nSuccess event [operation: %s, tables: %s, query: %s]", operation, strings.Join(table, "; "), query)
+			return nil
 		}),
-	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) {
+	dbr.WithErrorEventHandler(func(operation dbr.SqlOperation, table []string, query string, err error) error {
 		fmt.Printf("\nError event [operation: %s, tables: %s, query: %s, error: %s]", operation, strings.Join(table, "; "), query, err.Error())
-
+		return nil
 	}))
 
 func main() {
@@ -445,7 +446,7 @@ func InsertWith() {
 		Into("public.person").
 		Columns("id_person", "first_name", "last_name", "age").
 		FromSelect(
-			db.Select("999", "first_name", "last_name", "age").
+			db.Select(999, "first_name", "last_name", "age").
 				From("load_two"))
 
 	query, err := stmt.Build()
@@ -771,91 +772,91 @@ DELETED ALL
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao', 'ribeiro', 30, NULL)
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao', 'ribeiro', 30, NULL)]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao', 'ribeiro', 30, NULL)
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao', 'ribeiro', 30, NULL)]
 SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10)
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10)]
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO UPDATE SET id_person = 100
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO UPDATE SET id_person = 100]
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO NOTHING
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('duplicated', 'duplicated', 10) ON CONFLICT (id_person) DO NOTHING]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10)
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10)]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10) ON CONFLICT ("id_person") DO UPDATE SET id_person = 100
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10) ON CONFLICT ("id_person") DO UPDATE SET id_person = 100]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10) ON CONFLICT ("id_person") DO NOTHING
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('duplicated', 'duplicated', 10) ON CONFLICT ("id_person") DO NOTHING]
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao'
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT OR
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao' OR last_name = 'maria'
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao' OR last_name = 'maria']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao' OR last_name = 'maria'
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao' OR last_name = 'maria']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age) VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age") VALUES ('a', 'a', 1), ('b', 'b', 2), ('c', 'c', 3)]
 SAVED PERSONS!
 
 :: INSERT
 
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao', 'ribeiro', 30, NULL), ('luis', 'ribeiro', 31, NULL)
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao', 'ribeiro', 30, NULL), ('luis', 'ribeiro', 31, NULL)]
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao', 'ribeiro', 30, NULL), ('luis', 'ribeiro', 31, NULL)
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao', 'ribeiro', 30, NULL), ('luis', 'ribeiro', 31, NULL)]
 SAVED PERSON: {IdPerson:0 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1]
-LOADED PERSONS: [{IdPerson:115 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:116 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:117 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:118 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:119 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person ORDER BY id_person asc, first_name desc LIMIT 5 OFFSET 1]
+LOADED PERSONS: [{IdPerson:239 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:240 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:241 FirstName:duplicated LastName:duplicated Age:10 IdAddress:<nil>} {IdPerson:242 FirstName:a LastName:a Age:1 IdAddress:<nil>} {IdPerson:243 FirstName:b LastName:b Age:2 IdAddress:<nil>}]
 
 :: SELECT WITH
 
-QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-Success event [operation: SELECT, tables: load_two, query: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+QUERY: WITH load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao')SELECT "id_person", "first_name", "last_name", "age" FROM load_two WHERE first_name = 'joao'
+Success event [operation: SELECT, tables: load_two, query: WITH load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao')SELECT "id_person", "first_name", "last_name", "age" FROM load_two WHERE first_name = 'joao']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT WITH RECURSIVE
 
-QUERY: WITH RECURSIVE load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao'
-Success event [operation: SELECT, tables: load_two, query: WITH RECURSIVE load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao')SELECT id_person, first_name, last_name, age FROM load_two WHERE first_name = 'joao']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
+QUERY: WITH RECURSIVE load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao')SELECT "id_person", "first_name", "last_name", "age" FROM load_two WHERE first_name = 'joao'
+Success event [operation: SELECT, tables: load_two, query: WITH RECURSIVE load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao'), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao')SELECT "id_person", "first_name", "last_name", "age" FROM load_two WHERE first_name = 'joao']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: INSERT WITH
 
-QUERY: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao' LIMIT 1), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao' LIMIT 1)INSERT INTO public.person (id_person, first_name, last_name, age) SELECT 999, first_name, last_name, age FROM load_two
-Success event [operation: INSERT, tables: public.person, query: WITH load_one AS (SELECT first_name FROM public.person WHERE first_name = 'joao' LIMIT 1), load_two AS (SELECT id_person, load_one.first_name, last_name, age FROM load_one, public.person AS person WHERE person.first_name = 'joao' LIMIT 1)INSERT INTO public.person (id_person, first_name, last_name, age) SELECT 999, first_name, last_name, age FROM load_two]
+QUERY: WITH load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao' LIMIT 1), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao' LIMIT 1)INSERT INTO public.person ("id_person", "first_name", "last_name", "age") SELECT 999, "first_name", "last_name", "age" FROM load_two
+Success event [operation: INSERT, tables: public.person, query: WITH load_one AS (SELECT "first_name" FROM public.person WHERE first_name = 'joao' LIMIT 1), load_two AS (SELECT "id_person", "load_one"."first_name", "last_name", "age" FROM load_one, "public"."person" AS person WHERE person.first_name = 'joao' LIMIT 1)INSERT INTO public.person ("id_person", "first_name", "last_name", "age") SELECT 999, "first_name", "last_name", "age" FROM load_two]
 INSERT PERSON 999: {IdPerson:0 FirstName: LastName: Age:0 IdAddress:<nil>}
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE id_person = '999'
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person WHERE id_person = '999']
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE id_person = '999'
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE id_person = '999']
 LOADED PERSON 999: {IdPerson:999 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: SELECT GROUP BY
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1]
-LOADED PERSONS: [{IdPerson:121 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:999 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:122 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person GROUP BY id_person, last_name, first_name, age HAVING age > 20 ORDER BY age asc, first_name desc LIMIT 5 OFFSET 1]
+LOADED PERSONS: [{IdPerson:238 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:245 FirstName:joao LastName:ribeiro Age:30 IdAddress:<nil>} {IdPerson:246 FirstName:luis LastName:ribeiro Age:31 IdAddress:<nil>}]
 
 :: JOIN
 
-QUERY: INSERT INTO public.address AS new_name (id_address, street, number, country) VALUES (1, 'street one', 1, 'portugal')
-Success event [operation: INSERT, tables: public.address AS new_name, query: INSERT INTO public.address AS new_name (id_address, street, number, country) VALUES (1, 'street one', 1, 'portugal')]
+QUERY: INSERT INTO "public"."address" AS new_name ("id_address", "street", "number", "country") VALUES (1, 'street one', 1, 'portugal')
+Success event [operation: INSERT, tables: "public"."address" AS new_name, query: INSERT INTO "public"."address" AS new_name ("id_address", "street", "number", "country") VALUES (1, 'street one', 1, 'portugal')]
 SAVED ADDRESS: {IdAddress:1 Street:street one Number:1 Country:portugal}
-QUERY: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao-join', 'ribeiro-join', 30, 1)
-Success event [operation: INSERT, tables: public.person AS new_name, query: INSERT INTO public.person AS new_name (first_name, last_name, age, fk_address) VALUES ('joao-join', 'ribeiro-join', 30, 1)]
-SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc000183478}
-QUERY: SELECT address.street FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join'
-Success event [operation: SELECT, tables: public.person, query: SELECT address.street FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join']
+QUERY: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao-join', 'ribeiro-join', 30, 1)
+Success event [operation: INSERT, tables: "public"."person" AS new_name, query: INSERT INTO "public"."person" AS new_name ("first_name", "last_name", "age", "fk_address") VALUES ('joao-join', 'ribeiro-join', 30, 1)]
+SAVED PERSON: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc00015ff08}
+QUERY: SELECT "address"."street" FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join'
+Success event [operation: SELECT, tables: public.person, query: SELECT "address"."street" FROM public.person JOIN public.address ON (fk_address = id_address) WHERE first_name = 'joao-join']
 STREET: street one
-SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc000183478}
+SAVED ADDRESS: {IdPerson:0 FirstName:joao-join LastName:ribeiro-join Age:30 IdAddress:0xc00015ff08}
 
 :: UPDATE
 
@@ -865,23 +866,23 @@ UPDATED PERSON
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao'
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: UPDATE
 
-QUERY: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao' RETURNING age
-Success event [operation: UPDATE, tables: public.person, query: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao' RETURNING age]
+QUERY: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao' RETURNING "age"
+Success event [operation: UPDATE, tables: public.person, query: UPDATE public.person SET last_name = 'males' WHERE first_name = 'joao' RETURNING "age"]
 
 AGE: 30
 UPDATED PERSON
 
 :: SELECT
 
-QUERY: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao'
-Success event [operation: SELECT, tables: public.person, query: SELECT id_person, first_name, last_name, age FROM public.person WHERE first_name = 'joao']
-LOADED PERSON: {IdPerson:114 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
+QUERY: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao'
+Success event [operation: SELECT, tables: public.person, query: SELECT "id_person", "first_name", "last_name", "age" FROM public.person WHERE first_name = 'joao']
+LOADED PERSON: {IdPerson:238 FirstName:joao LastName:males Age:30 IdAddress:<nil>}
 
 :: DELETE
 
@@ -897,8 +898,8 @@ Success event [operation: EXECUTE, tables: , query: SELECT * FROM public.person 
 
 :: TRANSACTION
 
-QUERY: INSERT INTO public.person (first_name, last_name, age, fk_address) VALUES ('joao-2', 'ribeiro', 30, NULL)
-Success event [operation: INSERT, tables: public.person, query: INSERT INTO public.person (first_name, last_name, age, fk_address) VALUES ('joao-2', 'ribeiro', 30, NULL)]
+QUERY: INSERT INTO public.person ("first_name", "last_name", "age", "fk_address") VALUES ('joao-2', 'ribeiro', 30, NULL)
+Success event [operation: INSERT, tables: public.person, query: INSERT INTO public.person ("first_name", "last_name", "age", "fk_address") VALUES ('joao-2', 'ribeiro', 30, NULL)]
 SAVED PERSON: {IdPerson:0 FirstName:joao-2 LastName:ribeiro Age:30 IdAddress:<nil>}
 
 :: DELETE

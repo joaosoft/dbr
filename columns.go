@@ -1,6 +1,9 @@
 package dbr
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type columns []interface{}
 
@@ -23,8 +26,9 @@ func (c columns) Build() (string, error) {
 				return "", err
 			}
 			value = fmt.Sprintf("(%s)", value)
+
 		default:
-			value = fmt.Sprintf("%+v", item)
+			value = encodeColumn(item)
 		}
 
 		query += value
@@ -35,4 +39,18 @@ func (c columns) Build() (string, error) {
 	}
 
 	return query, nil
+}
+
+func encodeColumn(v interface{}) string {
+	value := fmt.Sprintf("%+v", v)
+
+	switch v.(type) {
+	case string:
+		if !strings.Contains(value, "\"") {
+			value = fmt.Sprintf("\"%s\"", value)
+			value = strings.Replace(value, ".", "\".\"", 1)
+		}
+	}
+
+	return value
 }

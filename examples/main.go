@@ -364,7 +364,7 @@ func InsertWith() {
 		Into("public.person").
 		Columns("id_person", "first_name", "last_name", "age").
 		FromSelect(
-			db.Select("999", "first_name", "last_name", "age").
+			db.Select(999, "first_name", "last_name", "age").
 				From("load_two"))
 
 	query, err := stmt.Build()
