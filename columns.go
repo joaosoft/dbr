@@ -46,9 +46,9 @@ func encodeColumn(v interface{}) string {
 
 	switch v.(type) {
 	case string:
-		if !strings.Contains(value, "\"") {
-			value = fmt.Sprintf("\"%s\"", value)
-			value = strings.Replace(value, ".", "\".\"", 1)
+		if !strings.ContainsAny(value, `"*`) {
+			value = fmt.Sprintf(`"%s"`, value)
+			value = strings.Replace(value, `.`, `"."`, 1)
 		}
 	}
 
