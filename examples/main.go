@@ -75,7 +75,7 @@ func Insert() {
 	}
 
 	stmt := db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Record(person)
 
 	query, err := stmt.Build()
@@ -96,7 +96,7 @@ func InsertOnConflict() {
 	fmt.Println("\n\n:: INSERT")
 
 	stmt := db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10)
 
@@ -110,7 +110,7 @@ func InsertOnConflict() {
 
 	// on conflict do update
 	stmt = db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
@@ -129,7 +129,7 @@ func InsertOnConflict() {
 
 	// on conflict do nothing
 	stmt = db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("duplicated", "duplicated", 10).
 		OnConflict("id_person").
@@ -151,7 +151,7 @@ func InsertValues() {
 	fmt.Println("\n\n:: INSERT")
 
 	stmt := db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Columns("first_name", "last_name", "age").
 		Values("a", "a", 1).
 		Values("b", "b", 2).
@@ -187,7 +187,7 @@ func InsertRecords() {
 	}
 
 	stmt := db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Record(person1).
 		Record(person2)
 
@@ -211,7 +211,7 @@ func Select() {
 	var person Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
+		From("person").
 		Where("first_name = ?", "joao")
 
 	query, err := stmt.Build()
@@ -234,7 +234,7 @@ func SelectOr() {
 	var person Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
+		From("person").
 		Where("first_name = ?", "joao").
 		WhereOr("last_name = ?", "maria")
 
@@ -258,7 +258,7 @@ func SelectAll() {
 	var persons []Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
+		From("person").
 		OrderAsc("id_person").
 		OrderDesc("first_name").
 		Limit(5).
@@ -286,12 +286,12 @@ func SelectWith() {
 	stmt := db.
 		With("load_one",
 			db.Select("first_name").
-				From("public.person").
+				From("person").
 				Where("first_name = ?", "joao")).
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.As("public.person", "person")).
+				From(dbr.As("person", "person")).
 				Where("person.first_name = ?", "joao")).
 		Select("id_person", "first_name", "last_name", "age").
 		From("load_two").
@@ -319,12 +319,12 @@ func SelectWithRecursive() {
 	stmt := db.
 		WithRecursive("load_one",
 			db.Select("first_name").
-				From("public.person").
+				From("person").
 				Where("first_name = ?", "joao")).
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.As("public.person", "person")).
+				From(dbr.As("person", "person")).
 				Where("person.first_name = ?", "joao")).
 		Select("id_person", "first_name", "last_name", "age").
 		From("load_two").
@@ -352,16 +352,16 @@ func InsertWith() {
 	stmt := db.
 		With("load_one",
 			db.Select("first_name").
-				From("public.person").
+				From("person").
 				Where("first_name = ?", "joao").
 				Limit(1)).
 		With("load_two",
 			db.Select("id_person", "load_one.first_name", "last_name", "age").
 				From("load_one").
-				From(dbr.As("public.person", "person")).
+				From(dbr.As("person", "person")).
 				Where("person.first_name = ?", "joao").Limit(1)).
 		Insert().
-		Into("public.person").
+		Into("person").
 		Columns("id_person", "first_name", "last_name", "age").
 		FromSelect(
 			db.Select(999, "first_name", "last_name", "age").
@@ -383,7 +383,7 @@ func InsertWith() {
 	fmt.Println("\n\n:: SELECT")
 
 	stmtSelect := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
+		From("person").
 		Where("id_person = ?", 999)
 
 	query, err = stmtSelect.Build()
@@ -406,7 +406,7 @@ func SelectGroupBy() {
 	var persons []Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
-		From("public.person").
+		From("person").
 		OrderAsc("age").
 		OrderDesc("first_name").
 		GroupBy("id_person", "last_name", "first_name", "age").
@@ -432,7 +432,7 @@ func SelectGroupBy() {
 func Update() {
 	fmt.Println("\n\n:: UPDATE")
 
-	stmt := db.Update("public.person").
+	stmt := db.Update("person").
 		Set("last_name", "males").
 		Where("first_name = ?", "joao")
 
@@ -453,7 +453,7 @@ func Update() {
 func UpdateReturning() {
 	fmt.Println("\n\n:: UPDATE")
 
-	stmt := db.Update("public.person").
+	stmt := db.Update("person").
 		Set("last_name", "males").
 		Where("first_name = ?", "joao").
 		Return("age")
@@ -479,7 +479,7 @@ func Delete() {
 	fmt.Println("\n\n:: DELETE")
 
 	stmt := db.Delete().
-		From("public.person").
+		From("person").
 		Where("first_name = ?", "joao")
 
 	query, err := stmt.Build()
@@ -507,7 +507,7 @@ func Join() {
 	}
 
 	stmtInsert := db.Insert().
-		Into(dbr.As("public.address", "new_name")).
+		Into(dbr.As("address", "new_name")).
 		Record(address)
 
 	query, err := stmtInsert.Build()
@@ -532,7 +532,7 @@ func Join() {
 	}
 
 	stmtInsert = db.Insert().
-		Into(dbr.As("public.person", "new_name")).
+		Into(dbr.As("person", "new_name")).
 		Record(person)
 
 	query, err = stmtInsert.Build()
@@ -549,8 +549,8 @@ func Join() {
 	fmt.Printf("\nSAVED PERSON: %+v", person)
 
 	stmtSelect := db.Select("address.street").
-		From("public.person").
-		Join("public.address", "fk_address = id_address").
+		From("person").
+		Join("address", "fk_address = id_address").
 		Where("first_name = ?", "joao-join")
 
 	query, err = stmtSelect.Build()
@@ -572,7 +572,7 @@ func Join() {
 func Execute() {
 	fmt.Println("\n\n:: EXECUTE")
 
-	stmt := db.Execute("SELECT * FROM public.person WHERE first_name LIKE ?").
+	stmt := db.Execute("SELECT * FROM person WHERE first_name LIKE ?").
 		Values("%joao%")
 
 	query, err := stmt.Build()
@@ -602,7 +602,7 @@ func Transaction() {
 	}
 
 	stmt := tx.Insert().
-		Into("public.person").
+		Into("person").
 		Record(person)
 
 	query, err := stmt.Build()
@@ -626,7 +626,7 @@ func DeleteTransactionData() {
 	fmt.Println("\n\n:: DELETE")
 
 	stmt := db.Delete().
-		From("public.person").
+		From("person").
 		Where("first_name = ?", "joao-2")
 
 	query, err := stmt.Build()
@@ -647,7 +647,7 @@ func DeleteAll() {
 	fmt.Println("\n\n:: DELETE")
 
 	stmt := db.Delete().
-		From("public.person")
+		From("person")
 
 	query, err := stmt.Build()
 	if err != nil {
@@ -661,7 +661,7 @@ func DeleteAll() {
 	}
 
 	stmt = db.Delete().
-		From("public.address")
+		From("address")
 
 	query, err = stmt.Build()
 	if err != nil {

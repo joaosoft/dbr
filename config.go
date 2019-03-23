@@ -3,7 +3,8 @@ package dbr
 import (
 	"fmt"
 
-	manager "github.com/joaosoft/manager"
+	"github.com/joaosoft/manager"
+	services "github.com/joaosoft/migration/services"
 )
 
 // AppConfig ...
@@ -13,10 +14,11 @@ type AppConfig struct {
 
 // DbrConfig ...
 type DbrConfig struct {
-	Db      *manager.DBConfig `json:"db"`
-	ReadDb  *manager.DBConfig `json:"read_db"`
-	WriteDb *manager.DBConfig `json:"write_db"`
-	Log     struct {
+	Db        *manager.DBConfig         `json:"db"`
+	ReadDb    *manager.DBConfig         `json:"read_db"`
+	WriteDb   *manager.DBConfig         `json:"write_db"`
+	Migration *services.MigrationConfig `json:"migration"`
+	Log       struct {
 		Level string `json:"level"`
 	} `json:"log"`
 }
