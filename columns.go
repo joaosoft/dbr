@@ -2,7 +2,6 @@ package dbr
 
 import (
 	"fmt"
-	"strings"
 )
 
 type columns []interface{}
@@ -42,15 +41,5 @@ func (c columns) Build() (string, error) {
 }
 
 func encodeColumn(v interface{}) string {
-	value := fmt.Sprintf("%+v", v)
-
-	switch v.(type) {
-	case string:
-		if !strings.ContainsAny(value, `"*`) {
-			value = fmt.Sprintf(`"%s"`, value)
-			value = strings.Replace(value, `.`, `"."`, 1)
-		}
-	}
-
-	return value
+	return fmt.Sprintf("%+v", v)
 }
