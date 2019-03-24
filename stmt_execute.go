@@ -8,7 +8,7 @@ import (
 
 type StmtExecute struct {
 	query  string
-	values values
+	values *values
 
 	Dbr          *Dbr
 	Db           *db
@@ -17,7 +17,13 @@ type StmtExecute struct {
 }
 
 func newStmtExecute(dbr *Dbr, db *db, query string) *StmtExecute {
-	return &StmtExecute{sqlOperation: ExecuteOperation, Dbr: dbr, Db: db, query: query, values: values{db: dbr.Connections.Write}}
+	return &StmtExecute{
+		sqlOperation: ExecuteOperation,
+		Dbr:          dbr,
+		Db:           db,
+		query:        query,
+		values:       newValues(dbr.Connections.Write),
+	}
 }
 
 func (stmt *StmtExecute) Values(valuesList ...interface{}) *StmtExecute {

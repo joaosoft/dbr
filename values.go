@@ -10,6 +10,12 @@ type values struct {
 	db   *db
 }
 
+func newValues(db *db) *values {
+	return &values {
+		db: db,
+	}
+}
+
 func (v values) Build() (string, error) {
 	var query string
 

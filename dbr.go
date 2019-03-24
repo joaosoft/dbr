@@ -107,7 +107,10 @@ func New(options ...DbrOption) (*Dbr, error) {
 }
 
 func (dbr *Dbr) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(dbr, dbr.Connections.Read, &StmtWith{}, column)
+	columns := newColumns(dbr.Connections.Read, false)
+	columns.list = column
+
+	return newStmtSelect(dbr, dbr.Connections.Read, &StmtWith{}, columns)
 }
 
 func (dbr *Dbr) Insert() *StmtInsert {

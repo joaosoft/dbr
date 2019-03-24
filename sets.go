@@ -9,6 +9,12 @@ type sets struct {
 	db   *db
 }
 
+func newSets(db *db) *sets {
+	return &sets{
+		db: db,
+		list: make([]*set, 0),
+	}
+}
 func (s sets) Build() (string, error) {
 
 	if len(s.list) == 0 {

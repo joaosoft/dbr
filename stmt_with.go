@@ -13,7 +13,11 @@ type StmtWith struct {
 }
 
 func newStmtWith(dbr *Dbr, connections *connections, name string, isRecursive bool, builder builder) *StmtWith {
-	return &StmtWith{dbr: dbr, connections: connections, withs: withs{&with{name: name, builder: builder}}, isRecursive: isRecursive}
+	return &StmtWith{
+		dbr:         dbr,
+		connections: connections,
+		withs:       withs{newWith(name, builder)},
+		isRecursive: isRecursive}
 }
 
 func (w *StmtWith) With(name string, builder builder) *StmtWith {
@@ -23,7 +27,10 @@ func (w *StmtWith) With(name string, builder builder) *StmtWith {
 }
 
 func (w *StmtWith) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(w.dbr, w.connections.Read, w, column)
+	columns := newColumns(w.connections.Read, false)
+	columns.list = column
+
+	return newStmtSelect(w.dbr, w.connections.Read, w, columns)
 }
 
 func (w *StmtWith) Insert() *StmtInsert {

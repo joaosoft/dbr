@@ -10,8 +10,8 @@ import (
 type StmtDelete struct {
 	withStmt   *StmtWith
 	table      string
-	conditions conditions
-	returning  columns
+	conditions *conditions
+	returning  *columns
 
 	Dbr          *Dbr
 	Db           *db
@@ -20,7 +20,14 @@ type StmtDelete struct {
 }
 
 func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
-	return &StmtDelete{sqlOperation: DeleteOperation, Dbr: dbr, Db: db, withStmt: withStmt, conditions: conditions{db: dbr.Connections.Write}}
+	return &StmtDelete{
+		sqlOperation: DeleteOperation,
+		Dbr: dbr,
+		Db: db,
+		withStmt: withStmt,
+		conditions: newConditions(dbr.Connections.Write),
+		returning: newColumns(db, false),
+	}
 }
 
 func (stmt *StmtDelete) From(table string) *StmtDelete {
@@ -61,7 +68,7 @@ func (stmt *StmtDelete) Build() (string, error) {
 		query += fmt.Sprintf(" WHERE %s", conds)
 	}
 
-	if len(stmt.returning) > 0 {
+	if len(stmt.returning.list) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {
 			return "", err
@@ -95,7 +102,7 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 }
 
 func (stmt *StmtDelete) Return(column ...interface{}) *StmtDelete {
-	stmt.returning = append(stmt.returning, column...)
+	stmt.returning.list = append(stmt.returning.list, column...)
 	return stmt
 }
 
@@ -131,7 +138,7 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 
 	defer rows.Close()
 
-	_, err = read(stmt.returning, rows, value)
+	_, err = read(stmt.returning.list, rows, value)
 
 	return err
 }

@@ -9,6 +9,13 @@ type conditions struct {
 	db   *db
 }
 
+func newConditions(db *db) *conditions {
+	return &conditions{
+		db: db,
+		list: make([]*condition, 0),
+	}
+}
+
 func (c conditions) Build() (string, error) {
 
 	if len(c.list) == 0 {

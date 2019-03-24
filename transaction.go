@@ -50,7 +50,10 @@ func (tx *Transaction) RollbackUnlessCommit() error {
 }
 
 func (tx *Transaction) Select(column ...interface{}) *StmtSelect {
-	return newStmtSelect(tx.dbr, tx.dbr.Connections.Write, &StmtWith{}, column)
+	columns := newColumns(tx.db, false)
+	columns.list = column
+
+	return newStmtSelect(tx.dbr, tx.dbr.Connections.Write, &StmtWith{}, columns)
 }
 
 func (tx *Transaction) Insert() *StmtInsert {

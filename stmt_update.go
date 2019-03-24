@@ -10,10 +10,10 @@ import (
 type StmtUpdate struct {
 	withStmt   *StmtWith
 	table      string
-	sets       sets
-	columns    columns
-	conditions conditions
-	returning  columns
+	sets       *sets
+	columns    *columns
+	conditions *conditions
+	returning  *columns
 
 	Dbr          *Dbr
 	Db           *db
@@ -22,7 +22,17 @@ type StmtUpdate struct {
 }
 
 func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table string) *StmtUpdate {
-	return &StmtUpdate{sqlOperation: UpdateOperation, Dbr: dbr, Db: db, withStmt: withStmt, table: table, sets: sets{db: dbr.Connections.Write}, conditions: conditions{db: dbr.Connections.Write}}
+	return &StmtUpdate{
+		sqlOperation: UpdateOperation,
+		Dbr:          dbr,
+		Db:           db,
+		withStmt:     withStmt,
+		table:        table,
+		sets:         newSets(dbr.Connections.Write),
+		conditions:   newConditions(dbr.Connections.Write),
+		columns:      newColumns(dbr.Connections.Write, false),
+		returning:    newColumns(dbr.Connections.Write, false),
+	}
 }
 
 func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
@@ -71,7 +81,7 @@ func (stmt *StmtUpdate) Build() (string, error) {
 		query += fmt.Sprintf(" WHERE %s", conds)
 	}
 
-	if len(stmt.returning) > 0 {
+	if len(stmt.returning.list) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {
 			return "", err
@@ -109,15 +119,16 @@ func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
 
 	mappedValues := make(map[interface{}]reflect.Value)
 
-	if len(stmt.columns) == 0 {
+	if len(stmt.columns.list) == 0 {
 		var columns []interface{}
 		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
-		stmt.columns = columns
+		stmt.columns.list = columns
+		stmt.columns.encode = true
 	} else {
 		loadStructValues(loadOptionWrite, value, nil, mappedValues)
 	}
 
-	for _, column := range stmt.columns {
+	for _, column := range stmt.columns.list {
 		stmt.sets.list = append(stmt.sets.list, &set{column: column, value: mappedValues[column].Interface()})
 	}
 
@@ -125,7 +136,7 @@ func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
-	stmt.returning = append(stmt.returning, column...)
+	stmt.returning.list = append(stmt.returning.list, column...)
 	return stmt
 }
 
@@ -161,7 +172,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 
 	defer rows.Close()
 
-	_, err = read(stmt.returning, rows, value)
+	_, err = read(stmt.returning.list, rows, value)
 
 	return err
 }

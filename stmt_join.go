@@ -22,7 +22,12 @@ const (
 )
 
 func newStmtJoin(db *db, join Join, table string, on *condition) *StmtJoin {
-	return &StmtJoin{db: db, join: join, table: table, on: on}
+	return &StmtJoin{
+		db:    db,
+		join:  join,
+		table: table,
+		on:    on,
+	}
 }
 
 func (stmt *StmtJoin) Build() (string, error) {

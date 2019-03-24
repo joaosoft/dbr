@@ -12,10 +12,12 @@ type function struct {
 	field   interface{}
 	value   string
 	command command
+	encode  bool
+	encoder *encoder
 }
 
 func As(field interface{}, name string) *function {
-	return &function{field: field, value: name, command: commandAs}
+	return &function{encode: false, encoder: encoderInstance, field: field, value: name, command: commandAs}
 }
 
 func (f *function) String() string {
@@ -32,7 +34,14 @@ func (f *function) String() string {
 			return fmt.Sprintf("(%s) AS %s", field, f.value)
 		}
 
-		return fmt.Sprintf("%s AS %s", encodeColumn(field), f.value)
+		var value string
+		if f.encode {
+			value = f.encoder.encode(field)
+		} else {
+			value = fmt.Sprintf("%+v", field)
+		}
+
+		return fmt.Sprintf("%s AS %s", value, f.value)
 	}
 
 	return ""

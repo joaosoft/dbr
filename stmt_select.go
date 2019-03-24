@@ -9,18 +9,18 @@ import (
 
 type StmtSelect struct {
 	withStmt          *StmtWith
-	columns           columns
+	columns           *columns
 	tables            tables
 	joins             joins
-	conditions        conditions
+	conditions        *conditions
 	isDistinct        bool
-	distinctColumns   columns
-	distinctOnColumns columns
+	distinctColumns   *columns
+	distinctOnColumns *columns
 	unions            unions
 	groupBy           groupBy
-	having            conditions
+	having            *conditions
 	orders            orders
-	returning         columns
+	returning         *columns
 	limit             int
 	offset            int
 
@@ -30,8 +30,19 @@ type StmtSelect struct {
 	sqlOperation SqlOperation
 }
 
-func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns []interface{}) *StmtSelect {
-	return &StmtSelect{sqlOperation: SelectOperation, Dbr: dbr, Db: db, withStmt: withStmt, columns: columns, conditions: conditions{db: dbr.Connections.Read}, having: conditions{db: dbr.Connections.Read}}
+func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns *columns) *StmtSelect {
+	return &StmtSelect{
+		sqlOperation:      SelectOperation,
+		Dbr:               dbr,
+		Db:                db,
+		withStmt:          withStmt,
+		columns:           columns,
+		conditions:        newConditions(dbr.Connections.Read),
+		having:            newConditions(dbr.Connections.Read),
+		distinctColumns:   newColumns(dbr.Connections.Read, false),
+		distinctOnColumns: newColumns(dbr.Connections.Read, false),
+		returning:         newColumns(dbr.Connections.Read, false),
+	}
 }
 
 func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
@@ -95,12 +106,12 @@ func (stmt *StmtSelect) FullJoin(table, onQuery string, values ...interface{}) *
 
 func (stmt *StmtSelect) Distinct(column ...interface{}) *StmtSelect {
 	stmt.isDistinct = true
-	stmt.distinctColumns = append(stmt.distinctColumns, column...)
+	stmt.distinctColumns.list = append(stmt.distinctColumns.list, column...)
 	return stmt
 }
 
 func (stmt *StmtSelect) DistinctOn(column ...interface{}) *StmtSelect {
-	stmt.distinctOnColumns = append(stmt.distinctOnColumns, column...)
+	stmt.distinctOnColumns.list = append(stmt.distinctOnColumns.list, column...)
 	return stmt
 }
 
@@ -156,7 +167,7 @@ func (stmt *StmtSelect) OrderDesc(columns ...string) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Return(column ...interface{}) *StmtSelect {
-	stmt.returning = append(stmt.returning, column...)
+	stmt.returning.list = append(stmt.returning.list, column...)
 	return stmt
 }
 
@@ -290,7 +301,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	}
 
 	// returning
-	if len(stmt.returning) > 0 {
+	if len(stmt.returning.list) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {
 			return "", err

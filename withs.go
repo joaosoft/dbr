@@ -6,6 +6,13 @@ import (
 
 type withs []*with
 
+func newWith(name string, builder builder) *with {
+	return &with{
+		name:    name,
+		builder: builder,
+	}
+}
+
 type with struct {
 	name    string
 	builder builder

@@ -18,15 +18,19 @@ const (
 type StmtConflict struct {
 	table              string
 	onConflictType     onConflictType
-	onConflict         columns
+	onConflict         *columns
 	onConflictDoType   onConflictDoType
-	onConflictDoUpdate sets
+	onConflictDoUpdate *sets
 
 	db *db
 }
 
-func newStmtConflict(db *db, table string) *StmtConflict {
-	return &StmtConflict{db: db, table: table}
+func newStmtConflict(db *db) *StmtConflict {
+	return &StmtConflict{
+		db:                 db,
+		onConflict:         newColumns(db, false),
+		onConflictDoUpdate: newSets(db),
+	}
 }
 
 func (stmt *StmtConflict) Build() (string, error) {

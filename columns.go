@@ -4,16 +4,31 @@ import (
 	"fmt"
 )
 
-type columns []interface{}
+type columns struct {
+	list    []interface{}
+	encode  bool
+	encoder *encoder
+
+	db *db
+}
+
+func newColumns(db *db, encode bool) *columns {
+	return &columns{
+		db:      db,
+		list:    make([]interface{}, 0),
+		encode:  encode,
+		encoder: &encoder{},
+	}
+}
 
 func (c columns) Build() (string, error) {
 
 	var query string
 
-	lenC := len(c)
+	lenC := len(c.list)
 	var err error
 
-	for i, item := range c {
+	for i, item := range c.list {
 		var value string
 
 		switch stmt := item.(type) {
@@ -27,7 +42,11 @@ func (c columns) Build() (string, error) {
 			value = fmt.Sprintf("(%s)", value)
 
 		default:
-			value = encodeColumn(item)
+			if c.encode {
+				value = c.encoder.encode(item)
+			} else {
+				value = fmt.Sprintf("%+v", item)
+			}
 		}
 
 		query += value
@@ -38,8 +57,4 @@ func (c columns) Build() (string, error) {
 	}
 
 	return query, nil
-}
-
-func encodeColumn(v interface{}) string {
-	return fmt.Sprintf("%+v", v)
 }

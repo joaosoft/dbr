@@ -10,10 +10,10 @@ import (
 type StmtInsert struct {
 	withStmt     *StmtWith
 	table        interface{}
-	columns      columns
-	values       values
-	returning    columns
-	stmtConflict StmtConflict
+	columns      *columns
+	values       *values
+	returning    *columns
+	stmtConflict *StmtConflict
 	fromSelect   *StmtSelect
 
 	Dbr          *Dbr
@@ -23,7 +23,16 @@ type StmtInsert struct {
 }
 
 func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
-	return &StmtInsert{sqlOperation: InsertOperation, Dbr: dbr, Db: db, withStmt: withStmt, values: values{db: dbr.Connections.Write}, stmtConflict: StmtConflict{onConflictDoUpdate: sets{db: dbr.Connections.Write}}}
+	return &StmtInsert{
+		sqlOperation: InsertOperation,
+		Dbr:          dbr,
+		Db:           db,
+		withStmt:     withStmt,
+		values:       newValues(dbr.Connections.Write),
+		stmtConflict: newStmtConflict(dbr.Connections.Write),
+		columns:      newColumns(dbr.Connections.Write, false),
+		returning:    newColumns(dbr.Connections.Write, false),
+	}
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
@@ -32,7 +41,7 @@ func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Columns(columns ...interface{}) *StmtInsert {
-	stmt.columns = append(stmt.columns, columns...)
+	stmt.columns.list = append(stmt.columns.list, columns...)
 	return stmt
 }
 
@@ -97,7 +106,7 @@ func (stmt *StmtInsert) Build() (string, error) {
 	}
 
 	// returning
-	if len(stmt.returning) > 0 {
+	if len(stmt.returning.list) > 0 {
 		returning, err := stmt.returning.Build()
 		if err != nil {
 			return "", err
@@ -135,16 +144,17 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 
 	mappedValues := make(map[interface{}]reflect.Value)
 
-	if len(stmt.columns) == 0 {
+	if len(stmt.columns.list) == 0 {
 		var columns []interface{}
 		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
-		stmt.columns = columns
+		stmt.columns.list = columns
+		stmt.columns.encode = true
 	} else {
 		loadStructValues(loadOptionWrite, value, nil, mappedValues)
 	}
 
 	var valueList []interface{}
-	for _, column := range stmt.columns {
+	for _, column := range stmt.columns.list {
 		valueList = append(valueList, mappedValues[column].Interface())
 	}
 
@@ -163,13 +173,13 @@ func (stmt *StmtInsert) Records(records []interface{}) *StmtInsert {
 
 func (stmt *StmtInsert) OnConflict(column ...interface{}) *StmtInsert {
 	stmt.stmtConflict.onConflictType = onConflictColumn
-	stmt.stmtConflict.onConflict = append(stmt.stmtConflict.onConflict, column...)
+	stmt.stmtConflict.onConflict.list = append(stmt.stmtConflict.onConflict.list, column...)
 	return stmt
 }
 
 func (stmt *StmtInsert) OnConflictConstraint(constraint interface{}) *StmtInsert {
 	stmt.stmtConflict.onConflictType = onConflictConstraint
-	stmt.stmtConflict.onConflict = []interface{}{constraint}
+	stmt.stmtConflict.onConflict.list = []interface{}{constraint}
 	return stmt
 }
 
@@ -194,7 +204,7 @@ func (stmt *StmtInsert) DoUpdate(fieldValue ...interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
-	stmt.returning = append(stmt.returning, column...)
+	stmt.returning.list = append(stmt.returning.list, column...)
 	return stmt
 }
 
@@ -230,7 +240,7 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 
 	defer rows.Close()
 
-	_, err = read(stmt.returning, rows, value)
+	_, err = read(stmt.returning.list, rows, value)
 
 	return err
 }
