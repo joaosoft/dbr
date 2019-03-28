@@ -16,7 +16,6 @@ const (
 )
 
 type StmtConflict struct {
-	table              string
 	onConflictType     onConflictType
 	onConflict         *columns
 	onConflictDoType   onConflictDoType

@@ -9,7 +9,7 @@ import (
 
 type StmtDelete struct {
 	withStmt   *StmtWith
-	table      string
+	table      *table
 	conditions *conditions
 	returning  *columns
 
@@ -22,16 +22,16 @@ type StmtDelete struct {
 func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
 	return &StmtDelete{
 		sqlOperation: DeleteOperation,
-		Dbr: dbr,
-		Db: db,
-		withStmt: withStmt,
-		conditions: newConditions(dbr.Connections.Write),
-		returning: newColumns(db, false),
+		Dbr:          dbr,
+		Db:           db,
+		withStmt:     withStmt,
+		conditions:   newConditions(dbr.Connections.Write),
+		returning:    newColumns(db, false),
 	}
 }
 
-func (stmt *StmtDelete) From(table string) *StmtDelete {
-	stmt.table = table
+func (stmt *StmtDelete) From(table interface{}) *StmtDelete {
+	stmt.table = newTable(table)
 	return stmt
 }
 
@@ -57,7 +57,12 @@ func (stmt *StmtDelete) Build() (string, error) {
 		query += withStmt
 	}
 
-	query += fmt.Sprintf("DELETE FROM %s", stmt.table)
+	table, err := stmt.table.Build()
+	if err != nil {
+		return "", err
+	}
+
+	query += fmt.Sprintf("DELETE FROM %s", table)
 
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()
@@ -94,7 +99,12 @@ func (stmt *StmtDelete) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, nil, result); err != nil {
+	table, err := stmt.table.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -132,7 +142,11 @@ func (stmt *StmtDelete) Load(object interface{}) error {
 		return err
 	}
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, rows, nil); err != nil {
+	table, err := stmt.table.Build()
+	if err != nil {
+		return err
+	}
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, rows, nil); err != nil {
 		return err
 	}
 

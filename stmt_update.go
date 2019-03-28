@@ -9,7 +9,7 @@ import (
 
 type StmtUpdate struct {
 	withStmt   *StmtWith
-	table      string
+	table      *table
 	sets       *sets
 	columns    *columns
 	conditions *conditions
@@ -21,13 +21,13 @@ type StmtUpdate struct {
 	sqlOperation SqlOperation
 }
 
-func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table string) *StmtUpdate {
+func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table interface{}) *StmtUpdate {
 	return &StmtUpdate{
 		sqlOperation: UpdateOperation,
 		Dbr:          dbr,
 		Db:           db,
 		withStmt:     withStmt,
-		table:        table,
+		table:        newTable(table),
 		sets:         newSets(dbr.Connections.Write),
 		conditions:   newConditions(dbr.Connections.Write),
 		columns:      newColumns(dbr.Connections.Write, false),
@@ -40,8 +40,8 @@ func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
 	return stmt
 }
 
-func (stmt *StmtUpdate) From(table string) *StmtUpdate {
-	stmt.table = table
+func (stmt *StmtUpdate) From(table interface{}) *StmtUpdate {
+	stmt.table = newTable(table)
 	return stmt
 }
 
@@ -70,7 +70,12 @@ func (stmt *StmtUpdate) Build() (string, error) {
 		return "", err
 	}
 
-	query += fmt.Sprintf("UPDATE %s SET %s", stmt.table, sets)
+	table, err := stmt.table.Build()
+	if err != nil {
+		return "", err
+	}
+
+	query += fmt.Sprintf("UPDATE %s SET %s", table, sets)
 
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()
@@ -107,7 +112,12 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, nil, result); err != nil {
+	table, err := stmt.table.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -166,7 +176,12 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 		return err
 	}
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{stmt.table}, query, err, rows, nil); err != nil {
+	table, err := stmt.table.Build()
+	if err != nil {
+		return err
+	}
+
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, rows, nil); err != nil {
 		return err
 	}
 

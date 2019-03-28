@@ -46,7 +46,9 @@ func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns *columns) *Stmt
 }
 
 func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
-	stmt.tables = append(stmt.tables, tables...)
+	for _, table := range tables {
+		stmt.tables = append(stmt.tables, newTable(table))
+	}
 	return stmt
 }
 
@@ -60,8 +62,8 @@ func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect
 	return stmt
 }
 
-func (stmt *StmtSelect) Join(table, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, table,
+func (stmt *StmtSelect) Join(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, newTable(table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -71,8 +73,8 @@ func (stmt *StmtSelect) Join(table, onQuery string, values ...interface{}) *Stmt
 	return stmt
 }
 
-func (stmt *StmtSelect) LeftJoin(table, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, table,
+func (stmt *StmtSelect) LeftJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, newTable(table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -82,8 +84,8 @@ func (stmt *StmtSelect) LeftJoin(table, onQuery string, values ...interface{}) *
 	return stmt
 }
 
-func (stmt *StmtSelect) RightJoin(table, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, table,
+func (stmt *StmtSelect) RightJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, newTable(table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -93,8 +95,8 @@ func (stmt *StmtSelect) RightJoin(table, onQuery string, values ...interface{}) 
 	return stmt
 }
 
-func (stmt *StmtSelect) FullJoin(table, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, table,
+func (stmt *StmtSelect) FullJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, newTable(table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,

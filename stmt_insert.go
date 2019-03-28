@@ -9,7 +9,7 @@ import (
 
 type StmtInsert struct {
 	withStmt     *StmtWith
-	table        interface{}
+	table        *table
 	columns      *columns
 	values       *values
 	returning    *columns
@@ -36,7 +36,7 @@ func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
-	stmt.table = table
+	stmt.table = newTable(table)
 	return stmt
 }
 
@@ -93,7 +93,12 @@ func (stmt *StmtInsert) Build() (string, error) {
 		}
 	}
 
-	query += fmt.Sprintf("INSERT INTO %s (%s) %s%s", stmt.table, columns, values, selectStmt)
+	table, err := stmt.table.Build()
+	if err != nil {
+		return "", err
+	}
+
+	query += fmt.Sprintf("INSERT INTO %s (%s) %s%s", table, columns, values, selectStmt)
 
 	// on conflict
 	if stmt.stmtConflict.onConflictType != "" {
