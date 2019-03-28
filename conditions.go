@@ -28,7 +28,7 @@ func (c conditions) Build() (string, error) {
 	for i, item := range c.list {
 		condition, err := item.Build()
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 
 		query += condition
