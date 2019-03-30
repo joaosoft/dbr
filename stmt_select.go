@@ -52,7 +52,7 @@ func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Where(query string, values ...interface{}) *StmtSelect {
+func (stmt *StmtSelect) Where(query interface{}, values ...interface{}) *StmtSelect {
 	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }

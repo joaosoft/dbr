@@ -7,7 +7,7 @@ import (
 
 type condition struct {
 	operator operator
-	query    string
+	query    interface{}
 	values   []interface{}
 
 	db *db
@@ -15,15 +15,26 @@ type condition struct {
 
 func (c *condition) Build() (string, error) {
 	var query string
+	var err error
 
-	if strings.Count(c.query, c.db.Dialect.Placeholder()) != len(c.values) {
+	switch stmt := c.query.(type) {
+	case *function:
+		query = stmt.String()
+	case *StmtSelect:
+		query, err = stmt.Build()
+		if err != nil {
+			return "", err
+		}
+		query = fmt.Sprintf("(%s)", query)
+	default:
+		query = fmt.Sprintf("%+v", stmt)
+	}
+
+	if strings.Count(query, c.db.Dialect.Placeholder()) != len(c.values) {
 		return "", ErrorNumberOfConditionValues
 	}
 
-	query += c.query
-
 	var value string
-	var err error
 
 	for _, v := range c.values {
 

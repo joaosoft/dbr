@@ -35,7 +35,7 @@ func (stmt *StmtDelete) From(table interface{}) *StmtDelete {
 	return stmt
 }
 
-func (stmt *StmtDelete) Where(query string, values ...interface{}) *StmtDelete {
+func (stmt *StmtDelete) Where(query interface{}, values ...interface{}) *StmtDelete {
 	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
