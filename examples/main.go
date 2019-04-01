@@ -52,6 +52,7 @@ func main() {
 
 	Update()
 	Select()
+	SelectCoalesce()
 
 	UpdateReturning()
 	Select()
@@ -211,6 +212,29 @@ func Select() {
 	var person Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
+		From("person").
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectCoalesce() {
+	fmt.Println("\n\n:: SELECT COALESCE")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", dbr.OnNull("age", "0", "age")).
 		From("person").
 		Where("first_name = ?", "joao")
 
