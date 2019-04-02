@@ -52,7 +52,9 @@ func main() {
 
 	Update()
 	Select()
+	SelectWithMultipleFrom()
 	SelectCoalesce()
+	SelectCase()
 
 	UpdateReturning()
 	Select()
@@ -229,12 +231,59 @@ func Select() {
 	fmt.Printf("\nLOADED PERSON: %+v", person)
 }
 
+func SelectWithMultipleFrom() {
+	fmt.Println("\n\n:: SELECT WITH MULTIPLE FROM")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", "age", "street").
+		From("person").
+		From("address").
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
 func SelectCoalesce() {
 	fmt.Println("\n\n:: SELECT COALESCE")
 
 	var person Person
 
 	stmt := db.Select("id_person", "first_name", "last_name", dbr.OnNull("age", "0", "age")).
+		From("person").
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectCase() {
+	fmt.Println("\n\n:: SELECT CASE")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", dbr.Case("age").When("age = 0", 10).Else("20")).
 		From("person").
 		Where("first_name = ?", "joao")
 

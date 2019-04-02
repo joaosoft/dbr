@@ -5,19 +5,17 @@ import (
 )
 
 type columns struct {
-	list    []interface{}
-	encode  bool
-	encoder *encoder
+	list   []interface{}
+	encode bool
 
 	db *db
 }
 
 func newColumns(db *db, encode bool) *columns {
 	return &columns{
-		db:      db,
-		list:    make([]interface{}, 0),
-		encode:  encode,
-		encoder: &encoder{},
+		db:     db,
+		list:   make([]interface{}, 0),
+		encode: encode,
 	}
 }
 
@@ -32,8 +30,6 @@ func (c columns) Build() (string, error) {
 		var value string
 
 		switch stmt := item.(type) {
-		case *function:
-			value = stmt.String()
 		case *StmtSelect:
 			value, err = stmt.Build()
 			if err != nil {
@@ -42,10 +38,17 @@ func (c columns) Build() (string, error) {
 			value = fmt.Sprintf("(%s)", value)
 
 		default:
-			if c.encode {
-				value = c.encoder.encode(item)
+			if impl, ok := stmt.(ifunction); ok {
+				value, err = impl.Build(c.db)
+				if err != nil {
+					return "", err
+				}
 			} else {
-				value = fmt.Sprintf("%+v", item)
+				if c.encode {
+					value = c.db.Dialect.EncodeColumn(item)
+				} else {
+					value = fmt.Sprintf("%+v", item)
+				}
 			}
 		}
 

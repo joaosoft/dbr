@@ -63,6 +63,20 @@ func (d *dialectSqlLite3) EncodeBytes(b []byte) string {
 	return fmt.Sprintf(`X'%x'`, b)
 }
 
+func (d *dialectSqlLite3) EncodeColumn(column interface{}) string {
+	value := fmt.Sprintf("%+v", column)
+
+	switch column.(type) {
+	case string:
+		if !strings.ContainsAny(value, `*`) {
+			value = fmt.Sprintf(`"%s"`, value)
+			value = strings.Replace(value, `.`, `"."`, 1)
+		}
+	}
+
+	return value
+}
+
 func (d *dialectSqlLite3) Placeholder() string {
 	return ConstSqlLite3PlaceHolder
 }

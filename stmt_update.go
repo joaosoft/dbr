@@ -27,7 +27,7 @@ func newStmtUpdate(dbr *Dbr, db *db, withStmt *StmtWith, table interface{}) *Stm
 		Dbr:          dbr,
 		Db:           db,
 		withStmt:     withStmt,
-		table:        newTable(table),
+		table:        newTable(db, table),
 		sets:         newSets(dbr.Connections.Write),
 		conditions:   newConditions(dbr.Connections.Write),
 		columns:      newColumns(dbr.Connections.Write, false),
@@ -41,7 +41,7 @@ func (stmt *StmtUpdate) Set(column string, value interface{}) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) From(table interface{}) *StmtUpdate {
-	stmt.table = newTable(table)
+	stmt.table = newTable(stmt.Db, table)
 	return stmt
 }
 
@@ -112,12 +112,7 @@ func (stmt *StmtUpdate) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	table, err := stmt.table.Build()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, nil, result); err != nil {
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -176,12 +171,7 @@ func (stmt *StmtUpdate) Load(object interface{}) error {
 		return err
 	}
 
-	table, err := stmt.table.Build()
-	if err != nil {
-		return err
-	}
-
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{table}, query, err, rows, nil); err != nil {
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, rows, nil); err != nil {
 		return err
 	}
 

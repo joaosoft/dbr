@@ -31,7 +31,7 @@ func newStmtDelete(dbr *Dbr, db *db, withStmt *StmtWith) *StmtDelete {
 }
 
 func (stmt *StmtDelete) From(table interface{}) *StmtDelete {
-	stmt.table = newTable(table)
+	stmt.table = newTable(stmt.Db, table)
 	return stmt
 }
 

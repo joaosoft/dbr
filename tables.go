@@ -1,5 +1,7 @@
 package dbr
 
+import "fmt"
+
 type tables []*table
 
 func (t tables) Build() (string, error) {
@@ -22,4 +24,14 @@ func (t tables) Build() (string, error) {
 	}
 
 	return query, nil
+}
+
+func (t tables) toArray() []string {
+	var listTables []string
+
+	for _, table := range t {
+		listTables = append(listTables, fmt.Sprint(table.data))
+	}
+
+	return listTables
 }

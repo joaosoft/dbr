@@ -23,6 +23,7 @@ type dialect interface {
 	EncodeBool(b bool) string
 	EncodeTime(t time.Time) string
 	EncodeBytes(b []byte) string
+	EncodeColumn(column interface{}) string
 	Placeholder() string
 }
 

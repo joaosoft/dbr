@@ -36,7 +36,7 @@ func newStmtInsert(dbr *Dbr, db *db, withStmt *StmtWith) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Into(table interface{}) *StmtInsert {
-	stmt.table = newTable(table)
+	stmt.table = newTable(stmt.Db, table)
 	return stmt
 }
 
@@ -137,7 +137,7 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 
 	result, err := stmt.Db.Exec(query)
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, nil, result); err != nil {
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, nil, result); err != nil {
 		return nil, err
 	}
 
@@ -239,7 +239,7 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 		return err
 	}
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprintf("%+v", stmt.table)}, query, err, rows, nil); err != nil {
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, rows, nil); err != nil {
 		return err
 	}
 

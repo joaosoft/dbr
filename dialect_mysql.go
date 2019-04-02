@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -87,6 +88,20 @@ func (d *dialectMySql) EncodeTime(t time.Time) string {
 
 func (d *dialectMySql) EncodeBytes(b []byte) string {
 	return fmt.Sprintf(`0x%x`, b)
+}
+
+func (d *dialectMySql) EncodeColumn(column interface{}) string {
+	value := fmt.Sprintf("%+v", column)
+
+	switch column.(type) {
+	case string:
+		if !strings.ContainsAny(value, `*`) {
+			value = fmt.Sprintf(`"%s"`, value)
+			value = strings.Replace(value, `.`, `"."`, 1)
+		}
+	}
+
+	return value
 }
 
 func (d *dialectMySql) Placeholder() string {

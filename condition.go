@@ -18,8 +18,6 @@ func (c *condition) Build() (string, error) {
 	var err error
 
 	switch stmt := c.query.(type) {
-	case *function:
-		query = stmt.String()
 	case *StmtSelect:
 		query, err = stmt.Build()
 		if err != nil {
@@ -27,7 +25,14 @@ func (c *condition) Build() (string, error) {
 		}
 		query = fmt.Sprintf("(%s)", query)
 	default:
-		query = fmt.Sprintf("%+v", stmt)
+		if impl, ok := stmt.(ifunction); ok {
+			query, err = impl.Build(c.db)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			query = fmt.Sprintf("%+v", stmt)
+		}
 	}
 
 	if strings.Count(query, c.db.Dialect.Placeholder()) != len(c.values) {
@@ -39,8 +44,6 @@ func (c *condition) Build() (string, error) {
 	for _, v := range c.values {
 
 		switch stmt := v.(type) {
-		case *function:
-			value = stmt.String()
 		case *StmtSelect:
 			value, err = stmt.Build()
 			if err != nil {
@@ -48,7 +51,14 @@ func (c *condition) Build() (string, error) {
 			}
 			value = fmt.Sprintf("(%s)", value)
 		default:
-			value = fmt.Sprintf("%+v", stmt)
+			if impl, ok := stmt.(ifunction); ok {
+				value, err = impl.Build(c.db)
+				if err != nil {
+					return "", err
+				}
+			} else {
+				value = fmt.Sprintf("%+v", stmt)
+			}
 		}
 
 		query = strings.Replace(query, c.db.Dialect.Placeholder(), c.db.Dialect.Encode(value), 1)

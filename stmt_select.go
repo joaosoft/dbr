@@ -3,7 +3,6 @@ package dbr
 import (
 	"fmt"
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -47,7 +46,7 @@ func newStmtSelect(dbr *Dbr, db *db, withStmt *StmtWith, columns *columns) *Stmt
 
 func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
 	for _, table := range tables {
-		stmt.tables = append(stmt.tables, newTable(table))
+		stmt.tables = append(stmt.tables, newTable(stmt.Db, table))
 	}
 	return stmt
 }
@@ -63,7 +62,7 @@ func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect
 }
 
 func (stmt *StmtSelect) Join(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, newTable(table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, newTable(stmt.Db, table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -74,7 +73,7 @@ func (stmt *StmtSelect) Join(table interface{}, onQuery string, values ...interf
 }
 
 func (stmt *StmtSelect) LeftJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, newTable(table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, newTable(stmt.Db, table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -85,7 +84,7 @@ func (stmt *StmtSelect) LeftJoin(table interface{}, onQuery string, values ...in
 }
 
 func (stmt *StmtSelect) RightJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, newTable(table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, newTable(stmt.Db, table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -96,7 +95,7 @@ func (stmt *StmtSelect) RightJoin(table interface{}, onQuery string, values ...i
 }
 
 func (stmt *StmtSelect) FullJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, newTable(table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, newTable(stmt.Db, table),
 		&condition{
 			operator: operatorAnd,
 			query:    onQuery,
@@ -341,9 +340,7 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		return 0, err
 	}
 
-	tables, _ := stmt.tables.Build()
-
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, strings.Split(tables, ", "), query, err, rows, nil); err != nil {
+	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, stmt.tables.toArray(), query, err, rows, nil); err != nil {
 		return 0, err
 	}
 

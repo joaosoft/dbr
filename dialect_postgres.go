@@ -59,6 +59,20 @@ func (d *dialectPostgres) EncodeBytes(b []byte) string {
 	return fmt.Sprintf(`E'\\x%x'`, b)
 }
 
+func (d *dialectPostgres) EncodeColumn(column interface{}) string {
+	value := fmt.Sprintf("%+v", column)
+
+	switch column.(type) {
+	case string:
+		if !strings.ContainsAny(value, `*`) {
+			value = fmt.Sprintf(`"%s"`, value)
+			value = strings.Replace(value, `.`, `"."`, 1)
+		}
+	}
+
+	return value
+}
+
 func (d *dialectPostgres) Placeholder() string {
 	return ConstPostgresPlaceHolder
 }
