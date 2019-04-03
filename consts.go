@@ -61,6 +61,7 @@ const (
 	constFunctionDoUpdateSet    = "DO UPDATE SET"
 	constFunctionOrderBy        = "ORDER BY"
 	constFunctionNow            = "NOW"
+	constFunctionXmlAgg         = "XMLAGG"
 
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"

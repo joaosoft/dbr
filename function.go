@@ -73,6 +73,10 @@ func StringAgg(expression interface{}, delimiter interface{}) *functionStringAgg
 	return newFunctionStringAgg(expression, delimiter)
 }
 
+func XmlAgg(expression interface{}) *functionXmlAgg {
+	return newFunctionXmlAgg(expression)
+}
+
 func ArrayAgg(expression interface{}) *functionArrayAgg {
 	return newFunctionArrayAgg(expression)
 }
