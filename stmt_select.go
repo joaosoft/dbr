@@ -208,7 +208,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	// distinct on
 	var distinctOn string
 	if stmt.isDistinct {
-		distinctOn = fmt.Sprintf("%s (%s) ", constFunctionDistinctOn)
+		distinctOn = fmt.Sprintf("%s %s ", constFunctionDistinctOn, "(%s)")
 	}
 
 	distinctOnColumns, err := stmt.distinctOnColumns.Build()
