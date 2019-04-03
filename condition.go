@@ -13,7 +13,16 @@ type condition struct {
 	db *db
 }
 
-func (c *condition) Build() (string, error) {
+func newCondition(db *db, operator operator, query string, values ...interface{}) *condition {
+	return &condition{operator: operatorAnd, query: query, values: values, db: db}
+}
+
+func (c *condition) Build(db ...*db) (string, error) {
+
+	if len(db) > 0 {
+		c.db = db[0]
+	}
+
 	var query string
 	var err error
 
@@ -39,7 +48,7 @@ func (c *condition) Build() (string, error) {
 		return "", ErrorNumberOfConditionValues
 	}
 
-	var value string
+	var value interface{}
 
 	for _, v := range c.values {
 
@@ -57,7 +66,7 @@ func (c *condition) Build() (string, error) {
 					return "", err
 				}
 			} else {
-				value = fmt.Sprintf("%+v", stmt)
+				value = stmt
 			}
 		}
 

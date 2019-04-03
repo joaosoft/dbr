@@ -5,12 +5,12 @@ import (
 )
 
 type caseWhen struct {
-	condition interface{}
+	condition *condition
 	result    interface{}
 }
 
-func newCaseWhen(condition interface{}, result interface{}) *caseWhen {
-	return &caseWhen{condition: condition, result: result}
+func newCaseWhen(condition *condition) *caseWhen {
+	return &caseWhen{condition: condition}
 }
 
 func (c *caseWhen) Build(db *db) (string, error) {
@@ -20,22 +20,9 @@ func (c *caseWhen) Build(db *db) (string, error) {
 	var result string
 
 	// condition
-	switch stmt := c.condition.(type) {
-	case *StmtSelect:
-		condition, err = stmt.Build()
-		if err != nil {
-			return "", err
-		}
-		condition = fmt.Sprintf("(%s)", result)
-	default:
-		if impl, ok := stmt.(ifunction); ok {
-			condition, err = impl.Build(db)
-			if err != nil {
-				return "", err
-			}
-		} else {
-			condition = fmt.Sprintf("%+v", stmt)
-		}
+	condition, err = c.condition.Build(db)
+	if err != nil {
+		return "", err
 	}
 
 	// result

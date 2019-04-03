@@ -283,7 +283,11 @@ func SelectCase() {
 
 	var person Person
 
-	stmt := db.Select("id_person", "first_name", "last_name", dbr.Case("age").When("age = 0", 10).Else("20")).
+	stmt := db.Select("id_person", "first_name", "last_name",
+		dbr.Case("age").
+			When("age = ?", 0).Then(10).
+			When("age = ? OR first_name = ?", 30, "joao").Then(100).
+			Else(20)).
 		From("person").
 		Where("first_name = ?", "joao")
 
