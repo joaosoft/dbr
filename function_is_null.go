@@ -4,46 +4,31 @@ import (
 	"fmt"
 )
 
-type FunctionIsNull struct {
-	field  interface{}
-	encode bool
+type functionIsNull struct {
+	expression interface{}
 
-	db *db
+	*functionBase
 }
 
-func newFunctionIsNull(field interface{}) *FunctionIsNull {
-	return &FunctionIsNull{field: field}
+func newFunctionIsNull(expression interface{}) *functionIsNull {
+	return &functionIsNull{functionBase: newFunctionBase(false), expression: expression}
 }
 
-func (c *FunctionIsNull) Field(db *db) (string, error) {
-	var value string
+func (c *functionIsNull) Expression(db *db) (string, error) {
+	c.db = db
 
-	if stmt, ok := c.field.(*StmtSelect); ok {
-		var err error
-		value, err = stmt.Build()
-		if err != nil {
-			return "", nil
-		}
-
-		value = fmt.Sprintf("(%s)", value)
-	} else {
-		if c.encode {
-			value = db.Dialect.EncodeColumn(c.field)
-		} else {
-			value = fmt.Sprintf("%+v", c.field)
-		}
-	}
-	return value, nil
+	return handleExpression(c.functionBase, c.expression)
 }
 
-func (c *FunctionIsNull) Build(db *db) (string, error) {
+func (c *functionIsNull) Build(db *db) (string, error) {
+	c.db = db
 
-	field, err := c.Field(db)
+	expression, err := c.Expression(db)
 	if err != nil {
 		return "", err
 	}
 
-	query := fmt.Sprintf("%s IS NULL", field)
+	query := fmt.Sprintf("%s %s", expression, constFunctionIsNull)
 
 	return query, nil
 }

@@ -10,12 +10,6 @@ var (
 	DialectSqlLite3 = &dialectSqlLite3{}
 )
 
-const (
-	ConstDialectPostgres DialectName = "postgres"
-	ConstDialectMysql    DialectName = "mysql"
-	ConstDialectSqlLite3 DialectName = "sqlite3"
-)
-
 type dialect interface {
 	Name() string
 	Encode(i interface{}) string
@@ -29,11 +23,11 @@ type dialect interface {
 
 func NewDialect(name string) dialect {
 	switch name {
-	case string(ConstDialectPostgres):
+	case string(constDialectPostgres):
 		return DialectPostgres
-	case string(ConstDialectMysql):
+	case string(constDialectMysql):
 		return DialectMySql
-	case string(ConstDialectSqlLite3):
+	case string(constDialectSqlLite3):
 		return DialectSqlLite3
 	}
 

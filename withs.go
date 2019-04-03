@@ -34,7 +34,7 @@ func (w withs) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf("%s AS (%s)", item.name, build)
+		query += fmt.Sprintf("%s %s (%s)", item.name, constFunctionAs, build)
 
 		if i+1 < lenS {
 			query += ", "

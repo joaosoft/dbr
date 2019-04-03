@@ -6,16 +6,11 @@ import (
 
 type unionType string
 type unions []*union
+
 type union struct {
 	unionType unionType
 	stmt      *StmtSelect
 }
-
-const (
-	unionNormal    = "UNION"
-	unionIntersect = "INTERSECT"
-	unionExcept    = "EXCEPT"
-)
 
 func (u unions) Build() (string, error) {
 

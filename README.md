@@ -35,8 +35,20 @@ The main goal of this project is to allow a application to write in a master dat
 ## With utils
 * Case, When, Then, Else
 * As
+* Min, Max
+* Count
+* Now
+* Sum
+* Avg
+* Every
 * IsNull
 * OnNull (on null, set a value)
+* StringAgg
+* ArrayAgg
+* JsonAgg
+* JsonbAgg
+* JsonObjectAgg
+* JsonbObjectAgg
 
 ## With support for type annotations
 ["-" when is to exclude a field]

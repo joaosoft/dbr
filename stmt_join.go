@@ -14,13 +14,6 @@ type StmtJoin struct {
 
 type Join string
 
-const (
-	ConstJoin      Join = "JOIN"
-	ConstLeftJoin  Join = "LEFT JOIN"
-	ConstRightJoin Join = "RIGHT JOIN"
-	ConstFullJoin  Join = "FULL JOIN"
-)
-
 func newStmtJoin(db *db, join Join, table *table, on *condition) *StmtJoin {
 	return &StmtJoin{
 		db:    db,

@@ -6,11 +6,6 @@ import (
 
 type direction string
 
-const (
-	orderAsc  direction = "asc"
-	orderDesc direction = "desc"
-)
-
 type order struct {
 	column    string
 	direction direction
@@ -24,7 +19,7 @@ func (o orders) Build() (string, error) {
 		return "", nil
 	}
 
-	query = " ORDER BY "
+	query = fmt.Sprintf(" %s ", constFunctionOrderBy)
 	lenO := len(o)
 	for i, item := range o {
 		query += fmt.Sprintf("%s %s", item.column, item.direction)

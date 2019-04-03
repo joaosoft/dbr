@@ -47,7 +47,7 @@ func (v values) Build() (string, error) {
 			value = fmt.Sprintf("%+v", valuer)
 		default:
 			if item == nil {
-				value = fmt.Sprintf("NULL")
+				value = fmt.Sprintf(constFunctionNull)
 			} else {
 				value = fmt.Sprintf("%s", v.db.Dialect.Encode(item))
 			}

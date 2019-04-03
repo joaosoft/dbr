@@ -12,5 +12,5 @@ func (g groupBy) Build() (string, error) {
 		return "", nil
 	}
 
-	return fmt.Sprintf(" GROUP BY %s", strings.Join(g, ", ")), nil
+	return fmt.Sprintf(" %s %s", constFunctionGroupBy, strings.Join(g, ", ")), nil
 }

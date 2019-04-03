@@ -38,7 +38,7 @@ func (stmt *StmtConflict) Build() (string, error) {
 		return "", nil
 	}
 
-	query := " ON CONFLICT "
+	query := fmt.Sprintf(" %s ", constFunctionOnConflict)
 
 	columns, err := stmt.onConflict.Build()
 	if err != nil {
@@ -49,18 +49,18 @@ func (stmt *StmtConflict) Build() (string, error) {
 	case onConflictColumn:
 		query += fmt.Sprintf("(%s) ", columns)
 	case onConflictConstraint:
-		query += fmt.Sprintf("ON CONSTRAINT (%s) ", columns)
+		query += fmt.Sprintf("%s (%s) ", constFunctionOnConstraint, columns)
 	}
 
 	switch stmt.onConflictDoType {
 	case onConflictDoNothing:
-		query += "DO NOTHING"
+		query += constFunctionDoNothing
 	case onConflictDoUpdate:
 		sets, err := stmt.onConflictDoUpdate.Build()
 		if err != nil {
 			return "", err
 		}
-		query += fmt.Sprintf("DO UPDATE SET %s", sets)
+		query += fmt.Sprintf("%s %s", constFunctionDoUpdateSet, sets)
 	}
 
 	return query, nil

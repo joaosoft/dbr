@@ -41,6 +41,14 @@ func main() {
 	Select()
 	SelectOr()
 
+	SelectMax()
+	SelectMin()
+	SelectSum()
+	SelectAvg()
+	SelectCount()
+	SelectCountDistinct()
+	SelectFunction()
+
 	InsertValues()
 	InsertRecords()
 	SelectAll()
@@ -229,6 +237,160 @@ func Select() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectMax() {
+	fmt.Println("\n\n:: SELECT MAX")
+
+	var age int
+
+	stmt := db.Select(dbr.Max("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nMAX PERSON AGE: %+v", age)
+}
+
+func SelectCount() {
+	fmt.Println("\n\n:: SELECT COUNT")
+
+	var age int
+
+	stmt := db.Select(dbr.Count("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nCOUNT PERSON AGE: %+v", age)
+}
+
+func SelectCountDistinct() {
+	fmt.Println("\n\n:: SELECT COUNT DISTINCT")
+
+	var age int
+
+	stmt := db.Select(dbr.Count("age", true)).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nCOUNT DISTINCT PERSON AGE: %+v", age)
+}
+
+func SelectAvg() {
+	fmt.Println("\n\n:: SELECT AVG")
+
+	var age float64
+
+	stmt := db.Select(dbr.Avg("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nAVG PERSON AGE: %+v", age)
+}
+
+func SelectSum() {
+	fmt.Println("\n\n:: SELECT SUM")
+
+	var age int
+
+	stmt := db.Select(dbr.Sum("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nSUM PERSON AGE: %+v", age)
+}
+
+func SelectMin() {
+	fmt.Println("\n\n:: SELECT MIN")
+
+	var age int
+
+	stmt := db.Select(dbr.Min("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nMIN PERSON AGE: %+v", age)
+}
+
+func SelectFunction() {
+	fmt.Println("\n\n:: SELECT FUNCTION")
+
+	var age int
+
+	stmt := db.Select(dbr.Function("MAX", "age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nMAX PERSON AGE: %+v", age)
 }
 
 func SelectWithMultipleFrom() {

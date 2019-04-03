@@ -117,8 +117,8 @@ func read(columns []interface{}, rows *sql.Rows, value reflect.Value) (int, erro
 			elem = value
 		}
 
-		// load field values
-		fields, err := getFields(loadOptionRead, columns, elem)
+		// load expression values
+		fields, err := getFields(constLoadOptionRead, columns, elem)
 		if err != nil {
 			return 0, err
 		}
@@ -196,7 +196,7 @@ func loadColumnStructValues(loadOption loadOption, columns []interface{}, mapCol
 			}
 
 			if tag == "" {
-				tag = field.Tag.Get(string(loadOptionDefault))
+				tag = field.Tag.Get(string(constLoadOptionDefault))
 				if tag == "-" || tag == "" {
 					// ignore
 					continue
@@ -234,7 +234,7 @@ func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]in
 			}
 
 			if tag == "" {
-				tag = field.Tag.Get(string(loadOptionDefault))
+				tag = field.Tag.Get(string(constLoadOptionDefault))
 				if tag == "-" || tag == "" {
 					// ignore
 					continue

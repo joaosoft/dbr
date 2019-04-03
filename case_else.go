@@ -36,7 +36,7 @@ func (c *caseElse) Build(db *db) (string, error) {
 		}
 	}
 
-	query = fmt.Sprintf("ELSE %s", result)
+	query = fmt.Sprintf("%s %s", constFunctionElse, result)
 
 	return query, nil
 }

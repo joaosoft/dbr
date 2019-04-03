@@ -44,7 +44,7 @@ func (c *caseWhen) Build(db *db) (string, error) {
 		}
 	}
 
-	query = fmt.Sprintf("WHEN %s THEN %s", condition, result)
+	query = fmt.Sprintf("%s %s %s %s", constFunctionWhen, condition, constFunctionThen, result)
 
 	return query, nil
 }

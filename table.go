@@ -51,7 +51,7 @@ func (t *table) String() string {
 		}
 	default:
 		if impl, ok := stmt.(ifunction); ok {
-			table, err = impl.Field(t.db)
+			table, err = impl.Expression(t.db)
 			if err != nil {
 				return ""
 			}

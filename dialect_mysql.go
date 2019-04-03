@@ -11,7 +11,7 @@ import (
 type dialectMySql struct{}
 
 func (d *dialectMySql) Name() string {
-	return string(ConstDialectMysql)
+	return string(constDialectMysql)
 }
 
 func (d *dialectMySql) Encode(i interface{}) string {
@@ -19,7 +19,7 @@ func (d *dialectMySql) Encode(i interface{}) string {
 
 	if value.Kind() == reflect.Ptr {
 		if value.IsNil() {
-			return "NULL"
+			return constFunctionNull
 		}
 		value = value.Elem()
 	}
@@ -77,13 +77,13 @@ func (d *dialectMySql) EncodeString(s string) string {
 
 func (d *dialectMySql) EncodeBool(b bool) string {
 	if b {
-		return "1"
+		return constMySqlBoolTrue
 	}
-	return "0"
+	return constMySqlBoolFalse
 }
 
 func (d *dialectMySql) EncodeTime(t time.Time) string {
-	return `'` + t.UTC().Format(ConstTimeFormat) + `'`
+	return `'` + t.UTC().Format(constTimeFormat) + `'`
 }
 
 func (d *dialectMySql) EncodeBytes(b []byte) string {
@@ -105,5 +105,5 @@ func (d *dialectMySql) EncodeColumn(column interface{}) string {
 }
 
 func (d *dialectMySql) Placeholder() string {
-	return ConstMysqlPlaceHolder
+	return constMysqlPlaceHolder
 }

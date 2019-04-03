@@ -76,7 +76,7 @@ func (stmt *StmtInsert) Build() (string, error) {
 	// values
 	var values string
 	if len(stmt.values.list) > 0 {
-		values = "VALUES "
+		values = fmt.Sprintf("%s ", constFunctionValues)
 		val, err := stmt.values.Build()
 		if err != nil {
 			return "", err
@@ -98,7 +98,7 @@ func (stmt *StmtInsert) Build() (string, error) {
 		return "", err
 	}
 
-	query += fmt.Sprintf("INSERT INTO %s (%s) %s%s", table, columns, values, selectStmt)
+	query += fmt.Sprintf("%s %s %s (%s) %s%s", constFunctionInsert, constFunctionInto, table, columns, values, selectStmt)
 
 	// on conflict
 	if stmt.stmtConflict.onConflictType != "" {
@@ -117,7 +117,7 @@ func (stmt *StmtInsert) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" RETURNING %s", returning)
+		query += fmt.Sprintf(" %s %s", constFunctionReturning, returning)
 	}
 
 	return query, nil
@@ -151,11 +151,11 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 
 	if len(stmt.columns.list) == 0 {
 		var columns []interface{}
-		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
+		loadStructValues(constLoadOptionWrite, value, &columns, mappedValues)
 		stmt.columns.list = columns
 		stmt.columns.encode = true
 	} else {
-		loadStructValues(loadOptionWrite, value, nil, mappedValues)
+		loadStructValues(constLoadOptionWrite, value, nil, mappedValues)
 	}
 
 	var valueList []interface{}
@@ -216,18 +216,14 @@ func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 func (stmt *StmtInsert) Load(object interface{}) error {
 
 	value := reflect.ValueOf(object)
-	if value.Kind() != reflect.Ptr {
-		panic("the object is not a pointer the load")
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return ErrorInvalidPointer
 	}
 
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)
 	}()
-
-	if value.Kind() != reflect.Ptr || value.IsNil() {
-		return ErrorInvalidPointer
-	}
 
 	query, err := stmt.Build()
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 type dialectPostgres struct{}
 
 func (d *dialectPostgres) Name() string {
-	return string(ConstDialectPostgres)
+	return string(constDialectPostgres)
 }
 
 func (d *dialectPostgres) Encode(i interface{}) string {
@@ -18,7 +18,7 @@ func (d *dialectPostgres) Encode(i interface{}) string {
 
 	if value.Kind() == reflect.Ptr {
 		if value.IsNil() {
-			return "NULL"
+			return constFunctionNull
 		}
 		value = value.Elem()
 	}
@@ -46,13 +46,13 @@ func (d *dialectPostgres) EncodeString(s string) string {
 
 func (d *dialectPostgres) EncodeBool(b bool) string {
 	if b {
-		return "TRUE"
+		return constPostgresBoolTrue
 	}
-	return "FALSE"
+	return constPostgresBoolFalse
 }
 
 func (d *dialectPostgres) EncodeTime(t time.Time) string {
-	return `'` + t.UTC().Format(ConstTimeFormat) + `'`
+	return `'` + t.UTC().Format(constTimeFormat) + `'`
 }
 
 func (d *dialectPostgres) EncodeBytes(b []byte) string {
@@ -74,5 +74,5 @@ func (d *dialectPostgres) EncodeColumn(column interface{}) string {
 }
 
 func (d *dialectPostgres) Placeholder() string {
-	return ConstPostgresPlaceHolder
+	return constPostgresPlaceHolder
 }

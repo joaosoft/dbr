@@ -52,19 +52,19 @@ func (stmt *StmtSelect) From(tables ...interface{}) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Where(query interface{}, values ...interface{}) *StmtSelect {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
 func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
 func (stmt *StmtSelect) Join(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstJoin, newTable(stmt.Db, table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionJoin, newTable(stmt.Db, table),
 		&condition{
-			operator: operatorAnd,
+			operator: constOperatorAnd,
 			query:    onQuery,
 			values:   values,
 			db:       stmt.Db,
@@ -73,9 +73,9 @@ func (stmt *StmtSelect) Join(table interface{}, onQuery string, values ...interf
 }
 
 func (stmt *StmtSelect) LeftJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstLeftJoin, newTable(stmt.Db, table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionLeftJoin, newTable(stmt.Db, table),
 		&condition{
-			operator: operatorAnd,
+			operator: constOperatorAnd,
 			query:    onQuery,
 			values:   values,
 			db:       stmt.Db,
@@ -84,9 +84,9 @@ func (stmt *StmtSelect) LeftJoin(table interface{}, onQuery string, values ...in
 }
 
 func (stmt *StmtSelect) RightJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstRightJoin, newTable(stmt.Db, table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionRightJoin, newTable(stmt.Db, table),
 		&condition{
-			operator: operatorAnd,
+			operator: constOperatorAnd,
 			query:    onQuery,
 			values:   values,
 			db:       stmt.Db,
@@ -95,9 +95,9 @@ func (stmt *StmtSelect) RightJoin(table interface{}, onQuery string, values ...i
 }
 
 func (stmt *StmtSelect) FullJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
-	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, ConstFullJoin, newTable(stmt.Db, table),
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionFullJoin, newTable(stmt.Db, table),
 		&condition{
-			operator: operatorAnd,
+			operator: constOperatorAnd,
 			query:    onQuery,
 			values:   values,
 			db:       stmt.Db,
@@ -117,17 +117,17 @@ func (stmt *StmtSelect) DistinctOn(column ...interface{}) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, &union{unionType: unionNormal, stmt: stmtUnion})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionNormal, stmt: stmtUnion})
 	return stmt
 }
 
 func (stmt *StmtSelect) Intersect(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, &union{unionType: unionIntersect, stmt: stmtUnion})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionIntersect, stmt: stmtUnion})
 	return stmt
 }
 
 func (stmt *StmtSelect) Except(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, &union{unionType: unionExcept, stmt: stmtUnion})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionExcept, stmt: stmtUnion})
 	return stmt
 }
 
@@ -137,12 +137,12 @@ func (stmt *StmtSelect) GroupBy(columns ...string) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Having(query string, values ...interface{}) *StmtSelect {
-	stmt.having.list = append(stmt.having.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
+	stmt.having.list = append(stmt.having.list, &condition{operator: constOperatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
 func (stmt *StmtSelect) HavingOr(query string, values ...interface{}) *StmtSelect {
-	stmt.having.list = append(stmt.having.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
+	stmt.having.list = append(stmt.having.list, &condition{operator: constOperatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
@@ -153,7 +153,7 @@ func (stmt *StmtSelect) OrderBy(column string, direction direction) *StmtSelect 
 
 func (stmt *StmtSelect) OrderAsc(columns ...string) *StmtSelect {
 	for _, column := range columns {
-		stmt.orders = append(stmt.orders, &order{column: column, direction: orderAsc})
+		stmt.orders = append(stmt.orders, &order{column: column, direction: OrderAsc})
 	}
 
 	return stmt
@@ -161,7 +161,7 @@ func (stmt *StmtSelect) OrderAsc(columns ...string) *StmtSelect {
 
 func (stmt *StmtSelect) OrderDesc(columns ...string) *StmtSelect {
 	for _, column := range columns {
-		stmt.orders = append(stmt.orders, &order{column: column, direction: orderDesc})
+		stmt.orders = append(stmt.orders, &order{column: column, direction: OrderDesc})
 	}
 
 	return stmt
@@ -197,7 +197,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	// distinct
 	var distinct string
 	if stmt.isDistinct {
-		distinct = "DISTINCT "
+		distinct = fmt.Sprintf("%s ", constFunctionDistinct)
 	}
 
 	distinctColumns, err := stmt.distinctColumns.Build()
@@ -208,7 +208,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	// distinct on
 	var distinctOn string
 	if stmt.isDistinct {
-		distinctOn = "DISTINCT ON (%s) "
+		distinctOn = fmt.Sprintf("%s (%s) ", constFunctionDistinctOn)
 	}
 
 	distinctOnColumns, err := stmt.distinctOnColumns.Build()
@@ -229,7 +229,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 	}
 
 	// query
-	query += fmt.Sprintf("SELECT %s%s%s%s%s FROM %s", distinct, distinctColumns, distinctOn, distinctOnColumns, columns, tables)
+	query += fmt.Sprintf("%s %s%s%s%s%s %s %s", constFunctionSelect, distinct, distinctColumns, distinctOn, distinctOnColumns, columns, constFunctionFrom, tables)
 
 	// joins
 	if len(stmt.joins) > 0 {
@@ -248,7 +248,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" WHERE %s", conds)
+		query += fmt.Sprintf(" %s %s", constFunctionWhere, conds)
 	}
 
 	// unions
@@ -278,7 +278,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" HAVING %s", havingConds)
+		query += fmt.Sprintf(" %s %s", constFunctionHaving, havingConds)
 	}
 
 	// orders
@@ -293,12 +293,12 @@ func (stmt *StmtSelect) Build() (string, error) {
 
 	// limit
 	if stmt.limit > 0 {
-		query += fmt.Sprintf(" LIMIT %d", stmt.limit)
+		query += fmt.Sprintf(" %s %d", constFunctionLimit, stmt.limit)
 	}
 
 	// offset
 	if stmt.offset > 0 {
-		query += fmt.Sprintf(" OFFSET %d", stmt.offset)
+		query += fmt.Sprintf(" %s %d", constFunctionOffset, stmt.offset)
 	}
 
 	// returning
@@ -308,7 +308,7 @@ func (stmt *StmtSelect) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" RETURNING %s", returning)
+		query += fmt.Sprintf(" %s %s", constFunctionReturning, returning)
 	}
 
 	return query, nil
@@ -317,18 +317,14 @@ func (stmt *StmtSelect) Build() (string, error) {
 func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 
 	value := reflect.ValueOf(object)
-	if value.Kind() != reflect.Ptr {
-		panic("the object is not a pointer the load")
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return 0, ErrorInvalidPointer
 	}
 
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)
 	}()
-
-	if value.Kind() != reflect.Ptr || value.IsNil() {
-		return 0, ErrorInvalidPointer
-	}
 
 	query, err := stmt.Build()
 	if err != nil {

@@ -4,47 +4,32 @@ import (
 	"fmt"
 )
 
-type FunctionAs struct {
-	field  interface{}
-	alias  string
-	encode bool
+type functionAs struct {
+	expression interface{}
+	alias      string
 
-	db *db
+	*functionBase
 }
 
-func newFunctionAs(field interface{}, alias string) *FunctionAs {
-	return &FunctionAs{field: field, alias: alias}
+func newFunctionAs(expression interface{}, alias string) *functionAs {
+	return &functionAs{functionBase: newFunctionBase(false), expression: expression, alias: alias}
 }
 
-func (c *FunctionAs) Field(db *db) (string, error) {
-	var value string
+func (c *functionAs) Expression(db *db) (string, error) {
+	c.db = db
 
-	if stmt, ok := c.field.(*StmtSelect); ok {
-		var err error
-		value, err = stmt.Build()
-		if err != nil {
-			return "", nil
-		}
-
-		value = fmt.Sprintf("(%s)", value)
-	} else {
-		if c.encode {
-			value = db.Dialect.EncodeColumn(c.field)
-		} else {
-			value = fmt.Sprintf("%+v", c.field)
-		}
-	}
-	return value, nil
+	return handleExpression(c.functionBase, c.expression)
 }
 
-func (c *FunctionAs) Build(db *db) (string, error) {
+func (c *functionAs) Build(db *db) (string, error) {
+	c.db = db
 
-	field, err := c.Field(db)
+	expression, err := c.Expression(c.db)
 	if err != nil {
 		return "", err
 	}
 
-	query := fmt.Sprintf("%s AS %s", field, c.alias)
+	query := fmt.Sprintf("%s %s %s", expression, constFunctionAs, c.alias)
 
 	return query, nil
 }

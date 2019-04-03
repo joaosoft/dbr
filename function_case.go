@@ -5,14 +5,16 @@ import (
 	"strings"
 )
 
-type FunctionCase struct {
+type functionCase struct {
 	alias   *string
 	onWhens caseWhens
 	onElse  *caseElse
+
+	*functionBase
 }
 
-func newFunctionCase(alias ...string) *FunctionCase {
-	funcCase := &FunctionCase{onWhens: newCaseWhens()}
+func newFunctionCase(alias ...string) *functionCase {
+	funcCase := &functionCase{functionBase: newFunctionBase(false), onWhens: newCaseWhens()}
 
 	if len(alias) > 0 {
 		funcCase.alias = &alias[0]
@@ -21,13 +23,13 @@ func newFunctionCase(alias ...string) *FunctionCase {
 	return funcCase
 }
 
-func (c *FunctionCase) When(query string, values ...interface{}) *FunctionCase {
-	c.onWhens = append(c.onWhens, newCaseWhen(newCondition(nil, operatorAnd, query, values...)))
+func (c *functionCase) When(query string, values ...interface{}) *functionCase {
+	c.onWhens = append(c.onWhens, newCaseWhen(newCondition(nil, constOperatorAnd, query, values...)))
 
 	return c
 }
 
-func (c *FunctionCase) Then(result interface{}) *FunctionCase {
+func (c *functionCase) Then(result interface{}) *functionCase {
 	if len(c.onWhens) > 0 {
 		c.onWhens[len(c.onWhens)-1].result = result
 	}
@@ -35,17 +37,20 @@ func (c *FunctionCase) Then(result interface{}) *FunctionCase {
 	return c
 }
 
-func (c *FunctionCase) Else(result interface{}) *FunctionCase {
+func (c *functionCase) Else(result interface{}) *functionCase {
 	c.onElse = newCaseElse(result)
 
 	return c
 }
 
-func (c *FunctionCase) Field(db *db) (string, error) {
+func (c *functionCase) Expression(db *db) (string, error) {
+	c.db = db
 	return "", nil
 }
 
-func (c *FunctionCase) Build(db *db) (string, error) {
+func (c *functionCase) Build(db *db) (string, error) {
+	c.db = db
+
 	var value string
 	var query string
 
@@ -64,10 +69,10 @@ func (c *FunctionCase) Build(db *db) (string, error) {
 		value += fmt.Sprintf(" %s", onElse)
 	}
 
-	query = fmt.Sprintf("(CASE %s END)", value)
+	query = fmt.Sprintf("(%s %s %s)", constFunctionCase, value, constFunctionEnd)
 
 	if c.alias != nil && len(strings.TrimSpace(*c.alias)) > 0 {
-		query += fmt.Sprintf(" AS %s", *c.alias)
+		query += fmt.Sprintf(" %s %s", constFunctionAs, *c.alias)
 	}
 
 	return query, nil

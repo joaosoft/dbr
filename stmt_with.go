@@ -58,11 +58,11 @@ func (w *StmtWith) Build() (string, error) {
 
 	var recursive string
 	if w.isRecursive {
-		recursive = "RECURSIVE "
+		recursive = fmt.Sprintf("%s ", constFunctionRecursive)
 	}
 
 	// query
-	query := fmt.Sprintf("WITH %s%s", recursive, withs)
+	query := fmt.Sprintf("%s %s%s", constFunctionWith, recursive, withs)
 
 	return query, nil
 }

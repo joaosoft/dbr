@@ -10,7 +10,7 @@ import (
 type dialectSqlLite3 struct{}
 
 func (d *dialectSqlLite3) Name() string {
-	return string(ConstDialectSqlLite3)
+	return string(constDialectSqlLite3)
 }
 
 func (d *dialectSqlLite3) Encode(i interface{}) string {
@@ -18,7 +18,7 @@ func (d *dialectSqlLite3) Encode(i interface{}) string {
 
 	if value.Kind() == reflect.Ptr {
 		if value.IsNil() {
-			return "NULL"
+			return constFunctionNull
 		}
 		value = value.Elem()
 	}
@@ -48,14 +48,14 @@ func (d *dialectSqlLite3) EncodeString(s string) string {
 // https://www.sqlite.org/lang_expr.html
 func (d *dialectSqlLite3) EncodeBool(b bool) string {
 	if b {
-		return "1"
+		return constSqlLite3BoolTrue
 	}
-	return "0"
+	return constSqlLite3BoolFalse
 }
 
 // https://www.sqlite.org/lang_datefunc.html
 func (d *dialectSqlLite3) EncodeTime(t time.Time) string {
-	return `'` + t.UTC().Format(ConstTimeFormat) + `'`
+	return `'` + t.UTC().Format(constTimeFormat) + `'`
 }
 
 // https://www.sqlite.org/lang_expr.html
@@ -78,5 +78,5 @@ func (d *dialectSqlLite3) EncodeColumn(column interface{}) string {
 }
 
 func (d *dialectSqlLite3) Placeholder() string {
-	return ConstSqlLite3PlaceHolder
+	return constSqlLite3PlaceHolder
 }

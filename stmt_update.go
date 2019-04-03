@@ -46,12 +46,12 @@ func (stmt *StmtUpdate) From(table interface{}) *StmtUpdate {
 }
 
 func (stmt *StmtUpdate) Where(query interface{}, values ...interface{}) *StmtUpdate {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorAnd, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
 func (stmt *StmtUpdate) WhereOr(query string, values ...interface{}) *StmtUpdate {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: operatorOr, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
@@ -75,7 +75,7 @@ func (stmt *StmtUpdate) Build() (string, error) {
 		return "", err
 	}
 
-	query += fmt.Sprintf("UPDATE %s SET %s", table, sets)
+	query += fmt.Sprintf("%s %s %s %s",  constFunctionUpdate, table, constFunctionSet, sets)
 
 	if len(stmt.conditions.list) > 0 {
 		conds, err := stmt.conditions.Build()
@@ -83,7 +83,7 @@ func (stmt *StmtUpdate) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" WHERE %s", conds)
+		query += fmt.Sprintf(" %s %s", constFunctionWhere, conds)
 	}
 
 	if len(stmt.returning.list) > 0 {
@@ -92,7 +92,7 @@ func (stmt *StmtUpdate) Build() (string, error) {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" RETURNING %s", returning)
+		query += fmt.Sprintf(" %s %s", constFunctionReturning, returning)
 	}
 
 	return query, nil
@@ -126,11 +126,11 @@ func (stmt *StmtUpdate) Record(record interface{}) *StmtUpdate {
 
 	if len(stmt.columns.list) == 0 {
 		var columns []interface{}
-		loadStructValues(loadOptionWrite, value, &columns, mappedValues)
+		loadStructValues(constLoadOptionWrite, value, &columns, mappedValues)
 		stmt.columns.list = columns
 		stmt.columns.encode = true
 	} else {
-		loadStructValues(loadOptionWrite, value, nil, mappedValues)
+		loadStructValues(constLoadOptionWrite, value, nil, mappedValues)
 	}
 
 	for _, column := range stmt.columns.list {
@@ -148,18 +148,14 @@ func (stmt *StmtUpdate) Return(column ...interface{}) *StmtUpdate {
 func (stmt *StmtUpdate) Load(object interface{}) error {
 
 	value := reflect.ValueOf(object)
-	if value.Kind() != reflect.Ptr {
-		panic("the object is not a pointer the load")
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return ErrorInvalidPointer
 	}
 
 	startTime := time.Now()
 	defer func() {
 		stmt.Duration = time.Since(startTime)
 	}()
-
-	if value.Kind() != reflect.Ptr || value.IsNil() {
-		return ErrorInvalidPointer
-	}
 
 	query, err := stmt.Build()
 	if err != nil {
