@@ -24,7 +24,7 @@ func newFunctionCase(alias ...string) *functionCase {
 }
 
 func (c *functionCase) When(query string, values ...interface{}) *functionCase {
-	c.onWhens = append(c.onWhens, newCaseWhen(newCondition(nil, constOperatorAnd, query, values...)))
+	c.onWhens = append(c.onWhens, newCaseWhen(newCondition(nil, OperatorAnd, query, values...)))
 
 	return c
 }

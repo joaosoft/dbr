@@ -50,6 +50,8 @@ The main goal of this project is to allow a application to write in a master dat
 * JsonbAgg
 * JsonObjectAgg
 * JsonbObjectAgg
+* Cast
+* Between, BetweenOr
 
 ## With support for type annotations
 ["-" when is to exclude a field]

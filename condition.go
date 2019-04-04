@@ -14,7 +14,7 @@ type condition struct {
 }
 
 func newCondition(db *db, operator operator, query string, values ...interface{}) *condition {
-	return &condition{operator: constOperatorAnd, query: query, values: values, db: db}
+	return &condition{operator: OperatorAnd, query: query, values: values, db: db}
 }
 
 func (c *condition) Build(db ...*db) (string, error) {

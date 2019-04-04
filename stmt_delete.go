@@ -36,12 +36,12 @@ func (stmt *StmtDelete) From(table interface{}) *StmtDelete {
 }
 
 func (stmt *StmtDelete) Where(query interface{}, values ...interface{}) *StmtDelete {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorAnd, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: OperatorAnd, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 
 func (stmt *StmtDelete) WhereOr(query string, values ...interface{}) *StmtDelete {
-	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: constOperatorOr, query: query, values: values, db: stmt.Db})
+	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: OperatorOr, query: query, values: values, db: stmt.Db})
 	return stmt
 }
 

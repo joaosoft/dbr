@@ -97,6 +97,24 @@ func JsonbObjectAgg(name interface{}, value interface{}) *functionJsonbObjectAgg
 	return newFunctionJsonbObjectAgg(name, value)
 }
 
+func Cast(expression interface{}, dataType dataType) *functionCast {
+	return newFunctionCast(expression, dataType)
+}
+
+func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {
+	theOperator := OperatorAnd
+
+	if len(operator) > 0 {
+		theOperator = operator[0]
+	}
+
+	return newFunctionBetween(expression, low, theOperator, high)
+}
+
+func BetweenOr(expression interface{}, low interface{}, high interface{}) *functionBetween {
+	return newFunctionBetween(expression, low, OperatorOr, high)
+}
+
 func handleExpression(base *functionBase, expression interface{}) (string, error) {
 	var value string
 
