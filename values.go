@@ -7,12 +7,12 @@ import (
 
 type values struct {
 	list []interface{}
-	db   *db
+	*functionBase
 }
 
 func newValues(db *db) *values {
-	return &values {
-		db: db,
+	return &values{
+		functionBase: newFunctionBase(true, false, db),
 	}
 }
 
@@ -27,12 +27,6 @@ func (v values) Build() (string, error) {
 		var value string
 
 		switch stmt := item.(type) {
-		case *StmtSelect:
-			value, err = stmt.Build()
-			if err != nil {
-				return "", err
-			}
-			value = fmt.Sprintf("(%s)", value)
 		case *values:
 			withoutParentheses = true
 			value, err = stmt.Build()
@@ -46,10 +40,9 @@ func (v values) Build() (string, error) {
 			}
 			value = fmt.Sprintf("%+v", valuer)
 		default:
-			if item == nil {
-				value = fmt.Sprintf(constFunctionNull)
-			} else {
-				value = fmt.Sprintf("%s", v.db.Dialect.Encode(item))
+			value, err = handleExpression(v.functionBase, item)
+			if err != nil {
+				return "", err
 			}
 		}
 

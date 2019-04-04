@@ -13,7 +13,7 @@ type functionOnNull struct {
 }
 
 func newFunctionOnNull(expression interface{}, onNullValue interface{}, alias string) *functionOnNull {
-	return &functionOnNull{functionBase: newFunctionBase(false), expression: expression, onNullValue: onNullValue, alias: alias}
+	return &functionOnNull{functionBase: newFunctionBase(false, false), expression: expression, onNullValue: onNullValue, alias: alias}
 }
 
 func (c *functionOnNull) Expression(db *db) (string, error) {

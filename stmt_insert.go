@@ -46,7 +46,7 @@ func (stmt *StmtInsert) Columns(columns ...interface{}) *StmtInsert {
 }
 
 func (stmt *StmtInsert) Values(valuesList ...interface{}) *StmtInsert {
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valuesList})
+	stmt.values.list = append(stmt.values.list, &values{functionBase: newFunctionBase(true, false, stmt.Db), list: valuesList})
 	return stmt
 }
 
@@ -163,7 +163,7 @@ func (stmt *StmtInsert) Record(record interface{}) *StmtInsert {
 		valueList = append(valueList, mappedValues[column].Interface())
 	}
 
-	stmt.values.list = append(stmt.values.list, &values{db: stmt.Db, list: valueList})
+	stmt.values.list = append(stmt.values.list, &values{functionBase: newFunctionBase(true, false, stmt.Db), list: valueList})
 
 	return stmt
 }

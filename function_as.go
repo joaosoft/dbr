@@ -12,7 +12,7 @@ type functionAs struct {
 }
 
 func newFunctionAs(expression interface{}, alias string) *functionAs {
-	return &functionAs{functionBase: newFunctionBase(false), expression: expression, alias: alias}
+	return &functionAs{functionBase: newFunctionBase(false, false), expression: expression, alias: alias}
 }
 
 func (c *functionAs) Expression(db *db) (string, error) {

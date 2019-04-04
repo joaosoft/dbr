@@ -12,7 +12,7 @@ type functionCast struct {
 }
 
 func newFunctionCast(expression interface{}, dataType dataType) *functionCast {
-	return &functionCast{functionBase: newFunctionBase(false), expression: expression, dataType: dataType}
+	return &functionCast{functionBase: newFunctionBase(false, false), expression: expression, dataType: dataType}
 }
 
 func (c *functionCast) Expression(db *db) (string, error) {

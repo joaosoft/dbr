@@ -14,7 +14,7 @@ type functionCase struct {
 }
 
 func newFunctionCase(alias ...string) *functionCase {
-	funcCase := &functionCase{functionBase: newFunctionBase(false), onWhens: newCaseWhens()}
+	funcCase := &functionCase{functionBase: newFunctionBase(false, false), onWhens: newCaseWhens()}
 
 	if len(alias) > 0 {
 		funcCase.alias = &alias[0]

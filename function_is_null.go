@@ -11,7 +11,7 @@ type functionIsNull struct {
 }
 
 func newFunctionIsNull(expression interface{}) *functionIsNull {
-	return &functionIsNull{functionBase: newFunctionBase(false), expression: expression}
+	return &functionIsNull{functionBase: newFunctionBase(false, false), expression: expression}
 }
 
 func (c *functionIsNull) Expression(db *db) (string, error) {

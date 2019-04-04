@@ -14,7 +14,7 @@ type functionBetween struct {
 }
 
 func newFunctionBetween(expression interface{}, low interface{}, operator operator, high interface{}) *functionBetween {
-	return &functionBetween{functionBase: newFunctionBase(false), expression: expression, low: low, operator: operator, high: high}
+	return &functionBetween{functionBase: newFunctionBase(false, false), expression: expression, low: low, operator: operator, high: high}
 }
 
 func (c *functionBetween) Expression(db *db) (string, error) {

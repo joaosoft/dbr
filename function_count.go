@@ -12,7 +12,7 @@ type functionCount struct {
 }
 
 func newFunctionCount(expression interface{}, distinct bool) *functionCount {
-	return &functionCount{functionBase: newFunctionBase(false), expression: expression, distinct: distinct}
+	return &functionCount{functionBase: newFunctionBase(false, false), expression: expression, distinct: distinct}
 }
 
 func (c *functionCount) Expression(db *db) (string, error) {

@@ -100,6 +100,13 @@ const (
 	OperatorAnd operator = "AND"
 	OperatorOr  operator = "OR"
 
+	ComparatorDifferent      comparator = "!="
+	ComparatorEqual          comparator = ">"
+	ComparatorBigger         comparator = ">"
+	ComparatorBiggerOrEqual  comparator = ">="
+	ComparatorSmaller        comparator = "<"
+	ComparatorSmallerOrEqual comparator = "<="
+
 	DataTypeSmallInt    dataType = "SMALLINT"
 	DataTypeInt         dataType = "INTEGER"
 	DataTypeBigInt      dataType = "BIGINT"

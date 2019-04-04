@@ -49,6 +49,7 @@ func main() {
 	SelectCount()
 	SelectCountDistinct()
 	SelectFunction()
+	SelectCondition()
 
 	InsertValues()
 	InsertRecords()
@@ -416,6 +417,28 @@ func SelectFunction() {
 	}
 
 	fmt.Printf("\nMAX PERSON AGE: %+v", age)
+}
+
+func SelectCondition() {
+	fmt.Println("\n\n:: SELECT CONDITION")
+
+	var hasPerson bool
+
+	stmt := db.Select(dbr.Condition(dbr.Count("*"), dbr.ComparatorBigger, 0)).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&hasPerson)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nHAS PERSON? %t", hasPerson)
 }
 
 func SelectWithMultipleFrom() {

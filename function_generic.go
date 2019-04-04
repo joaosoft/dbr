@@ -12,7 +12,7 @@ type functionGeneric struct {
 }
 
 func newFunctionGeneric(name string, arguments ...interface{}) *functionGeneric {
-	return &functionGeneric{functionBase: newFunctionBase(false), name: name, arguments: arguments}
+	return &functionGeneric{functionBase: newFunctionBase(false, false), name: name, arguments: arguments}
 }
 
 func (c *functionGeneric) Expression(db *db) (string, error) {

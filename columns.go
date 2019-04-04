@@ -8,14 +8,14 @@ type columns struct {
 	list   []interface{}
 	encode bool
 
-	db *db
+	*functionBase
 }
 
 func newColumns(db *db, encode bool) *columns {
 	return &columns{
-		db:     db,
-		list:   make([]interface{}, 0),
-		encode: encode,
+		functionBase: newFunctionBase(encode, true, db),
+		list:         make([]interface{}, 0),
+		encode:       encode,
 	}
 }
 
@@ -38,17 +38,9 @@ func (c columns) Build() (string, error) {
 			value = fmt.Sprintf("(%s)", value)
 
 		default:
-			if impl, ok := stmt.(ifunction); ok {
-				value, err = impl.Build(c.db)
-				if err != nil {
-					return "", err
-				}
-			} else {
-				if c.encode {
-					value = c.db.Dialect.EncodeColumn(item)
-				} else {
-					value = fmt.Sprintf("%+v", item)
-				}
+			value, err = handleExpression(c.functionBase, item)
+			if err != nil {
+				return "", err
 			}
 		}
 
