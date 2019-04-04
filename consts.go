@@ -61,6 +61,7 @@ const (
 	constFunctionDoUpdateSet    = "DO UPDATE SET"
 	constFunctionOrderBy        = "ORDER BY"
 	constFunctionNow            = "NOW"
+	constFunctionUser           = "USER"
 	constFunctionXmlAgg         = "XMLAGG"
 	constFunctionCast           = "CAST"
 	constFunctionBetween        = "BETWEEN"
@@ -78,6 +79,9 @@ const (
 	constFunctionMd5            = "MD5"
 	constFunctionReplace        = "REPLACE"
 	constFunctionRepeat         = "REPEAT"
+	constFunctionAny            = "ANY"
+	constFunctionSome           = "SOME"
+	constFunctionExists         = "EXISTS"
 
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"

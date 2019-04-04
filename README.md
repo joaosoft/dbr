@@ -23,7 +23,7 @@ The main goal of this project is to allow a application to write in a master dat
 * WithErrorEventHandler (call's the function when a query on db ends with error)
 
 ## With support for methods
-* Select, Where, Join, Distinct, Distinct on, Group by, Having, Order by, Union, Intersect, Except, Limit, Offset, Load
+* Select, Where, Join, Distinct, Distinct on, Group by, Having, Order by, Union, Intersect, Except, Limit, Offset, Load, Exists, Not Exists
 * Insert, Multi insert, Where, Record, Returning, Load
 * Update, Where, Set, Record, Returning, Load
 * Delete, Where, Returning, Load
@@ -38,6 +38,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Min, Max
 * Count
 * Now
+* User
 * Sum
 * Avg
 * Every

@@ -17,7 +17,8 @@ func newStmtWith(dbr *Dbr, connections *connections, name string, isRecursive bo
 		dbr:         dbr,
 		connections: connections,
 		withs:       withs{newWith(name, builder)},
-		isRecursive: isRecursive}
+		isRecursive: isRecursive,
+	}
 }
 
 func (w *StmtWith) With(name string, builder builder) *StmtWith {

@@ -11,6 +11,7 @@ type StmtSelect struct {
 	columns           *columns
 	tables            tables
 	joins             joins
+	existsStmt        *StmtExists
 	conditions        *conditions
 	isDistinct        bool
 	distinctColumns   *columns
@@ -58,6 +59,16 @@ func (stmt *StmtSelect) Where(query interface{}, values ...interface{}) *StmtSel
 
 func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect {
 	stmt.conditions.list = append(stmt.conditions.list, &condition{operator: OperatorOr, query: query, values: values, db: stmt.Db})
+	return stmt
+}
+
+func (stmt *StmtSelect) Exists(stmtSelect *StmtSelect) *StmtSelect {
+	stmt.existsStmt = newStmtExists(stmt.Db, stmtSelect, false)
+	return stmt
+}
+
+func (stmt *StmtSelect) NotExists(stmtSelect *StmtSelect) *StmtSelect {
+	stmt.existsStmt = newStmtExists(stmt.Db, stmtSelect, true)
 	return stmt
 }
 
@@ -241,14 +252,26 @@ func (stmt *StmtSelect) Build() (string, error) {
 		query += fmt.Sprintf(" %s", joins)
 	}
 
-	// conditions
-	if len(stmt.conditions.list) > 0 {
-		conds, err := stmt.conditions.Build()
+	// stmt exists
+	if stmt.existsStmt != nil {
+		exists, err := stmt.existsStmt.Build()
 		if err != nil {
 			return "", err
 		}
 
-		query += fmt.Sprintf(" %s %s", constFunctionWhere, conds)
+		query += fmt.Sprintf(" %s %s", constFunctionWhere, exists)
+
+	} else {
+
+		// conditions
+		if len(stmt.conditions.list) > 0 {
+			conds, err := stmt.conditions.Build()
+			if err != nil {
+				return "", err
+			}
+
+			query += fmt.Sprintf(" %s %s", constFunctionWhere, conds)
+		}
 	}
 
 	// unions

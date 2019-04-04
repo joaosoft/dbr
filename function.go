@@ -69,6 +69,10 @@ func Now() *functionGeneric {
 	return newFunctionGeneric(constFunctionNow)
 }
 
+func User() *functionGeneric {
+	return newFunctionGeneric(constFunctionUser)
+}
+
 func StringAgg(expression interface{}, delimiter interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionStringAgg, expression, delimiter)
 }
@@ -155,6 +159,14 @@ func Replace(expression interface{}, from interface{}, to interface{}) *function
 
 func Repeat(expression interface{}, n int) *functionGeneric {
 	return newFunctionGeneric(constFunctionRepeat, expression, n)
+}
+
+func Any(expressions ...interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionAny, expressions...)
+}
+
+func Some(expressions ...interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionSome, expressions...)
 }
 
 func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {
