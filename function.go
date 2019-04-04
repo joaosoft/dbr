@@ -101,6 +101,18 @@ func Cast(expression interface{}, dataType dataType) *functionCast {
 	return newFunctionCast(expression, dataType)
 }
 
+func Not(expression interface{}) *functionNot {
+	return newFunctionNot(expression)
+}
+
+func In(expressions ...interface{}) *functionIn {
+	return newFunctionIn(expressions...)
+}
+
+func NotIn(expressions ...interface{}) *functionNotIn {
+	return newFunctionNotIn(expressions...)
+}
+
 func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {
 	theOperator := OperatorAnd
 

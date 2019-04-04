@@ -51,6 +51,9 @@ The main goal of this project is to allow a application to write in a master dat
 * JsonObjectAgg
 * JsonbObjectAgg
 * Cast
+* Not
+* In
+* NotIn
 * Between, BetweenOr
 
 ## With support for type annotations

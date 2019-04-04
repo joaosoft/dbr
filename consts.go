@@ -64,6 +64,9 @@ const (
 	constFunctionXmlAgg         = "XMLAGG"
 	constFunctionCast           = "CAST"
 	constFunctionBetween        = "BETWEEN"
+	constFunctionNot            = "NOT"
+	constFunctionIn             = "IN"
+	constFunctionNotIn          = "NOT IN"
 
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"
