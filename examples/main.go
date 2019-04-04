@@ -39,6 +39,7 @@ func main() {
 	Insert()
 	InsertOnConflict()
 	Select()
+	SelectExists()
 	SelectOr()
 
 	SelectMax()
@@ -224,6 +225,30 @@ func Select() {
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("person").
 		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectExists() {
+	fmt.Println("\n\n:: SELECT EXISTS")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name", "age").
+		From("person").
+		WhereExists(db.Select("id_person", "first_name", "last_name", "age").
+			From("person"))
 
 	query, err := stmt.Build()
 	if err != nil {

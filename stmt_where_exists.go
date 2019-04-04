@@ -4,22 +4,22 @@ import (
 	"fmt"
 )
 
-type StmtExists struct {
+type StmtWhereExists struct {
 	stmtSelect *StmtSelect
 	isNot      bool
 
 	db *db
 }
 
-func newStmtExists(db *db, stmtSelect *StmtSelect, isNot bool) *StmtExists {
-	return &StmtExists{
+func newStmtWhereExists(db *db, stmtSelect *StmtSelect, isNot bool) *StmtWhereExists {
+	return &StmtWhereExists{
 		db:         db,
 		stmtSelect: stmtSelect,
 		isNot:      isNot,
 	}
 }
 
-func (stmt *StmtExists) Build() (string, error) {
+func (stmt *StmtWhereExists) Build() (string, error) {
 
 	var query string
 
@@ -32,7 +32,7 @@ func (stmt *StmtExists) Build() (string, error) {
 		query += fmt.Sprintf("%s ", constFunctionNot)
 	}
 
-	query += fmt.Sprintf("%s %s", constFunctionExists, stmtSelect)
+	query += fmt.Sprintf("%s (%s)", constFunctionExists, stmtSelect)
 
 	return query, nil
 }

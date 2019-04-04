@@ -11,7 +11,7 @@ type StmtSelect struct {
 	columns           *columns
 	tables            tables
 	joins             joins
-	existsStmt        *StmtExists
+	existsStmt        *StmtWhereExists
 	conditions        *conditions
 	isDistinct        bool
 	distinctColumns   *columns
@@ -62,13 +62,13 @@ func (stmt *StmtSelect) WhereOr(query string, values ...interface{}) *StmtSelect
 	return stmt
 }
 
-func (stmt *StmtSelect) Exists(stmtSelect *StmtSelect) *StmtSelect {
-	stmt.existsStmt = newStmtExists(stmt.Db, stmtSelect, false)
+func (stmt *StmtSelect) WhereExists(stmtSelect *StmtSelect) *StmtSelect {
+	stmt.existsStmt = newStmtWhereExists(stmt.Db, stmtSelect, false)
 	return stmt
 }
 
-func (stmt *StmtSelect) NotExists(stmtSelect *StmtSelect) *StmtSelect {
-	stmt.existsStmt = newStmtExists(stmt.Db, stmtSelect, true)
+func (stmt *StmtSelect) WhereNotExists(stmtSelect *StmtSelect) *StmtSelect {
+	stmt.existsStmt = newStmtWhereExists(stmt.Db, stmtSelect, true)
 	return stmt
 }
 
