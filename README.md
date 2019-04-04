@@ -64,6 +64,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Md5
 * Replace
 * Repeat
+* Condition
 
 ## With support for type annotations
 ["-" when is to exclude a field]

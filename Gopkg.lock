@@ -61,7 +61,7 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "595507b0a4a675ff2b92ad6f8884f74a36a07df2"
+  revision = "ca3111f742816c05f282ac530763f3baca241fe3"
 
 [[projects]]
   branch = "master"
@@ -73,7 +73,7 @@
   branch = "master"
   name = "github.com/joaosoft/manager"
   packages = ["."]
-  revision = "9339e2e09aa8bff3a1d6514be0c977863e11aef4"
+  revision = "d6141eb3a01a95e6b6b15476fa9565d8d259afad"
 
 [[projects]]
   branch = "master"
@@ -85,13 +85,13 @@
   branch = "master"
   name = "github.com/joaosoft/validator"
   packages = ["."]
-  revision = "c5352df0ee28edcab95275820f561c1134a8b981"
+  revision = "3d2aa2dc8db7f41e5302252ed8a1fe20ad13e9fb"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/web"
   packages = ["."]
-  revision = "7f6e5695c77fd5cd48206d5c8078d7babf68ce8a"
+  revision = "dc16ef52d3c14f319506c1f18527d777018bc5ce"
 
 [[projects]]
   branch = "master"
@@ -156,8 +156,8 @@
 [[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
-  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
-  version = "v1.2.0"
+  revision = "63909f0a90ab0f36909e8e044e46ace10cf13ba2"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -171,8 +171,8 @@
     ".",
     "mem"
   ]
-  revision = "f4711e4db9e9a1d3887343acb72b2bbfc2f686f5"
-  version = "v1.2.1"
+  revision = "588a75ec4f32903aa5e39a2619ba6a4631e28424"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -202,7 +202,7 @@
   branch = "master"
   name = "github.com/streadway/amqp"
   packages = ["."]
-  revision = "14f78b41ce6da3d698c2ef2cc8c0ea7ce9e26688"
+  revision = "75d898a42a940fbc854dfd1a4199eabdc00cf024"
 
 [[projects]]
   name = "github.com/valyala/bytebufferpool"
@@ -223,13 +223,13 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "b7391e95e576cacdcdd422573063bc057239113d"
+  revision = "38d8ce5564a5b71b2e3a00553993f1b9a7ae852f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f49334f85ddcf0f08d7fb6dd7363e9e6d6b777eb"
+  revision = "81d4e9dc473e5e8c933f2aaeba2a3d81efb9aed2"
 
 [[projects]]
   name = "golang.org/x/text"
