@@ -45,72 +45,116 @@ func OnNull(expression interface{}, onNullValue interface{}, alias string) *func
 	return newFunctionOnNull(expression, onNullValue, alias)
 }
 
-func Min(expression interface{}) *functionMin {
-	return newFunctionMin(expression)
+func Min(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionMax, expression)
 }
 
-func Max(expression interface{}) *functionMax {
-	return newFunctionMax(expression)
+func Max(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionMin, expression)
 }
 
-func Sum(expression interface{}) *functionSum {
-	return newFunctionSum(expression)
+func Sum(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionSum, expression)
 }
 
-func Avg(expression interface{}) *functionAvg {
-	return newFunctionAvg(expression)
+func Avg(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionAvg, expression)
 }
 
-func Every(expression interface{}) *functionEvery {
-	return newFunctionEvery(expression)
+func Every(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionEvery, expression)
 }
 
-func Now() *functionNow {
-	return newFunctionNow()
+func Now() *functionGeneric {
+	return newFunctionGeneric(constFunctionNow)
 }
 
-func StringAgg(expression interface{}, delimiter interface{}) *functionStringAgg {
-	return newFunctionStringAgg(expression, delimiter)
+func StringAgg(expression interface{}, delimiter interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionStringAgg, expression, delimiter)
 }
 
-func XmlAgg(expression interface{}) *functionXmlAgg {
-	return newFunctionXmlAgg(expression)
+func XmlAgg(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionXmlAgg, expression)
 }
 
-func ArrayAgg(expression interface{}) *functionArrayAgg {
-	return newFunctionArrayAgg(expression)
+func ArrayAgg(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionArrayAgg, expression)
 }
 
-func JsonAgg(expression interface{}) *functionJsonAgg {
-	return newFunctionJsonAgg(expression)
+func JsonAgg(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionJsonAgg, expression)
 }
 
-func JsonbAgg(expression interface{}) *functionJsonbAgg {
-	return newFunctionJsonbAgg(expression)
+func JsonbAgg(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionJsonbAgg, expression)
 }
 
-func JsonObjectAgg(name interface{}, value interface{}) *functionJsonObjectAgg {
-	return newFunctionJsonObjectAgg(name, value)
+func JsonObjectAgg(name interface{}, value interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionJsonObjectAgg, name, value)
 }
 
-func JsonbObjectAgg(name interface{}, value interface{}) *functionJsonbObjectAgg {
-	return newFunctionJsonbObjectAgg(name, value)
+func JsonbObjectAgg(name interface{}, value interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionJsonbObjectAgg, name, value)
 }
 
 func Cast(expression interface{}, dataType dataType) *functionCast {
 	return newFunctionCast(expression, dataType)
 }
 
-func Not(expression interface{}) *functionNot {
-	return newFunctionNot(expression)
+func Not(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionNot, expression)
 }
 
-func In(expressions ...interface{}) *functionIn {
-	return newFunctionIn(expressions...)
+func In(expressions ...interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionIn, expressions...)
 }
 
-func NotIn(expressions ...interface{}) *functionNotIn {
-	return newFunctionNotIn(expressions...)
+func NotIn(expressions ...interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionNotIn, expressions...)
+}
+
+func Upper(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionUpper, expression)
+}
+
+func Lower(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionLower, expression)
+}
+
+func Trim(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionTrim, expression)
+}
+
+func Concat(expressions ...interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionNotIn, expressions...)
+}
+
+func InitCap(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionInitCap, expression)
+}
+
+func Length(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionLength, expression)
+}
+
+func Left(expression interface{}, n int) *functionGeneric {
+	return newFunctionGeneric(constFunctionLeft, expression, n)
+}
+
+func Right(expression interface{}, n int) *functionGeneric {
+	return newFunctionGeneric(constFunctionRight, expression, n)
+}
+
+func Md5(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionMd5, expression)
+}
+
+func Replace(expression interface{}, from interface{}, to interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionReplace, expression, from, to)
+}
+
+func Repeat(expression interface{}, n int) *functionGeneric {
+	return newFunctionGeneric(constFunctionRepeat, expression, n)
 }
 
 func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {

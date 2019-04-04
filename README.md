@@ -55,6 +55,14 @@ The main goal of this project is to allow a application to write in a master dat
 * In
 * NotIn
 * Between, BetweenOr
+* Lower, Upper
+* Length
+* Left, Right
+* Trim
+* InitCap
+* Md5
+* Replace
+* Repeat
 
 ## With support for type annotations
 ["-" when is to exclude a field]
