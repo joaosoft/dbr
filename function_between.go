@@ -26,17 +26,17 @@ func (c *functionBetween) Expression(db *db) (string, error) {
 func (c *functionBetween) Build(db *db) (string, error) {
 	c.db = db
 
-	expression, err := c.Expression(c.db)
+	expression, err := handleBuild(c.functionBase, c.expression)
 	if err != nil {
 		return "", err
 	}
 
-	low, err := handleExpression(c.functionBase, c.low)
+	low, err := handleBuild(c.functionBase, c.low)
 	if err != nil {
 		return "", err
 	}
 
-	high, err := handleExpression(c.functionBase, c.high)
+	high, err := handleBuild(c.functionBase, c.high)
 	if err != nil {
 		return "", err
 	}

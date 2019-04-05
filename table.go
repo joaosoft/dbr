@@ -10,7 +10,7 @@ func newTable(db *db, data interface{}) *table {
 }
 
 func (t *table) Build() (string, error) {
-	return handleExpression(t.functionBase, t.data)
+	return handleBuild(t.functionBase, t.data)
 }
 
 func (t *table) String() string {

@@ -28,7 +28,7 @@ func (c *functionGeneric) Build(db *db) (string, error) {
 
 	lenArgs := len(c.arguments)
 	for i, argument := range c.arguments {
-		expression, err := handleExpression(c.functionBase, argument)
+		expression, err := handleBuild(c.functionBase, argument)
 		if err != nil {
 			return "", err
 		}

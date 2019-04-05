@@ -22,21 +22,17 @@ func (c *functionOnNull) Expression(db *db) (string, error) {
 	return handleExpression(c.functionBase, c.expression)
 }
 
-func (c *functionOnNull) OnNullValue() (string, error) {
-	return handleExpression(c.functionBase, c.onNullValue)
-}
-
 func (c *functionOnNull) Build(db *db) (string, error) {
 	c.db = db
 
 	// expression
-	expression, err := c.Expression(db)
+	expression, err := handleBuild(c.functionBase, c.expression)
 	if err != nil {
 		return "", err
 	}
 
 	// onNullValue
-	onNullValue, err := c.OnNullValue()
+	onNullValue, err := handleBuild(c.functionBase, c.onNullValue)
 	if err != nil {
 		return "", err
 	}

@@ -23,7 +23,7 @@ func (c *functionIsNull) Expression(db *db) (string, error) {
 func (c *functionIsNull) Build(db *db) (string, error) {
 	c.db = db
 
-	expression, err := c.Expression(db)
+	expression, err := handleBuild(c.functionBase, c.expression)
 	if err != nil {
 		return "", err
 	}

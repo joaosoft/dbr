@@ -38,7 +38,7 @@ func (c columns) Build() (string, error) {
 			value = fmt.Sprintf("(%s)", value)
 
 		default:
-			value, err = handleExpression(c.functionBase, item)
+			value, err = handleBuild(c.functionBase, item)
 			if err != nil {
 				return "", err
 			}

@@ -24,7 +24,7 @@ func (c *functionCast) Expression(db *db) (string, error) {
 func (c *functionCast) Build(db *db) (string, error) {
 	c.db = db
 
-	expression, err := c.Expression(c.db)
+	expression, err := handleBuild(c.functionBase, c.expression)
 	if err != nil {
 		return "", err
 	}

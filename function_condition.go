@@ -25,12 +25,12 @@ func (c *functionCondition) Expression(db *db) (string, error) {
 func (c *functionCondition) Build(db *db) (string, error) {
 	c.db = db
 
-	expression, err := c.Expression(c.db)
+	expression, err := handleBuild(c.functionBase, c.expression)
 	if err != nil {
 		return "", err
 	}
 
-	value, err := handleExpression(c.functionBase, c.value)
+	value, err := handleBuild(c.functionBase, c.value)
 	if err != nil {
 		return "", err
 	}

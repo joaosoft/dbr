@@ -40,7 +40,7 @@ func (v values) Build() (string, error) {
 			}
 			value = fmt.Sprintf("%+v", valuer)
 		default:
-			value, err = handleExpression(v.functionBase, item)
+			value, err = handleBuild(v.functionBase, item)
 			if err != nil {
 				return "", err
 			}
