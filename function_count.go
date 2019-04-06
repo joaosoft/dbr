@@ -31,7 +31,7 @@ func (c *functionCount) Build(db *db) (string, error) {
 
 	var distinct string
 	if c.distinct {
-		distinct = "DISTINCT "
+		distinct = fmt.Sprintf("%s ", constFunctionDistinct)
 	}
 
 	query := fmt.Sprintf("%s(%s%s)", constFunctionCount, distinct, expression)

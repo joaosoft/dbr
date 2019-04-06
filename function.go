@@ -23,8 +23,8 @@ func Function(name string, arguments ...interface{}) *functionGeneric {
 	return newFunctionGeneric(name, arguments...)
 }
 
-func As(expression interface{}, alias string) *functionAs {
-	return newFunctionAs(expression, alias)
+func As(expression interface{}, alias string) *functionExpressions {
+	return newFunctionExpressions(false, expression, constFunctionAs, alias)
 }
 
 func Count(expression interface{}, distinct ...bool) *functionCount {
@@ -36,16 +36,17 @@ func Count(expression interface{}, distinct ...bool) *functionCount {
 	return newFunctionCount(expression, isDistinct)
 }
 
-func IsNull(expression interface{}) *functionIsNull {
-	return newFunctionIsNull(expression)
+func IsNull(expression interface{}) *functionExpressions {
+	return newFunctionExpressions(false, expression, constFunctionIsNull)
 }
 
 func Case(alias ...string) *functionCase {
 	return newFunctionCase(alias...)
 }
 
-func OnNull(expression interface{}, onNullValue interface{}, alias string) *functionOnNull {
-	return newFunctionOnNull(expression, onNullValue, alias)
+func OnNull(expression interface{}, onNullValue interface{}, alias string) *functionExpressions {
+	return newFunctionExpressions(true, constFunctionOnNull,
+		constFunctionOpenParentheses, expression, onNullValue, constFunctionCloseParentheses, alias)
 }
 
 func Min(expression interface{}) *functionGeneric {
@@ -104,8 +105,9 @@ func JsonbObjectAgg(name interface{}, value interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionJsonbObjectAgg, name, value)
 }
 
-func Cast(expression interface{}, dataType dataType) *functionCast {
-	return newFunctionCast(expression, dataType)
+func Cast(expression interface{}, dataType dataType) *functionExpressions {
+	return newFunctionExpressions(false, constFunctionCast,
+		constFunctionOpenParentheses, expression, constFunctionAs, dataType, constFunctionCloseParentheses)
 }
 
 func Not(expression interface{}) *functionGeneric {
@@ -172,12 +174,12 @@ func Some(expressions ...interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionSome, expressions...)
 }
 
-func Condition(expression interface{}, comparator comparator, value interface{}) *functionCondition {
-	return newFunctionCondition(expression, comparator, value)
+func Condition(expression interface{}, comparator comparator, value interface{}) *functionExpressions {
+	return newFunctionExpressions(false, expression, comparator, value)
 }
 
-func Operation(expression interface{}, operation operation, value interface{}) *functionOperation {
-	return newFunctionOperation(expression, operation, value)
+func Operation(expression interface{}, operation operation, value interface{}) *functionExpressions {
+	return newFunctionExpressions(false, expression, operation, value)
 }
 
 func Abs(expression interface{}) *functionGeneric {
@@ -192,16 +194,16 @@ func Random(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionRandom, expression)
 }
 
-func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {
+func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionExpressions {
 	theOperator := OperatorAnd
 
 	if len(operator) > 0 {
 		theOperator = operator[0]
 	}
 
-	return newFunctionBetween(expression, low, theOperator, high)
+	return newFunctionExpressions(false, expression, constFunctionBetween, low, theOperator, high)
 }
 
-func BetweenOr(expression interface{}, low interface{}, high interface{}) *functionBetween {
-	return newFunctionBetween(expression, low, OperatorOr, high)
+func BetweenOr(expression interface{}, low interface{}, high interface{}) *functionExpressions {
+	return newFunctionExpressions(false, expression, constFunctionBetween, low, OperatorOr, high)
 }

@@ -86,6 +86,9 @@ const (
 	constFunctionSqrt           = "SQRT"
 	constFunctionRandom         = "RANDOM"
 
+	constFunctionOpenParentheses  = "("
+	constFunctionCloseParentheses = ")"
+
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"
 	constFunctionRightJoin Join = "RIGHT JOIN"
@@ -107,9 +110,10 @@ const (
 	OperationSubtract operation = "-"
 	OperationMultiply operation = "*"
 	OperationDivide   operation = "/"
+	OperationRest     operation = "%"
 
 	ComparatorDifferent      comparator = "!="
-	ComparatorEqual          comparator = ">"
+	ComparatorEqual          comparator = "="
 	ComparatorBigger         comparator = ">"
 	ComparatorBiggerOrEqual  comparator = ">="
 	ComparatorSmaller        comparator = "<"
