@@ -114,12 +114,12 @@ func Not(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionNot, expression)
 }
 
-func In(expressions ...interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionIn, expressions...)
+func In(field interface{}, expressions ...interface{}) *functionField {
+	return newFunctionField(constFunctionIn, field, expressions...)
 }
 
-func NotIn(expressions ...interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionNotIn, expressions...)
+func NotIn(field interface{}, expressions ...interface{}) *functionField {
+	return newFunctionField(constFunctionNotIn, field, expressions...)
 }
 
 func Upper(expression interface{}) *functionGeneric {
