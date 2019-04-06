@@ -65,6 +65,10 @@ The main goal of this project is to allow a application to write in a master dat
 * Replace
 * Repeat
 * Condition
+* Operation
+* Abs
+* Sqrt
+* Random
 
 ## With support for type annotations
 ["-" when is to exclude a field]

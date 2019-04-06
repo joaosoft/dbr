@@ -1,10 +1,5 @@
 package dbr
 
-import (
-	"fmt"
-	"reflect"
-)
-
 type ifunction interface {
 	Build(db *db) (string, error)
 	Expression(db *db) (string, error)
@@ -181,6 +176,22 @@ func Condition(expression interface{}, comparator comparator, value interface{})
 	return newFunctionCondition(expression, comparator, value)
 }
 
+func Operation(expression interface{}, operation operation, value interface{}) *functionOperation {
+	return newFunctionOperation(expression, operation, value)
+}
+
+func Abs(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionAbs, expression)
+}
+
+func Sqrt(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionSqrt, expression)
+}
+
+func Random(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionRandom, expression)
+}
+
 func Between(expression interface{}, low interface{}, high interface{}, operator ...operator) *functionBetween {
 	theOperator := OperatorAnd
 
@@ -193,98 +204,4 @@ func Between(expression interface{}, low interface{}, high interface{}, operator
 
 func BetweenOr(expression interface{}, low interface{}, high interface{}) *functionBetween {
 	return newFunctionBetween(expression, low, OperatorOr, high)
-}
-
-func handleExpression(base *functionBase, expression interface{}) (string, error) {
-	var value string
-	var err error
-
-	if expression == nil || (reflect.ValueOf(expression).Kind() == reflect.Ptr && reflect.ValueOf(expression).IsNil()) {
-		value = fmt.Sprintf(constFunctionNull)
-		return value, nil
-	}
-
-	if stmt, ok := expression.(*StmtSelect); ok {
-		value, err = stmt.Build()
-		if err != nil {
-			return "", err
-		}
-		value = fmt.Sprintf("(%s)", value)
-
-		return value, nil
-	}
-
-	if stmt, ok := expression.(builder); ok {
-		value, err = stmt.Build()
-		if err != nil {
-			return "", nil
-		}
-
-		return value, nil
-	}
-
-	if stmt, ok := expression.(ifunction); ok {
-		var err error
-		value, err = stmt.Expression(base.db)
-		if err != nil {
-			return "", nil
-		}
-
-		return value, nil
-	}
-
-	value = fmt.Sprintf("%+v", expression)
-
-	return value, nil
-}
-
-func handleBuild(base *functionBase, expression interface{}) (string, error) {
-	var value string
-	var err error
-
-	if expression == nil || (reflect.ValueOf(expression).Kind() == reflect.Ptr && reflect.ValueOf(expression).IsNil()) {
-		value = fmt.Sprintf(constFunctionNull)
-		return value, nil
-	}
-
-	if stmt, ok := expression.(*StmtSelect); ok {
-		value, err = stmt.Build()
-		if err != nil {
-			return "", err
-		}
-		value = fmt.Sprintf("(%s)", value)
-
-		return value, nil
-	}
-
-	if stmt, ok := expression.(builder); ok {
-		value, err = stmt.Build()
-		if err != nil {
-			return "", nil
-		}
-
-		return value, nil
-	}
-
-	if stmt, ok := expression.(functionBuilder); ok {
-		var err error
-		value, err = stmt.Build(base.db)
-		if err != nil {
-			return "", nil
-		}
-
-		return value, nil
-	}
-
-	if base.encode {
-		if base.isColumn {
-			value = base.db.Dialect.EncodeColumn(expression)
-		} else {
-			value = base.db.Dialect.Encode(expression)
-		}
-	} else {
-		value = fmt.Sprintf("%+v", expression)
-	}
-
-	return value, nil
 }

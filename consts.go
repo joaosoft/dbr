@@ -82,6 +82,9 @@ const (
 	constFunctionAny            = "ANY"
 	constFunctionSome           = "SOME"
 	constFunctionExists         = "EXISTS"
+	constFunctionAbs            = "ABS"
+	constFunctionSqrt           = "SQRT"
+	constFunctionRandom         = "RANDOM"
 
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"
@@ -99,6 +102,11 @@ const (
 
 	OperatorAnd operator = "AND"
 	OperatorOr  operator = "OR"
+
+	OperationAdd      operation = "+"
+	OperationSubtract operation = "-"
+	OperationMultiply operation = "*"
+	OperationDivide   operation = "/"
 
 	ComparatorDifferent      comparator = "!="
 	ComparatorEqual          comparator = ">"
