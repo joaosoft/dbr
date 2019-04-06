@@ -56,7 +56,7 @@ func (c *functionExpressions) Build(db *db) (string, error) {
 			}
 
 			if addComma {
-				expressions += ","
+				expressions += constFunctionComma
 			}
 		}
 

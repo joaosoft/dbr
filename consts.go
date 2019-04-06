@@ -88,6 +88,7 @@ const (
 
 	constFunctionOpenParentheses  = "("
 	constFunctionCloseParentheses = ")"
+	constFunctionComma            = ","
 
 	constFunctionJoin      Join = "JOIN"
 	constFunctionLeftJoin  Join = "LEFT JOIN"
