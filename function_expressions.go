@@ -11,6 +11,20 @@ type functionExpressions struct {
 	*functionBase
 }
 
+type expression struct {
+	value  interface{}
+	encode bool
+}
+
+func newExpression(value interface{}, encode ...bool) *expression {
+	var theEncode bool
+
+	if len(encode) > 0 {
+		theEncode = encode[0]
+	}
+	return &expression{encode: theEncode, value: value}
+}
+
 func newFunctionExpressions(comma bool, expressions ...interface{}) *functionExpressions {
 	return &functionExpressions{functionBase: newFunctionBase(false, false), expressions: expressions, comma: comma}
 }
@@ -22,7 +36,12 @@ func (c *functionExpressions) Expression(db *db) (string, error) {
 		return "", nil
 	}
 
-	return handleExpression(c.functionBase, c.expressions[0])
+	var expressionValue interface{}
+	if value, ok := c.expressions[0].(*expression); ok {
+		expressionValue = value.value
+	}
+
+	return handleExpression(c.functionBase, expressionValue)
 }
 
 func (c *functionExpressions) Build(db *db) (string, error) {
@@ -33,7 +52,14 @@ func (c *functionExpressions) Build(db *db) (string, error) {
 
 	lenArgs := len(c.expressions)
 	for i, argument := range c.expressions {
-		expression, err := handleBuild(c.functionBase, argument)
+		encode := c.functionBase.encode
+
+		if expressionValue, ok := argument.(*expression); ok {
+			argument = expressionValue.value
+			encode = expressionValue.encode
+		}
+
+		expression, err := handleBuild(c.functionBase, argument, encode)
 		if err != nil {
 			return "", err
 		}

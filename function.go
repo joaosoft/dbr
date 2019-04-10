@@ -46,7 +46,7 @@ func Case(alias ...string) *functionCase {
 
 func OnNull(expression interface{}, onNullValue interface{}, alias string) *functionExpressions {
 	return newFunctionExpressions(true, constFunctionOnNull,
-		constFunctionOpenParentheses, expression, onNullValue, constFunctionCloseParentheses, alias)
+		constFunctionOpenParentheses, expression, newExpression(onNullValue, true), constFunctionCloseParentheses, alias)
 }
 
 func Min(expression interface{}) *functionGeneric {
