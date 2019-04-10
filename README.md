@@ -51,6 +51,10 @@ The main goal of this project is to allow a application to write in a master dat
 * JsonbAgg
 * JsonObjectAgg
 * JsonbObjectAgg
+* ArrayToJson
+* RowToJson
+* ToJson
+* JsonArrayLength
 * Cast
 * Not
 * In

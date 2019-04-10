@@ -89,6 +89,22 @@ func ArrayAgg(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionArrayAgg, expression)
 }
 
+func ArrayToJson(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionArrayToJson, expression)
+}
+
+func RowToJson(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionRowToJson, expression)
+}
+
+func ToJson(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionToJson, expression)
+}
+
+func JsonArrayLength(expression interface{}) *functionGeneric {
+	return newFunctionGeneric(constFunctionJsonArrayLength, expression)
+}
+
 func JsonAgg(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionJsonAgg, expression)
 }
