@@ -172,41 +172,64 @@ func getFields(loadOption loadOption, columns []interface{}, object reflect.Valu
 }
 
 func loadColumnStructValues(loadOption loadOption, columns []interface{}, mapColumns map[interface{}]bool, object reflect.Value, mappedValues map[interface{}]interface{}) {
+
+	if object.Kind() == reflect.Ptr && object.IsNil() {
+		object.Set(reflect.New(object.Type().Elem()))
+	}
+
 	if object.CanAddr() && object.Addr().Type().Implements(typeScanner) {
 		mappedValues[fmt.Sprint(columns[0])] = object.Addr().Interface()
 		return
 	}
+
 	switch object.Kind() {
 	case reflect.Ptr:
-		if !object.IsNil() {
-			loadColumnStructValues(loadOption, columns, mapColumns, object.Elem(), mappedValues)
-		}
+		loadColumnStructValues(loadOption, columns, mapColumns, object.Elem(), mappedValues)
+
 	case reflect.Struct:
 		t := object.Type()
 		for i := 0; i < t.NumField(); i++ {
-			field := t.Field(i)
-			if field.PkgPath != "" && !field.Anonymous {
+			structField := t.Field(i)
+			field := object.Field(i)
+
+			if structField.PkgPath != "" && !structField.Anonymous {
 				// unexported
 				continue
 			}
-			tag := field.Tag.Get(string(loadOption))
+			tag := structField.Tag.Get(string(loadOption))
 			if tag == "-" {
 				// ignore
 				continue
 			}
 
 			if tag == "" {
-				tag = field.Tag.Get(string(constLoadOptionDefault))
-				if tag == "-" || tag == "" {
+				tag = structField.Tag.Get(string(constLoadOptionDefault))
+				if tag == "-" {
 					// ignore
 					continue
 				}
 			}
 
+			if tag == "" {
+				loadColumnStructValues(loadOption, columns, mapColumns, field, mappedValues)
+				continue
+			}
+
+			if field.Kind() == reflect.Ptr && field.IsNil() {
+				field.Set(reflect.New(field.Type().Elem()))
+			}
+
+			if field.CanAddr() && field.Addr().Type().Implements(typeScanner) {
+				mappedValues[tag] = field.Addr().Interface()
+				continue
+			}
+
 			if _, ok := mapColumns[tag]; ok {
-				mappedValues[tag] = object.Field(i).Addr().Interface()
+				mappedValues[tag] = field.Addr().Interface()
+				continue
 			}
 		}
+
 	default:
 		mappedValues[fmt.Sprint(columns[0])] = object.Addr().Interface()
 	}
@@ -221,20 +244,22 @@ func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]in
 	case reflect.Struct:
 		t := object.Type()
 		for i := 0; i < t.NumField(); i++ {
-			field := t.Field(i)
-			if field.PkgPath != "" && !field.Anonymous {
+			structField := t.Field(i)
+			field := object.Field(i)
+
+			if structField.PkgPath != "" && !structField.Anonymous {
 				// unexported
 				continue
 			}
 
-			tag := field.Tag.Get(string(loadOption))
+			tag := structField.Tag.Get(string(loadOption))
 			if tag == "-" {
 				// ignore
 				continue
 			}
 
 			if tag == "" {
-				tag = field.Tag.Get(string(constLoadOptionDefault))
+				tag = structField.Tag.Get(string(constLoadOptionDefault))
 				if tag == "-" || tag == "" {
 					// ignore
 					continue
@@ -242,7 +267,7 @@ func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]in
 			}
 
 			if _, ok := mappedValues[tag]; !ok {
-				mappedValues[tag] = object.Field(i)
+				mappedValues[tag] = field
 				if columns != nil {
 					*columns = append(*columns, tag)
 				}
