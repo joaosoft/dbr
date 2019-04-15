@@ -73,6 +73,7 @@ The main goal of this project is to allow a application to write in a master dat
 * Abs
 * Sqrt
 * Random
+* Marshal, Unmarshal (json with db tags "db.read", "db.write", "db")
 
 ## With support for type annotations
 ["-" when is to exclude a field]
