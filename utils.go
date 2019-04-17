@@ -215,6 +215,16 @@ func loadColumnStructValues(loadOption loadOption, columns []interface{}, mapCol
 				continue
 			}
 
+			isSlice := field.Kind() == reflect.Slice
+			isMap := field.Kind() == reflect.Map
+			isMapOfSlices := isMap && field.Type().Elem().Kind() == reflect.Slice
+
+			if isMapOfSlices {
+				field = reflectAlloc(field.Type().Elem())
+			} else if isSlice || isMap {
+				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
+			}
+
 			if field.Kind() == reflect.Ptr && field.IsNil() {
 				field.Set(reflect.New(field.Type().Elem()))
 			}
