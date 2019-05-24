@@ -23,6 +23,16 @@ type Dbr struct {
 	mux                 sync.Mutex
 }
 
+type IDbr interface {
+	Select(column ...interface{}) *StmtSelect
+	Insert() *StmtInsert
+	Update(table string) *StmtUpdate
+	Delete() *StmtDelete
+	Execute(query string) *StmtExecute
+	With(name string, builder builder) *StmtWith
+	WithRecursive(name string, builder builder) *StmtWith
+}
+
 type connections struct {
 	Read  *db
 	Write *db
