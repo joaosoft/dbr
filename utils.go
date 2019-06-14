@@ -211,8 +211,12 @@ func loadColumnStructValues(loadOption loadOption, columns []interface{}, mapCol
 			}
 
 			if tag == "" {
-				loadColumnStructValues(loadOption, columns, mapColumns, field, mappedValues)
-				continue
+				switch field.Kind() {
+				case reflect.Struct:
+					loadColumnStructValues(loadOption, columns, mapColumns, field, mappedValues)
+				default:
+					continue
+				}
 			}
 
 			isSlice := field.Kind() == reflect.Slice
