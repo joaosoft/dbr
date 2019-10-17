@@ -99,19 +99,20 @@ func New(options ...DbrOption) (*Dbr, error) {
 
 			service.Connections = &connections{Read: dbRead, Write: dbWrite}
 		}
+
+		// execute migrations
+		if service.config.Migration != nil {
+			migration, err := services.NewCmdService(services.WithCmdConfiguration(service.config.Migration))
+			if err != nil {
+				return nil, err
+			}
+
+			if _, err := migration.Execute(services.OptionUp, 0, services.ExecutorModeDatabase); err != nil {
+				return nil, err
+			}
+		}
 	}
 
-	// execute migrations
-	if service.config.Migration != nil {
-		migration, err := services.NewCmdService(services.WithCmdConfiguration(service.config.Migration))
-		if err != nil {
-			return nil, err
-		}
-
-		if _, err := migration.Execute(services.OptionUp, 0, services.ExecutorModeDatabase); err != nil {
-			return nil, err
-		}
-	}
 
 	return service, nil
 }

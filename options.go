@@ -3,6 +3,7 @@ package dbr
 import (
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
+	"github.com/joaosoft/migration/services"
 )
 
 // DbrOption ...
@@ -52,6 +53,13 @@ func WithDatabase(master *db, slave ...*db) DbrOption {
 		} else {
 			dbr.Connections = &connections{Write: master, Read: master}
 		}
+	}
+}
+
+// WithMigrationConfig ...
+func WithMigrationConfig(migration *services.MigrationConfig) DbrOption {
+	return func(dbr *Dbr) {
+		dbr.config.Migration = migration
 	}
 }
 
