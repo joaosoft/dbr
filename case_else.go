@@ -4,15 +4,15 @@ import (
 	"fmt"
 )
 
-type caseElse struct {
+type onCaseElse struct {
 	result interface{}
 }
 
-func newCaseElse(result interface{}) *caseElse {
-	return &caseElse{result: result}
+func newCaseElse(result interface{}) *onCaseElse {
+	return &onCaseElse{result: result}
 }
 
-func (c *caseElse) Build(db *db) (string, error) {
+func (c *onCaseElse) Build(db *db) (string, error) {
 	var query string
 	var err error
 	var result string

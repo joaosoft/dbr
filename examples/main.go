@@ -42,6 +42,7 @@ func main() {
 	SelectExists()
 	SelectOr()
 
+	SelectOver()
 	SelectMax()
 	SelectMin()
 	SelectSum()
@@ -65,6 +66,7 @@ func main() {
 	SelectWithMultipleFrom()
 	SelectCoalesce()
 	SelectCase()
+	SelectCaseWhen()
 
 	UpdateReturning()
 	Select()
@@ -271,6 +273,33 @@ func SelectMax() {
 	var age int
 
 	stmt := db.Select(dbr.Max("age")).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&age)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nMAX PERSON AGE: %+v", age)
+}
+
+func SelectOver() {
+	fmt.Println("\n\n:: SELECT OVER")
+
+	var age int
+
+	stmt := db.
+		Select(
+			dbr.Over(dbr.Max("age")).
+				Partition("id_person", "age").
+				OrderAsc("id_person"),
+		).
 		From("person")
 
 	query, err := stmt.Build()
@@ -495,9 +524,36 @@ func SelectCase() {
 
 	stmt := db.Select("id_person", "first_name", "last_name",
 		dbr.Case("age").
+			When(0).Then(10).
+			When(30).Then(100).
+			Else(20).As("age")).
+		From("person").
+		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectCaseWhen() {
+	fmt.Println("\n\n:: SELECT CASE WHEN")
+
+	var person Person
+
+	stmt := db.Select("id_person", "first_name", "last_name",
+		dbr.Case().
 			When("age = ?", 0).Then(10).
 			When("age = ? OR first_name = ?", 30, "joao").Then(100).
-			Else(20)).
+			Else(20).As("age")).
 		From("person").
 		Where("first_name = ?", "joao")
 

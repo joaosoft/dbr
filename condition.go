@@ -13,7 +13,7 @@ type condition struct {
 	db *db
 }
 
-func newCondition(db *db, operator operator, query string, values ...interface{}) *condition {
+func newCondition(db *db, operator operator, query interface{}, values ...interface{}) *condition {
 	return &condition{operator: OperatorAnd, query: query, values: values, db: db}
 }
 

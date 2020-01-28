@@ -40,8 +40,8 @@ func IsNull(expression interface{}) *functionExpressions {
 	return newFunctionExpressions(false, expression, constFunctionIsNull)
 }
 
-func Case(alias ...string) *functionCase {
-	return newFunctionCase(alias...)
+func Case(value ...interface{}) *functionCase {
+	return newFunctionCase(value...)
 }
 
 func OnNull(expression interface{}, onNullValue interface{}, alias string) *functionExpressions {
@@ -222,4 +222,8 @@ func Between(expression interface{}, low interface{}, high interface{}, operator
 
 func BetweenOr(expression interface{}, low interface{}, high interface{}) *functionExpressions {
 	return newFunctionExpressions(false, expression, constFunctionBetween, low, OperatorOr, high)
+}
+
+func Over(value interface{}) *functionOver {
+	return newFunctionOver(value)
 }
