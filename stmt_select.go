@@ -281,12 +281,12 @@ func (stmt *StmtSelect) Build() (string, error) {
 
 	// functions
 	if len(stmt.functions) > 0 {
-		unions, err := stmt.functions.Build()
+		functions, err := stmt.functions.Build()
 		if err != nil {
 			return "", err
 		}
 
-		query += unions
+		query += functions
 	}
 
 	// group by
