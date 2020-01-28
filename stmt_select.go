@@ -132,13 +132,13 @@ func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) Intersect(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionIntersect, stmt: stmtUnion})
+func (stmt *StmtSelect) Intersect(stmtIntersect *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionIntersect, stmt: stmtIntersect})
 	return stmt
 }
 
-func (stmt *StmtSelect) Except(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionExcept, stmt: stmtUnion})
+func (stmt *StmtSelect) Except(stmtExcept *StmtSelect) *StmtSelect {
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionExcept, stmt: stmtExcept})
 	return stmt
 }
 
