@@ -16,7 +16,7 @@ type StmtSelect struct {
 	isDistinct        bool
 	distinctColumns   *columns
 	distinctOnColumns *columns
-	functions         functions
+	unions            unions
 	groupBy           groupBy
 	having            *conditions
 	orders            orders
@@ -128,22 +128,22 @@ func (stmt *StmtSelect) DistinctOn(column ...interface{}) *StmtSelect {
 }
 
 func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.functions = append(stmt.functions, &function{functionType: constFunctionUnion, stmt: stmtUnion})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnion, stmt: stmtUnion})
 	return stmt
 }
 
 func (stmt *StmtSelect) UnionAll(stmtUnionAll *StmtSelect) *StmtSelect {
-	stmt.functions = append(stmt.functions, &function{functionType: constFunctionUnionAll, stmt: stmtUnionAll})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionUnionAll, stmt: stmtUnionAll})
 	return stmt
 }
 
 func (stmt *StmtSelect) Intersect(stmtIntersect *StmtSelect) *StmtSelect {
-	stmt.functions = append(stmt.functions, &function{functionType: constFunctionIntersect, stmt: stmtIntersect})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionIntersect, stmt: stmtIntersect})
 	return stmt
 }
 
 func (stmt *StmtSelect) Except(stmtExcept *StmtSelect) *StmtSelect {
-	stmt.functions = append(stmt.functions, &function{functionType: constFunctionExcept, stmt: stmtExcept})
+	stmt.unions = append(stmt.unions, &union{unionType: constFunctionExcept, stmt: stmtExcept})
 	return stmt
 }
 
@@ -279,14 +279,14 @@ func (stmt *StmtSelect) Build() (string, error) {
 		}
 	}
 
-	// functions
-	if len(stmt.functions) > 0 {
-		functions, err := stmt.functions.Build()
+	// unions
+	if len(stmt.unions) > 0 {
+		unions, err := stmt.unions.Build()
 		if err != nil {
 			return "", err
 		}
 
-		query += functions
+		query += unions
 	}
 
 	// group by
