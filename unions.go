@@ -4,15 +4,15 @@ import (
 	"fmt"
 )
 
-type unionType string
-type unions []*union
+type functionType string
+type functions []*function
 
-type union struct {
-	unionType unionType
-	stmt      *StmtSelect
+type function struct {
+	functionType functionType
+	stmt         *StmtSelect
 }
 
-func (u unions) Build() (string, error) {
+func (u functions) Build() (string, error) {
 
 	if len(u) == 0 {
 		return "", nil
@@ -22,7 +22,7 @@ func (u unions) Build() (string, error) {
 
 	for _, union := range u {
 		stmt, err := union.stmt.Build()
-		query += fmt.Sprintf(" %s %s", string(union.unionType), stmt)
+		query += fmt.Sprintf(" %s %s", string(union.functionType), stmt)
 
 		if err != nil {
 			return "", err
