@@ -132,8 +132,8 @@ func (stmt *StmtSelect) Union(stmtUnion *StmtSelect) *StmtSelect {
 	return stmt
 }
 
-func (stmt *StmtSelect) UnionAll(stmtUnion *StmtSelect) *StmtSelect {
-	stmt.functions = append(stmt.functions, &function{functionType: constFunctionUnionAll, stmt: stmtUnion})
+func (stmt *StmtSelect) UnionAll(stmtUnionAll *StmtSelect) *StmtSelect {
+	stmt.functions = append(stmt.functions, &function{functionType: constFunctionUnionAll, stmt: stmtUnionAll})
 	return stmt
 }
 
