@@ -34,7 +34,7 @@ func (c *caseWhen) Build(db *db) (string, error) {
 		}
 		result = fmt.Sprintf("(%s)", result)
 	default:
-		if impl, ok := stmt.(ifunction); ok {
+		if impl, ok := stmt.(iFunction); ok {
 			result, err = impl.Build(db)
 			if err != nil {
 				return "", err

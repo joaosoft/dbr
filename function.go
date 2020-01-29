@@ -1,6 +1,6 @@
 package dbr
 
-type ifunction interface {
+type iFunction interface {
 	Build(db *db) (string, error)
 	Expression(db *db) (string, error)
 }
@@ -86,7 +86,7 @@ func XmlAgg(expression interface{}) *functionGeneric {
 }
 
 func ArrayAgg(expression interface{}) *functionArrayAgg {
-	return newfunctionArrayAgg(expression)
+	return newFunctionArrayAgg(expression)
 }
 
 func ArrayToJson(expression interface{}) *functionGeneric {

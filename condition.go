@@ -34,7 +34,7 @@ func (c *condition) Build(db ...*db) (string, error) {
 		}
 		query = fmt.Sprintf("(%s)", query)
 	default:
-		if impl, ok := stmt.(ifunction); ok {
+		if impl, ok := stmt.(iFunction); ok {
 			query, err = impl.Build(c.db)
 			if err != nil {
 				return "", err
@@ -60,7 +60,7 @@ func (c *condition) Build(db ...*db) (string, error) {
 			}
 			value = fmt.Sprintf("(%s)", value)
 		default:
-			if impl, ok := stmt.(ifunction); ok {
+			if impl, ok := stmt.(iFunction); ok {
 				value, err = impl.Build(c.db)
 				if err != nil {
 					return "", err

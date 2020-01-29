@@ -21,7 +21,7 @@ func handleExpression(base *functionBase, expression interface{}) (string, error
 			return "", err
 		}
 		value = fmt.Sprintf("(%s)", value)
-	case builder:
+	case Builder:
 		value, err = stmt.Build()
 		if err != nil {
 			return "", nil
@@ -32,7 +32,7 @@ func handleExpression(base *functionBase, expression interface{}) (string, error
 		if err != nil {
 			return "", nil
 		}
-	case ifunction:
+	case iFunction:
 		var err error
 		value, err = stmt.Expression(base.db)
 		if err != nil {
@@ -67,7 +67,7 @@ func handleBuild(base *functionBase, expression interface{}, encode ...bool) (st
 			return "", err
 		}
 		value = fmt.Sprintf("(%s)", value)
-	case builder:
+	case Builder:
 		value, err = stmt.Build()
 		if err != nil {
 			return "", nil
@@ -78,7 +78,7 @@ func handleBuild(base *functionBase, expression interface{}, encode ...bool) (st
 		if err != nil {
 			return "", nil
 		}
-	case ifunction:
+	case iFunction:
 		var err error
 		value, err = stmt.Build(base.db)
 		if err != nil {

@@ -29,8 +29,8 @@ type IDbr interface {
 	Update(table string) *StmtUpdate
 	Delete() *StmtDelete
 	Execute(query string) *StmtExecute
-	With(name string, builder builder) *StmtWith
-	WithRecursive(name string, builder builder) *StmtWith
+	With(name string, builder Builder) *StmtWith
+	WithRecursive(name string, builder Builder) *StmtWith
 }
 
 type connections struct {
@@ -140,11 +140,11 @@ func (dbr *Dbr) Execute(query string) *StmtExecute {
 	return newStmtExecute(dbr, dbr.Connections.Write, query)
 }
 
-func (dbr *Dbr) With(name string, builder builder) *StmtWith {
+func (dbr *Dbr) With(name string, builder Builder) *StmtWith {
 	return newStmtWith(dbr, dbr.Connections, name, false, builder)
 }
 
-func (dbr *Dbr) UseOnlyWrite(name string, builder builder) *Dbr {
+func (dbr *Dbr) UseOnlyWrite(name string, builder Builder) *Dbr {
 	return &Dbr{
 		config:        dbr.config,
 		logger:        dbr.logger,
@@ -155,7 +155,7 @@ func (dbr *Dbr) UseOnlyWrite(name string, builder builder) *Dbr {
 	}
 }
 
-func (dbr *Dbr) UseOnlyRead(name string, builder builder) *Dbr {
+func (dbr *Dbr) UseOnlyRead(name string, builder Builder) *Dbr {
 	return &Dbr{
 		config:        dbr.config,
 		logger:        dbr.logger,
@@ -166,7 +166,7 @@ func (dbr *Dbr) UseOnlyRead(name string, builder builder) *Dbr {
 	}
 }
 
-func (dbr *Dbr) WithRecursive(name string, builder builder) *StmtWith {
+func (dbr *Dbr) WithRecursive(name string, builder Builder) *StmtWith {
 	return newStmtWith(dbr, dbr.Connections, name, true, builder)
 }
 

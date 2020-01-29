@@ -6,7 +6,7 @@ import (
 
 type withs []*with
 
-func newWith(name string, builder builder) *with {
+func newWith(name string, builder Builder) *with {
 	return &with{
 		name:    name,
 		builder: builder,
@@ -15,7 +15,7 @@ func newWith(name string, builder builder) *with {
 
 type with struct {
 	name    string
-	builder builder
+	builder Builder
 }
 
 func (w withs) Build() (string, error) {

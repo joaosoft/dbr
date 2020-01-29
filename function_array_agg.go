@@ -11,7 +11,7 @@ type functionArrayAgg struct {
 	*functionBase
 }
 
-func newfunctionArrayAgg(value interface{}) *functionArrayAgg {
+func newFunctionArrayAgg(value interface{}) *functionArrayAgg {
 	return &functionArrayAgg{functionBase: newFunctionBase(false, false), value: value}
 }
 
