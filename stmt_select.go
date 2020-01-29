@@ -116,6 +116,22 @@ func (stmt *StmtSelect) FullJoin(table interface{}, onQuery string, values ...in
 	return stmt
 }
 
+func (stmt *StmtSelect) CrossJoin(table interface{}, onQuery string, values ...interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionCrossJoin, newTable(stmt.Db, table),
+		&condition{
+			operator: OperatorAnd,
+			query:    onQuery,
+			values:   values,
+			db:       stmt.Db,
+		}))
+	return stmt
+}
+
+func (stmt *StmtSelect) NaturalJoin(table interface{}) *StmtSelect {
+	stmt.joins = append(stmt.joins, newStmtJoin(stmt.Db, constFunctionNaturalJoin, newTable(stmt.Db, table), nil))
+	return stmt
+}
+
 func (stmt *StmtSelect) Distinct(column ...interface{}) *StmtSelect {
 	stmt.isDistinct = true
 	stmt.distinctColumns.list = append(stmt.distinctColumns.list, column...)

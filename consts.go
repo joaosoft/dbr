@@ -101,6 +101,8 @@ const (
 	constFunctionLeftJoin  Join = "LEFT JOIN"
 	constFunctionRightJoin Join = "RIGHT JOIN"
 	constFunctionFullJoin  Join = "FULL JOIN"
+	constFunctionCrossJoin Join = "CROSS JOIN"
+	constFunctionNaturalJoin Join = "NATURAL JOIN"
 
 	OrderAsc  direction = "ASC"
 	OrderDesc direction = "DESC"
