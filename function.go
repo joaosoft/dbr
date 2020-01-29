@@ -85,8 +85,8 @@ func XmlAgg(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionXmlAgg, expression)
 }
 
-func ArrayAgg(expression interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionArrayAgg, expression)
+func ArrayAgg(expression interface{}) *functionArrayAgg {
+	return newfunctionArrayAgg(expression)
 }
 
 func ArrayToJson(expression interface{}) *functionGeneric {

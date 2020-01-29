@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"dbr"
 	"fmt"
+	"github.com/lib/pq"
 	"strings"
 )
 
@@ -39,6 +40,7 @@ func main() {
 	Insert()
 	InsertOnConflict()
 	Select()
+	SelectArrayAgg()
 	SelectExists()
 	SelectOr()
 
@@ -241,6 +243,30 @@ func Select() {
 	}
 
 	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectArrayAgg() {
+	fmt.Println("\n\n:: SELECT ARRAY_AGG")
+
+	stmt := db.Select(
+		dbr.ArrayAgg("id_person").
+			OrderDesc("id_person"),
+	).
+		From("person")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	var persons pq.Int64Array
+	_, err = stmt.Load(&persons)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSONS: %+v", persons)
 }
 
 func SelectExists() {
