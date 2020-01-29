@@ -12,11 +12,11 @@ var (
 
 type dialect interface {
 	Name() string
-	Encode(i interface{}) string
-	EncodeString(s string) string
-	EncodeBool(b bool) string
-	EncodeTime(t time.Time) string
-	EncodeBytes(b []byte) string
+	Encode(value interface{}) string
+	EncodeString(value string) string
+	EncodeBool(value bool) string
+	EncodeTime(value time.Time) string
+	EncodeBytes(value []byte) string
 	EncodeColumn(column interface{}) string
 	Placeholder() string
 }
