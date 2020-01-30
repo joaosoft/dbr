@@ -334,12 +334,12 @@ func SelectOver() {
 	}
 	fmt.Printf("\nQUERY: %s", query)
 
-	_, err = stmt.Load(&age)
+	count, err := stmt.Load(&age)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("\nMAX PERSON AGE: %+v", age)
+	fmt.Printf("\nCOUNT: %d, MAX PERSON AGE: %+v", count, age)
 }
 
 func SelectCount() {
@@ -356,12 +356,12 @@ func SelectCount() {
 	}
 	fmt.Printf("\nQUERY: %s", query)
 
-	_, err = stmt.Load(&age)
+	count, err := stmt.Load(&age)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("\nCOUNT PERSON AGE: %+v", age)
+	fmt.Printf("\nCOUNT: %d, COUNT PERSON AGE: %+v", count, age)
 }
 
 func SelectCountDistinct() {
@@ -639,12 +639,12 @@ func SelectAll() {
 	}
 	fmt.Printf("\nQUERY: %s", query)
 
-	_, err = stmt.Load(&persons)
+	count, err := stmt.Load(&persons)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("\nLOADED PERSONS: %+v", persons)
+	fmt.Printf("\nCOUNT: %d, LOADED PERSONS: %+v", count, persons)
 }
 
 func SelectWith() {
