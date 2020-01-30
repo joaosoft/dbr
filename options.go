@@ -66,13 +66,19 @@ func WithMigrationConfig(migration *services.MigrationConfig) DbrOption {
 // WithSuccessEventHandler ...
 func WithSuccessEventHandler(eventHandler SuccessEventHandler) DbrOption {
 	return func(dbr *Dbr) {
-		dbr.successEventHandler = eventHandler
+		if eventHandler != nil {
+			dbr.successEventHandler = eventHandler
+			dbr.isEnabledEventHandler = true
+		}
 	}
 }
 
 // WithErrorEventHandler ...
 func WithErrorEventHandler(eventHandler ErrorEventHandler) DbrOption {
 	return func(dbr *Dbr) {
-		dbr.errorEventHandler = eventHandler
+		if eventHandler != nil {
+			dbr.errorEventHandler = eventHandler
+			dbr.isEnabledEventHandler = true
+		}
 	}
 }

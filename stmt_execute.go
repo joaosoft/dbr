@@ -62,8 +62,10 @@ func (stmt *StmtExecute) Exec() (sql.Result, error) {
 		return nil, err
 	}
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{}, query, err, nil, result); err != nil {
-		return nil, err
+	if stmt.Dbr.isEnabledEventHandler {
+		if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{}, query, err, nil, result); err != nil {
+			return nil, err
+		}
 	}
 
 	return result, err

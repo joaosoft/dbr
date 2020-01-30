@@ -380,8 +380,10 @@ func (stmt *StmtSelect) Load(object interface{}) (int, error) {
 		return 0, err
 	}
 
-	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, stmt.tables.toArray(), query, err, rows, nil); err != nil {
-		return 0, err
+	if stmt.Dbr.isEnabledEventHandler {
+		if err := stmt.Dbr.eventHandler(stmt.sqlOperation, stmt.tables.toArray(), query, err, rows, nil); err != nil {
+			return 0, err
+		}
 	}
 
 	defer rows.Close()

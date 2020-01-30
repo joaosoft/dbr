@@ -13,14 +13,15 @@ import (
 type Dbr struct {
 	Connections *connections
 
-	eventHandler        eventHandler
-	successEventHandler SuccessEventHandler
-	errorEventHandler   ErrorEventHandler
-	config              *DbrConfig
-	logger              logger.ILogger
-	isLogExternal       bool
-	pm                  *manager.Manager
-	mux                 sync.Mutex
+	isEnabledEventHandler bool
+	eventHandler          eventHandler
+	successEventHandler   SuccessEventHandler
+	errorEventHandler     ErrorEventHandler
+	config                *DbrConfig
+	logger                logger.ILogger
+	isLogExternal         bool
+	pm                    *manager.Manager
+	mux                   sync.Mutex
 }
 
 type IDbr interface {
@@ -54,7 +55,7 @@ func New(options ...DbrOption) (*Dbr, error) {
 	}
 
 	// set the internal event handler
-	service.eventHandler = service.handle
+	service.eventHandler = service.event
 
 	if err != nil {
 		service.logger.Error(err.Error())
