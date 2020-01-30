@@ -257,6 +257,7 @@ func loadStructValues(loadOption loadOption, object reflect.Value, columns *[]in
 		}
 	case reflect.Struct:
 		t := object.Type()
+
 		for i := 0; i < t.NumField(); i++ {
 			structField := t.Field(i)
 			field := object.Field(i)

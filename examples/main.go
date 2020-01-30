@@ -834,8 +834,8 @@ func UpdateReturning() {
 	fmt.Printf("\nQUERY: %s", query)
 
 	var age int
-	err = stmt.Load(&age)
-	fmt.Printf("\n\nAGE: %d", age)
+	count, err := stmt.Load(&age)
+	fmt.Printf("\n\nCOUNT: %d, AGE: %d", count, age)
 
 	if err != nil {
 		panic(err)

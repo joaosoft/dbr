@@ -38,7 +38,5 @@ func (stmt *StmtJoin) Build() (_ string, err error) {
 		return "", err
 	}
 
-	query := fmt.Sprintf("%s %s ON (%s)", stmt.join, table, condition)
-
-	return query, nil
+	return fmt.Sprintf("%s %s ON (%s)", stmt.join, table, condition), nil
 }

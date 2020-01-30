@@ -136,6 +136,9 @@ func (stmt *StmtInsert) Exec() (sql.Result, error) {
 	}
 
 	result, err := stmt.Db.Exec(query)
+	if err != nil {
+		return nil, err
+	}
 
 	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, nil, result); err != nil {
 		return nil, err
@@ -213,11 +216,11 @@ func (stmt *StmtInsert) Return(column ...interface{}) *StmtInsert {
 	return stmt
 }
 
-func (stmt *StmtInsert) Load(object interface{}) error {
+func (stmt *StmtInsert) Load(object interface{}) (count int, err error) {
 
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr || value.IsNil() {
-		return ErrorInvalidPointer
+		return 0, ErrorInvalidPointer
 	}
 
 	startTime := time.Now()
@@ -227,21 +230,19 @@ func (stmt *StmtInsert) Load(object interface{}) error {
 
 	query, err := stmt.Build()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	rows, err := stmt.Db.Query(query)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if err := stmt.Dbr.eventHandler(stmt.sqlOperation, []string{fmt.Sprint(stmt.table)}, query, err, rows, nil); err != nil {
-		return err
+		return 0, err
 	}
 
 	defer rows.Close()
 
-	_, err = read(stmt.returning.list, rows, value)
-
-	return err
+	return read(stmt.returning.list, rows, value)
 }

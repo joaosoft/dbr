@@ -18,13 +18,10 @@ type with struct {
 	builder Builder
 }
 
-func (w withs) Build() (string, error) {
-
+func (w withs) Build() (query string, err error) {
 	if len(w) == 0 {
 		return "", nil
 	}
-
-	var query string
 
 	lenS := len(w)
 	for i, item := range w {

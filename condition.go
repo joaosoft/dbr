@@ -17,14 +17,11 @@ func newCondition(db *db, operator operator, query interface{}, values ...interf
 	return &condition{operator: OperatorAnd, query: query, values: values, db: db}
 }
 
-func (c *condition) Build(db ...*db) (string, error) {
+func (c *condition) Build(db ...*db) (query string, err error) {
 
 	if len(db) > 0 {
 		c.db = db[0]
 	}
-
-	var query string
-	var err error
 
 	switch stmt := c.query.(type) {
 	case *StmtSelect:

@@ -12,9 +12,7 @@ func newCaseElse(result interface{}) *onCaseElse {
 	return &onCaseElse{result: result}
 }
 
-func (c *onCaseElse) Build(db *db) (string, error) {
-	var query string
-	var err error
+func (c *onCaseElse) Build(db *db) (_ string, err error) {
 	var result string
 
 	// result
@@ -36,7 +34,5 @@ func (c *onCaseElse) Build(db *db) (string, error) {
 		}
 	}
 
-	query = fmt.Sprintf("%s %s", constFunctionElse, result)
-
-	return query, nil
+	return fmt.Sprintf("%s %s", constFunctionElse, result), nil
 }

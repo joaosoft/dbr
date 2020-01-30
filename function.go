@@ -16,7 +16,11 @@ func newFunctionBase(encode bool, isColumn bool, database ...*db) *functionBase 
 	if len(database) > 0 {
 		theDb = database[0]
 	}
-	return &functionBase{isColumn: isColumn, encode: encode, db: theDb}
+	return &functionBase{
+		isColumn: isColumn,
+		encode:   encode,
+		db:       theDb,
+	}
 }
 
 func Function(name string, arguments ...interface{}) *functionGeneric {

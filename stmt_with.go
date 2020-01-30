@@ -62,8 +62,5 @@ func (w *StmtWith) Build() (string, error) {
 		recursive = fmt.Sprintf("%s ", constFunctionRecursive)
 	}
 
-	// query
-	query := fmt.Sprintf("%s %s%s", constFunctionWith, recursive, withs)
-
-	return query, nil
+	return fmt.Sprintf("%s %s%s", constFunctionWith, recursive, withs), nil
 }

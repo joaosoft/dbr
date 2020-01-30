@@ -10,9 +10,7 @@ func newCaseWhens() onCaseWhens {
 	return make(onCaseWhens, 0)
 }
 
-func (c onCaseWhens) Build(db *db) (string, error) {
-	var query string
-
+func (c onCaseWhens) Build(db *db) (query string, err error) {
 	if len(c) == 0 {
 		return "", nil
 	}

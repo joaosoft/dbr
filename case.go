@@ -15,13 +15,14 @@ func newCase(value ...interface{}) *onCase {
 	return c
 }
 
-func (c *onCase) Build(db *db) (string, error) {
+func (c *onCase) Build(db *db) (_ string, err error) {
 	base := newFunctionBase(false, false, db)
 	if c.value == nil {
 		return "", nil
 	}
 
-	condition, err := handleBuild(base, c.value)
+	var condition string
+	condition, err = handleBuild(base, c.value)
 	if err != nil {
 		return "", err
 	}

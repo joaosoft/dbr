@@ -1,9 +1,9 @@
 package dbr
 
 const (
-	constDialectPostgres DialectName = "postgres"
-	constDialectMysql    DialectName = "mysql"
-	constDialectSqlLite3 DialectName = "sqlite3"
+	constDialectPostgres dialectName = "postgres"
+	constDialectMysql    dialectName = "mysql"
+	constDialectSqlLite3 dialectName = "sqlite3"
 
 	constPostgresPlaceHolder = "?"
 	constMysqlPlaceHolder    = "?"
@@ -97,11 +97,11 @@ const (
 	constFunctionCloseParentheses = ")"
 	constFunctionComma            = ","
 
-	constFunctionJoin      Join = "JOIN"
-	constFunctionLeftJoin  Join = "LEFT JOIN"
-	constFunctionRightJoin Join = "RIGHT JOIN"
-	constFunctionFullJoin  Join = "FULL JOIN"
-	constFunctionCrossJoin Join = "CROSS JOIN"
+	constFunctionJoin        Join = "JOIN"
+	constFunctionLeftJoin    Join = "LEFT JOIN"
+	constFunctionRightJoin   Join = "RIGHT JOIN"
+	constFunctionFullJoin    Join = "FULL JOIN"
+	constFunctionCrossJoin   Join = "CROSS JOIN"
 	constFunctionNaturalJoin Join = "NATURAL JOIN"
 
 	OrderAsc  direction = "ASC"
@@ -156,4 +156,8 @@ const (
 
 	constSqlLite3BoolTrue  = "1"
 	constSqlLite3BoolFalse = "0"
+
+	constJsonDb      = "db"
+	constJsonDbRead  = "db.read"
+	constJsonDbWrite = "db.write"
 )

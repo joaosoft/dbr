@@ -2,12 +2,14 @@ package dbr
 
 import "time"
 
-type DialectName string
+type dialectName string
 
 var (
-	DialectPostgres = &dialectPostgres{}
-	DialectMySql    = &dialectMySql{}
-	DialectSqlLite3 = &dialectSqlLite3{}
+	availableDialects = map[dialectName]dialect {
+		constDialectPostgres: &dialectPostgres{},
+		constDialectMysql: &dialectMySql{},
+		constDialectSqlLite3: &dialectSqlLite3{},
+	}
 )
 
 type dialect interface {
@@ -21,15 +23,11 @@ type dialect interface {
 	Placeholder() string
 }
 
-func NewDialect(name string) dialect {
-	switch name {
-	case string(constDialectPostgres):
-		return DialectPostgres
-	case string(constDialectMysql):
-		return DialectMySql
-	case string(constDialectSqlLite3):
-		return DialectSqlLite3
+func newDialect(name dialectName) (dialect, error) {
+	dialect, found := availableDialects[name]
+	if !found {
+		return nil, ErrorDialectNotFound
 	}
 
-	return nil
+	return dialect, nil
 }
