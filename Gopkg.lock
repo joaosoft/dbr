@@ -81,11 +81,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:14cd6f374bfa55e4f3ac0766d08923840b23e7cbedd5548856d9d6e78b0ae16f"
+  digest = "1:881800c36933a04b2708db7efda42c4a59ee00d5cf3dab2438e2ff102e914367"
   name = "github.com/joaosoft/json"
   packages = ["."]
   pruneopts = "UT"
-  revision = "991376973b50af4a1a9d3624e58fd5bae6547201"
+  revision = "7ae89628613c8d6c1d6d1aadbb6f759620240f21"
 
 [[projects]]
   branch = "master"
