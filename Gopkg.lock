@@ -81,11 +81,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:881800c36933a04b2708db7efda42c4a59ee00d5cf3dab2438e2ff102e914367"
+  digest = "1:3909fc0a8d4735a94e65339f68b35aae8b4bdb32898c25162b5974982dd439ff"
   name = "github.com/joaosoft/json"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7ae89628613c8d6c1d6d1aadbb6f759620240f21"
+  revision = "701cae3460d106471ec75ae985b3604fc061a26b"
 
 [[projects]]
   branch = "master"
@@ -306,7 +306,7 @@
     "acme/autocert",
   ]
   pruneopts = "UT"
-  revision = "69ecbb4d6d5dab05e49161c6e77ea40a030884e1"
+  revision = "c9f3fb736b729628ec1e9c1a6b4313e883f452f9"
 
 [[projects]]
   branch = "master"
@@ -314,15 +314,15 @@
   name = "golang.org/x/net"
   packages = ["idna"]
   pruneopts = "UT"
-  revision = "6afb5195e5aab057fda82e27171243402346b0ad"
+  revision = "16171245cfb220d5317888b716d69c1fb4e7992b"
 
 [[projects]]
   branch = "master"
-  digest = "1:fea09edda033799f8e99ab9042bda910bf1e3bf088c03eaf2ba8aba3adbbc8bf"
+  digest = "1:72b7c210f8cfe1431d2f300fbf37f25e52aa77324b05ab6b698483054033803e"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "9fbb57f87de9ccfe3a99d4e3270ce8a926ebba4f"
+  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
