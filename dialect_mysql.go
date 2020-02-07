@@ -15,13 +15,13 @@ func (d *dialectMySql) Name() string {
 }
 
 func (d *dialectMySql) Encode(value interface{}) string {
+	var isNull bool
 	encoded := reflect.ValueOf(value)
 
-	if encoded.Kind() == reflect.Ptr {
-		if encoded.IsNil() {
-			return constFunctionNull
-		}
-		encoded = encoded.Elem()
+	isNull, encoded = getValue(encoded)
+
+	if isNull {
+		return constFunctionNull
 	}
 
 	switch encoded.Kind() {

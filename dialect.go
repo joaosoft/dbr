@@ -1,13 +1,16 @@
 package dbr
 
-import "time"
+import (
+	"reflect"
+	"time"
+)
 
 type dialectName string
 
 var (
-	availableDialects = map[dialectName]dialect {
+	availableDialects = map[dialectName]dialect{
 		constDialectPostgres: &dialectPostgres{},
-		constDialectMysql: &dialectMySql{},
+		constDialectMysql:    &dialectMySql{},
 		constDialectSqlLite3: &dialectSqlLite3{},
 	}
 )
@@ -30,4 +33,18 @@ func newDialect(name dialectName) (dialect, error) {
 	}
 
 	return dialect, nil
+}
+
+func getValue(value reflect.Value) (isNull bool, _ reflect.Value) {
+again:
+	if value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
+		if value.IsNil() {
+			return true, value
+		}
+
+		value = value.Elem()
+		goto again
+	}
+
+	return false, value
 }
