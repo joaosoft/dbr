@@ -41,6 +41,7 @@ func main() {
 	InsertOnConflict()
 	Select()
 	SelectArrayAgg()
+	SelectArrayAggFilter()
 	SelectExists()
 	SelectOr()
 
@@ -230,6 +231,36 @@ func Select() {
 	stmt := db.Select("id_person", "first_name", "last_name", "age").
 		From("person").
 		Where("first_name = ?", "joao")
+
+	query, err := stmt.Build()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nQUERY: %s", query)
+
+	_, err = stmt.Load(&person)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nLOADED PERSON: %+v", person)
+}
+
+func SelectArrayAggFilter() {
+	fmt.Println("\n\n:: SELECT FILTER")
+
+	var person Person
+
+	stmt := db.Select(
+		"id_person",
+		"first_name",
+		"last_name",
+		dbr.ArrayAgg("age").
+			Filter("first_name = ?", "joao").
+			Filter("last_name = ?", "ribeiro"),
+	).
+		From("person").
+		GroupBy("id_person")
 
 	query, err := stmt.Build()
 	if err != nil {

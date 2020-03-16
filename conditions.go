@@ -22,6 +22,10 @@ func (c conditions) Build(db ...*db) (query string, err error) {
 		return "", nil
 	}
 
+	if len(db) > 0 {
+		c.db = db[0]
+	}
+
 	lenC := len(c.list)
 	for i, item := range c.list {
 		condition, err := item.Build(db...)

@@ -4,43 +4,62 @@ import (
 	"fmt"
 )
 
-type functionArrayAgg struct {
-	value  interface{}
-	orders orders
+type functionAgg struct {
+	function  string
+	arguments []interface{}
+	orders    orders
+	filters   *conditions
 
 	*functionBase
 }
 
-func newFunctionArrayAgg(value interface{}) *functionArrayAgg {
-	return &functionArrayAgg{functionBase: newFunctionBase(false, false), value: value}
+func newFunctionAgg(function string, arguments ...interface{}) *functionAgg {
+	return &functionAgg{functionBase: newFunctionBase(false, false), function: function, arguments: arguments, filters: newConditions(nil)}
 }
 
-func (c *functionArrayAgg) OrderBy(column string, direction direction) *functionArrayAgg {
+func (c *functionAgg) OrderBy(column string, direction direction) *functionAgg {
 	c.orders = append(c.orders, &order{column: column, direction: direction})
 	return c
 }
 
-func (c *functionArrayAgg) OrderAsc(columns ...string) *functionArrayAgg {
+func (c *functionAgg) OrderAsc(columns ...string) *functionAgg {
 	for _, column := range columns {
 		c.orders = append(c.orders, &order{column: column, direction: OrderAsc})
 	}
 	return c
 }
 
-func (c *functionArrayAgg) OrderDesc(columns ...string) *functionArrayAgg {
+func (c *functionAgg) OrderDesc(columns ...string) *functionAgg {
 	for _, column := range columns {
 		c.orders = append(c.orders, &order{column: column, direction: OrderDesc})
 	}
 	return c
 }
 
-func (c *functionArrayAgg) Build(db *db) (string, error) {
+func (c *functionAgg) Filter(query interface{}, values ...interface{}) *functionAgg {
+	c.filters.list = append(c.filters.list, &condition{operator: OperatorAnd, query: query, values: values})
+	return c
+}
+
+func (c *functionAgg) Build(db *db) (string, error) {
 	c.db = db
 
-	base := newFunctionBase(false, false, db)
-	value, err := handleBuild(base, c.value)
-	if err != nil {
-		return "", err
+	functionBase := newFunctionBase(false, false, db)
+
+	var arguments string
+
+	lenArgs := len(c.arguments)
+	for i, argument := range c.arguments {
+		expression, err := handleBuild(functionBase, argument)
+		if err != nil {
+			return "", err
+		}
+
+		arguments += expression
+
+		if i < lenArgs-1 {
+			arguments += ", "
+		}
 	}
 
 	orders, err := c.orders.Build()
@@ -48,5 +67,14 @@ func (c *functionArrayAgg) Build(db *db) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("%s(%s%s)", constFunctionArrayAgg, value, orders), nil
+	filters, err := c.filters.Build(c.db)
+	if err != nil {
+		return "", err
+	}
+
+	if len(filters) > 0 {
+		filters = fmt.Sprintf(" %s (%s %s)", constFunctionFilter, constFunctionWhere, filters)
+	}
+
+	return fmt.Sprintf("%s(%s%s)%s", c.function, arguments, orders, filters), nil
 }

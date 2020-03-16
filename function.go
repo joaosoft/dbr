@@ -81,16 +81,16 @@ func User() *functionGeneric {
 	return newFunctionGeneric(constFunctionUser)
 }
 
-func StringAgg(expression interface{}, delimiter interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionStringAgg, expression, delimiter)
+func StringAgg(expression interface{}, delimiter interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionStringAgg, expression, delimiter)
 }
 
-func XmlAgg(expression interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionXmlAgg, expression)
+func XmlAgg(expression interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionXmlAgg, expression)
 }
 
-func ArrayAgg(expression interface{}) *functionArrayAgg {
-	return newFunctionArrayAgg(expression)
+func ArrayAgg(expression interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionArrayAgg, expression)
 }
 
 func ArrayToJson(expression interface{}) *functionGeneric {
@@ -109,20 +109,20 @@ func JsonArrayLength(expression interface{}) *functionGeneric {
 	return newFunctionGeneric(constFunctionJsonArrayLength, expression)
 }
 
-func JsonAgg(expression interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionJsonAgg, expression)
+func JsonAgg(expression interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionJsonAgg, expression)
 }
 
-func JsonbAgg(expression interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionJsonbAgg, expression)
+func JsonbAgg(expression interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionJsonbAgg, expression)
 }
 
-func JsonObjectAgg(name interface{}, value interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionJsonObjectAgg, name, value)
+func JsonObjectAgg(name interface{}, value interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionJsonObjectAgg, name, value)
 }
 
-func JsonbObjectAgg(name interface{}, value interface{}) *functionGeneric {
-	return newFunctionGeneric(constFunctionJsonbObjectAgg, name, value)
+func JsonbObjectAgg(name interface{}, value interface{}) *functionAgg {
+	return newFunctionAgg(constFunctionJsonbObjectAgg, name, value)
 }
 
 func Cast(expression interface{}, dataType dataType) *functionExpressions {
