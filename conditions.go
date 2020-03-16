@@ -16,7 +16,7 @@ func newConditions(db *db) *conditions {
 	}
 }
 
-func (c conditions) Build() (query string, err error) {
+func (c conditions) Build(db ...*db) (query string, err error) {
 
 	if len(c.list) == 0 {
 		return "", nil
@@ -24,7 +24,7 @@ func (c conditions) Build() (query string, err error) {
 
 	lenC := len(c.list)
 	for i, item := range c.list {
-		condition, err := item.Build()
+		condition, err := item.Build(db...)
 		if err != nil {
 			return "", err
 		}

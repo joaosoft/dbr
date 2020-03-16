@@ -65,6 +65,7 @@ const (
 	constFunctionOnConstraint    = "ON CONSTRAINT"
 	constFunctionDoUpdateSet     = "DO UPDATE SET"
 	constFunctionOrderBy         = "ORDER BY"
+	constFunctionFilter          = "FILTER"
 	constFunctionOver            = "OVER"
 	constFunctionPartitionBy     = "PARTITION BY"
 	constFunctionNow             = "NOW"
