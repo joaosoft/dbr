@@ -2,7 +2,7 @@
   "dbr": {
     "read_db": {
       "driver": "postgres",
-      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable&search_path=dbr"
+      "datasource": "postgres://user:password@localhost:7100/postgres?sslmode=disable&search_path=dbr"
     },
     "write_db": {
       "driver": "postgres",

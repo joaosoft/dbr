@@ -5,10 +5,11 @@ import (
 )
 
 type functionAgg struct {
-	function  string
-	arguments []interface{}
-	orders    orders
-	filters   *conditions
+	function    string
+	arguments   []interface{}
+	orders      orders
+	filters     *conditions
+	withinGroup bool
 
 	*functionBase
 }
@@ -26,6 +27,11 @@ func (c *functionAgg) OrderAsc(columns ...string) *functionAgg {
 	for _, column := range columns {
 		c.orders = append(c.orders, &order{column: column, direction: OrderAsc})
 	}
+	return c
+}
+
+func (c *functionAgg) WithinGroup(enable bool) *functionAgg {
+	c.withinGroup = enable
 	return c
 }
 
@@ -74,6 +80,10 @@ func (c *functionAgg) Build(db *db) (string, error) {
 
 	if len(filters) > 0 {
 		filters = fmt.Sprintf(" %s (%s %s)", constFunctionFilter, constFunctionWhere, filters)
+	}
+
+	if c.withinGroup {
+		return fmt.Sprintf("%s(%s) %s (%s)%s", c.function, arguments, constFunctionWithinGroup, orders, filters), nil
 	}
 
 	return fmt.Sprintf("%s(%s%s)%s", c.function, arguments, orders, filters), nil

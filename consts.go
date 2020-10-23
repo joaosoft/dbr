@@ -66,6 +66,7 @@ const (
 	constFunctionDoUpdateSet     = "DO UPDATE SET"
 	constFunctionOrderBy         = "ORDER BY"
 	constFunctionFilter          = "FILTER"
+	constFunctionWithinGroup     = "WITHIN GROUP"
 	constFunctionOver            = "OVER"
 	constFunctionPartitionBy     = "PARTITION BY"
 	constFunctionNow             = "NOW"
