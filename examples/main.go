@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"dbr"
 	"fmt"
+	"github.com/joaosoft/dbr"
 	"github.com/lib/pq"
 	"strings"
 )
