@@ -38,7 +38,7 @@ func (w *StmtWith) Insert() *StmtInsert {
 	return newStmtInsert(w.dbr, w.connections.Write, w)
 }
 
-func (w *StmtWith) Update(table string) *StmtUpdate {
+func (w *StmtWith) Update(table interface{}) *StmtUpdate {
 	return newStmtUpdate(w.dbr, w.connections.Write, w, table)
 }
 

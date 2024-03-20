@@ -27,7 +27,7 @@ type Dbr struct {
 type IDbr interface {
 	Select(column ...interface{}) *StmtSelect
 	Insert() *StmtInsert
-	Update(table string) *StmtUpdate
+	Update(table interface{}) *StmtUpdate
 	Delete() *StmtDelete
 	Execute(query string) *StmtExecute
 	With(name string, builder Builder) *StmtWith
